@@ -5,7 +5,7 @@ authors: [filip]
 tags: [css]
 ---
 
-Recently, I have been making the switch over to logical properties wherever possible. It requires a different mental model compared to physical properties. `top`, `right`, `bottom` and `left` in the physical declration world are simple to reason about, since you can see the direction in your head immediately. `top` is `top` and `left` is `left`—simple as that. However, this is also where physical properties become problematic.
+I have been making the switch over from physical to logical properties over the past months. Logical properties require a different mental model compared to physical properties. `top`, `right`, `bottom` and `left` in the physical declration world are simple to reason about, since you can see the direction in your head immediately. `top` is `top` and `left` is `left`—simple as that. However, this is also where physical properties become problematic.
 
 <!-- truncate -->
 
@@ -24,19 +24,15 @@ p {
 }
 ```
 
-Here's the result:
-
 <p style={{ border: "1px solid red", marginLeft: "2rem" }}>Hello!</p>
 
 Cool!
 
-But what happens if this is translated to a language that is using a right-to-left writing mode? Let's try updating the text direction while keeping the same CSS:
+But what happens if this is done in a language with a right-to-left text direction? Let's try updating the text direction while keeping the same CSS:
 
 ```html
 <p dir="rtl">Hello!</p>
 ```
-
-Here's the result:
 
 <p dir="rtl" style={{ border: "1px solid red", marginLeft: "2rem" }}>
   Hello!
@@ -44,11 +40,9 @@ Here's the result:
 
 That's not really what we want...
 
-We want the margin to update with the change of text direction. But as mentioned, left is always left, independent on the direction of the text.
+We want the margin to update with the change of text direction. But left is always left, independent on the direction of the text.
 
-**Enter logical properties!**
-
-## The magic with logical properties
+## Enter logical properties
 
 Let's try using logical properties instead!
 
@@ -63,8 +57,6 @@ p {
 }
 ```
 
-Here's the result:
-
 <p style={{ border: "1px solid red", marginInlineStart: "2rem" }}>Hello!</p>
 
 Let's try to change the text direction again while keeping the same CSS.
@@ -73,19 +65,80 @@ Let's try to change the text direction again while keeping the same CSS.
 <p dir="rtl">Hello!</p>
 ```
 
-Here's the result:
-
 <p dir="rtl" style={{ border: "1px solid red", marginInlineStart: "2rem" }}>
   Hello!
 </p>
 
 That's what we want!
 
+As mentioned, logical properties require a different mental model compared to physical properties. In the long run, it's useful to start thinking in block flow and inline flow instead of in physical directions. During a transition, however, when you most likely still think in physical properties, it can be useful to be able to map the physical properties to the corresponding logical properties.
+
+:::note
+
+The physical directions of logical properties change depending on writing mode and text direction. Actually, that's the point. But it also means the writing mode and text direction environment needs to be specified to enable mapping physical properties to logical.
+
+:::
+
+from physical properties in the English (left-to-right, top-to-bottom) world to logical properties. That's what the rest of this post handles!
+
 ## Converting to logical properties
 
-As mentioned, logical properties require a different mental model compared to physical properties. However, when doing a transition, it can still be useful to be able to convert from physical properties in the English (left-to-right, top-to-bottom) world to logical properties. That's what the rest of this post handles!
+In the following conversion tables, the baseline writing mode and text direction is English (left-to-right, top-to-bottom).
+
+### Padding
+
+Here's how physical padding properties translate to logical:
+
+| Physical property | Logical property       |
+| ----------------- | ---------------------- |
+| `padding-top`     | `padding-block-start`  |
+| `padding-right`   | `padding-inline-end`   |
+| `padding-bottom`  | `padding-block-end`    |
+| `padding-right`   | `padding-inline-start` |
+
+#### Shorthands
+
+The `padding` property is a shorthand that enables setting paddings in multiple directions in one declaration. `padding: 1rem;` sets `1rem` padding in all four directions. Since it sets the same padding in all direction, there's no need to convert to logical.
+
+Take a look at this padding declaration:
+
+```css
+p {
+  padding: 1rem 2rem;
+}
+```
+
+That's a shorthand for this:
+
+```css
+p {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+```
+
+In logical property land, this is the equivalent:
+
+```css
+p {
+  padding-block: 1rem;
+  padding-inline: 2rem;
+}
+```
+
+:::info
+
+In the physical property world, setting top and bottom padding is commonly done with `padding: 1rem 0;`. However, a side effect of using the shorthand is that `padding-left` and `padding-right` is set to 0. Therefore, converting to the logical `padding-block: 1rem`, is not truly equivalent, as there is no side effect in this case.
+
+I think setting default values just to be able to use the shorthands should be avoided, which is another reason why `padding-block` and `padding-inline` are great replacements for the `padding` shorthand.
+
+:::
 
 ### Margin
+
+Logical margin properties work in the exact same way as logical padding properties. Here's the translation table:
 
 | Physical property | Logical property      |
 | ----------------- | --------------------- |
@@ -96,73 +149,26 @@ As mentioned, logical properties require a different mental model compared to ph
 
 These are the only margin properties that have a one-to-one mapping between physical and logical. But there's more!
 
-#### Shorthands
-
-The `margin` property is a shorthand that enables setting margins in multiple directions in one declaration.
-
-`margin: 1rem;` sets `1rem` margin on all four sides. Since it sets the same margin in all directions, there's no need to convert.
-
-`margin: 1rem 2rem;` is a shorthand for `margin-top: 1rem; margin-bottom: 2rem;`. The logical equivalent is `margin-block:
-
-### Padding
-
-Padding works exactly in the same way as margins when it comes to logical properties. Here's the property conversion table:
-
-| Physical property | Logical property       |
-| ----------------- | ---------------------- |
-| `padding-top`     | `padding-block-start`  |
-| `padding-right`   | `padding-inline-end`   |
-| `padding-bottom`  | `padding-block-end`    |
-| `padding-right`   | `padding-inline-start` |
-
-And here's the declaration conversion table:
-
-| Physical declaration                              | Logical declaration                                                                                                              |
-| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `padding: 1rem;`                                  | `padding: 1rem`                                                                                                                  |
-| `padding-top: 1rem;`<br />`padding-bottom: 1rem;` | `padding-block: 1rem;`                                                                                                           |
-| `padding-top: 1rem;`<br />`padding-bottom: 2rem;` | `padding-block: 1rem 2rem;`                                                                                                      |
-| `padding-left: 1rem;`<br />`padding-right: 1rem;` | `padding-inline: 1rem;`                                                                                                          |
-| `padding-left: 1rem;`<br />`padding-right: 2rem;` | `padding-inline: 1rem 2rem;`                                                                                                     |
-| `padding: 1rem 2rem;`                             | `padding-block: 1rem`<br />`padding-inline: 1rem;`                                                                               |
-| `padding: 1rem 2rem 3rem;`                        | `padding: 1rem`<br />`padding-block: 1rem 2rem;`                                                                                 |
-| `padding: 1rem 2rem 3rem 4rem;`                   | `padding-block-start: 1rem;`<br />`padding-inline-end: 2rem;`<br />`padding-block-end: 3rem;`<br />`padding-inline-start: 4rem;` |
-| `padding: 1rem 2rem 3rem 4rem;`                   | `padding-block-start: 1rem;`<br />`padding-inline-end: 2rem;`<br />`padding-block-end: 3rem;`<br />`padding-inline-start: 4rem;` |
-
-:::info
-
-In the physical property world, setting top and bottom padding is commonly done with `padding: 1rem 0;`. However, a side effect of using the shorthand is that `padding-left` and `padding-right` is set to 0. Therefore, converting to the logical `padding-block: 1rem`, is not truly equivalent, as there is no side effect in this case.
-
-I think setting default values just to be able to use the shorthands should be avoided, which is another reason why `padding-block` and `padding-inline` are great replacements for the `padding` shorthand.
-
-:::
-
 ### Borders
+
+Converting border radii to logical required me to be careful about the order of properties. The format is `border-{block-direction}-{inline-direction}-radius`.
 
 | Physical property            | Logical property            |
 | ---------------------------- | --------------------------- |
+| `border-top`                 | `border-block-start`        |
+| `border-right`               | `border-inline-end`         |
+| `border-bottom`              | `border-block-end`          |
+| `border-left`                | `border-inline-start`       |
 | `border-top-left-radius`     | `border-start-start-radius` |
 | `border-top-right-radius`    | `border-start-end-radius`   |
 | `border-bottom-right-radius` | `border-end-end-radius`     |
 | `border-bottom-left-radius`  | `border-end-start-radius`   |
 
-### Positioning
+`border-top-{color|style|width}` can also be converted to `border-block-start-{color|style|width}`, exactly as you would image.
 
-| Physical property | Logical property     |
-| ----------------- | -------------------- |
-| `top`             | `inset-block-start`  |
-| `right`           | `inset-inline-end`   |
-| `bottom`          | `inset-block-end`    |
-| `left`            | `inset-inline-start` |
+### Sizing
 
-| Physical property                                            | Logical property     |
-| ------------------------------------------------------------ | -------------------- |
-| `top: 0`;<br />`bottom: 0;`                                  | `inset-block: 0;`    |
-| `left: 0;`<br />`right: 0;`                                  | `inset-inline: 0;`   |
-| `top: 0;`<br />`right: 0;`<br />`bottom: 0;`<br />`left: 0;` | `inset: 0;`          |
-| `left`                                                       | `inset-inline-start` |
-
-### Size
+Here's the conversion table for sizing properties.
 
 | Physical property | Logical property  |
 | ----------------- | ----------------- |
@@ -172,3 +178,48 @@ I think setting default values just to be able to use the shorthands should be a
 | `width`           | `inline-size`     |
 | `min-width`       | `min-inline-size` |
 | `max-width`       | `max-inline-size` |
+
+### Alignment
+
+As you might have noticed, physical directions like `left` and `right` don't exist at all in logical property land. That's not only true for property names, but also for values. `left` can mostly be translated to `start` and `right` to `end`.
+
+| Physical declaration      | Logical declaration       |
+| ------------------------- | ------------------------- |
+| `text-align: left;`       | `text-align: start;`      |
+| `text-align: right;`      | `text-align: end;`        |
+| `justify-content: left;`  | `justify-content: start;` |
+| `justify-content: right;` | `justify-content: end;`   |
+
+:::info
+
+The `justify-content` property accepts `start` and `end` as values, but also `flex-start` and `flex-end`. So what's the difference? The main difference is browser support. `flex-{start|end}` has better support, but `start|end` will replace the flex values eventually.
+
+:::
+
+### Positioning
+
+For positioning, we're going to start working a lot with `inset` in different shape and forms.
+
+| Physical property | Logical property     |
+| ----------------- | -------------------- |
+| `top`             | `inset-block-start`  |
+| `right`           | `inset-inline-end`   |
+| `bottom`          | `inset-block-end`    |
+| `left`            | `inset-inline-start` |
+
+#### Shorthands
+
+There are some useful shorthands as well!
+
+| Physical declaration                                         | Logical declaration |
+| ------------------------------------------------------------ | ------------------- |
+| `top: 0`;<br />`bottom: 0;`                                  | `inset-block: 0;`   |
+| `left: 0;`<br />`right: 0;`                                  | `inset-inline: 0;`  |
+| `top: 0;`<br />`right: 0;`<br />`bottom: 0;`<br />`left: 0;` | `inset: 0;`         |
+
+## Further reading
+
+Here's some great additional resources for anyone interested in diving deeper into the fantastic world of logical properties:
+
+- https://web.dev/learn/css/logical-properties/
+- https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties
