@@ -1,0 +1,73 @@
+---
+slug: when-to-use-logical-or-operator-and-when-to-use-nullish-coalescing-operator
+title: When to use `||` and when to use `??`
+authors: [filip]
+tags: [javascript]
+---
+
+import { CompareOperators } from "./CompareOperators";
+
+`||` and `??` are similar, but there's some _very_ important nuance. Take a look at this example:
+
+```js
+const a = "" || "default value";
+// > "default value"
+
+const b = "" ?? "default value";
+// > ""
+```
+
+Let me explain.
+
+<!-- truncate -->
+
+## Logical OR operator
+
+Let's pretend you are the _logical OR operator_ (`||`). You see one value to the
+left and one value to the right. You start looking at that value to the left. If that value is
+_truthy_, that's the value you pick. If the left value is _falsy_, you pick the other value.
+
+To understand your task, you have to know what truthy and falsy values are.
+
+### Truthy and Falsy values
+
+Here are all falsy values in JavaScript:
+
+- number `0`
+- bigint `0n`
+- keyword `null`
+- keyword `undefined`
+- boolean `false`
+- number `NaN`
+- empty string `""`, `''`, or ` `` `
+
+All other values are truthy.
+
+## Nullish coalescing operator
+
+Now let's pretend you are the _nullish coalescing operator_ (`??`). Again, you see one
+value to the left and one value, and you start looking at the value to the left. This time, if the left value is _nullish_, you pick the other value. If the left value is not nullish, that's the value you pick.
+
+This assignment requires knowledge about nullish values.
+
+### Nullish values
+
+Here are all nullish values in JavaScript:
+
+- keyword `null`
+- keyword `undefined`
+
+:::info
+
+As you can see, all nullish values are falsy, but not all falsy values are nullish.
+
+:::
+
+## Try it out!
+
+The best way to solidify knowledge about this difference is to experiment with it. In the code
+below, there is a `leftValue` and a `rightValue` variable. You can select what value you want `leftValue` to take. Then you'll see what the two operators will output.
+
+<CompareOperators />
+
+Now you know when to use `||` and when to use `??`! 🎉

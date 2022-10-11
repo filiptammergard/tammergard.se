@@ -1,0 +1,174 @@
+---
+slug: physical-properties-to-logical-properties
+title: Physical properties to logical properties
+authors: [filip]
+tags: [css]
+---
+
+Recently, I have been making the switch over to logical properties wherever possible. It requires a different mental model compared to physical properties. `top`, `right`, `bottom` and `left` in the physical declration world are simple to reason about, since you can see the direction in your head immediately. `top` is `top` and `left` is `left`—simple as that. However, this is also where physical properties become problematic.
+
+<!-- truncate -->
+
+## The problem with physical properties
+
+Let's say we want to display a simple paragraph with a border and some margin to the left:
+
+```html
+<p>Hello!</p>
+```
+
+```css
+p {
+  border: 1px solid red;
+  margin-left: 2rem;
+}
+```
+
+Here's the result:
+
+<p style={{ border: "1px solid red", marginLeft: "2rem" }}>Hello!</p>
+
+Cool!
+
+But what happens if this is translated to a language that is using a right-to-left writing mode? Let's try updating the text direction while keeping the same CSS:
+
+```html
+<p dir="rtl">Hello!</p>
+```
+
+Here's the result:
+
+<p dir="rtl" style={{ border: "1px solid red", marginLeft: "2rem" }}>
+  Hello!
+</p>
+
+That's not really what we want...
+
+We want the margin to update with the change of text direction. But as mentioned, left is always left, independent on the direction of the text.
+
+**Enter logical properties!**
+
+## The magic with logical properties
+
+Let's try using logical properties instead!
+
+```html
+<p>Hello!</p>
+```
+
+```css
+p {
+  border: 1px solid red;
+  margin-inline-start: 2rem;
+}
+```
+
+Here's the result:
+
+<p style={{ border: "1px solid red", marginInlineStart: "2rem" }}>Hello!</p>
+
+Let's try to change the text direction again while keeping the same CSS.
+
+```html
+<p dir="rtl">Hello!</p>
+```
+
+Here's the result:
+
+<p dir="rtl" style={{ border: "1px solid red", marginInlineStart: "2rem" }}>
+  Hello!
+</p>
+
+That's what we want!
+
+## Converting to logical properties
+
+As mentioned, logical properties require a different mental model compared to physical properties. However, when doing a transition, it can still be useful to be able to convert from physical properties in the English (left-to-right, top-to-bottom) world to logical properties. That's what the rest of this post handles!
+
+### Margin
+
+| Physical property | Logical property      |
+| ----------------- | --------------------- |
+| `margin-top`      | `margin-block-start`  |
+| `margin-right`    | `margin-inline-end`   |
+| `margin-bottom`   | `margin-block-end`    |
+| `margin-right`    | `margin-inline-start` |
+
+These are the only margin properties that have a one-to-one mapping between physical and logical. But there's more!
+
+#### Shorthands
+
+The `margin` property is a shorthand that enables setting margins in multiple directions in one declaration.
+
+`margin: 1rem;` sets `1rem` margin on all four sides. Since it sets the same margin in all directions, there's no need to convert.
+
+`margin: 1rem 2rem;` is a shorthand for `margin-top: 1rem; margin-bottom: 2rem;`. The logical equivalent is `margin-block:
+
+### Padding
+
+Padding works exactly in the same way as margins when it comes to logical properties. Here's the property conversion table:
+
+| Physical property | Logical property       |
+| ----------------- | ---------------------- |
+| `padding-top`     | `padding-block-start`  |
+| `padding-right`   | `padding-inline-end`   |
+| `padding-bottom`  | `padding-block-end`    |
+| `padding-right`   | `padding-inline-start` |
+
+And here's the declaration conversion table:
+
+| Physical declaration                              | Logical declaration                                                                                                              |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `padding: 1rem;`                                  | `padding: 1rem`                                                                                                                  |
+| `padding-top: 1rem;`<br />`padding-bottom: 1rem;` | `padding-block: 1rem;`                                                                                                           |
+| `padding-top: 1rem;`<br />`padding-bottom: 2rem;` | `padding-block: 1rem 2rem;`                                                                                                      |
+| `padding-left: 1rem;`<br />`padding-right: 1rem;` | `padding-inline: 1rem;`                                                                                                          |
+| `padding-left: 1rem;`<br />`padding-right: 2rem;` | `padding-inline: 1rem 2rem;`                                                                                                     |
+| `padding: 1rem 2rem;`                             | `padding-block: 1rem`<br />`padding-inline: 1rem;`                                                                               |
+| `padding: 1rem 2rem 3rem;`                        | `padding: 1rem`<br />`padding-block: 1rem 2rem;`                                                                                 |
+| `padding: 1rem 2rem 3rem 4rem;`                   | `padding-block-start: 1rem;`<br />`padding-inline-end: 2rem;`<br />`padding-block-end: 3rem;`<br />`padding-inline-start: 4rem;` |
+| `padding: 1rem 2rem 3rem 4rem;`                   | `padding-block-start: 1rem;`<br />`padding-inline-end: 2rem;`<br />`padding-block-end: 3rem;`<br />`padding-inline-start: 4rem;` |
+
+:::info
+
+In the physical property world, setting top and bottom padding is commonly done with `padding: 1rem 0;`. However, a side effect of using the shorthand is that `padding-left` and `padding-right` is set to 0. Therefore, converting to the logical `padding-block: 1rem`, is not truly equivalent, as there is no side effect in this case.
+
+I think setting default values just to be able to use the shorthands should be avoided, which is another reason why `padding-block` and `padding-inline` are great replacements for the `padding` shorthand.
+
+:::
+
+### Borders
+
+| Physical property            | Logical property            |
+| ---------------------------- | --------------------------- |
+| `border-top-left-radius`     | `border-start-start-radius` |
+| `border-top-right-radius`    | `border-start-end-radius`   |
+| `border-bottom-right-radius` | `border-end-end-radius`     |
+| `border-bottom-left-radius`  | `border-end-start-radius`   |
+
+### Positioning
+
+| Physical property | Logical property     |
+| ----------------- | -------------------- |
+| `top`             | `inset-block-start`  |
+| `right`           | `inset-inline-end`   |
+| `bottom`          | `inset-block-end`    |
+| `left`            | `inset-inline-start` |
+
+| Physical property                                            | Logical property     |
+| ------------------------------------------------------------ | -------------------- |
+| `top: 0`;<br />`bottom: 0;`                                  | `inset-block: 0;`    |
+| `left: 0;`<br />`right: 0;`                                  | `inset-inline: 0;`   |
+| `top: 0;`<br />`right: 0;`<br />`bottom: 0;`<br />`left: 0;` | `inset: 0;`          |
+| `left`                                                       | `inset-inline-start` |
+
+### Size
+
+| Physical property | Logical property  |
+| ----------------- | ----------------- |
+| `height`          | `block-size`      |
+| `min-height`      | `min-block-size`  |
+| `max-height`      | `max-block-size`  |
+| `width`           | `inline-size`     |
+| `min-width`       | `min-inline-size` |
+| `max-width`       | `max-inline-size` |
