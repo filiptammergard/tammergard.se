@@ -5,7 +5,7 @@ authors: [filip]
 tags: [javascript]
 ---
 
-Let's say you have an array of names:
+Consider this array of names:
 
 ```js
 const names = [
@@ -20,7 +20,7 @@ const names = [
 ];
 ```
 
-In this array, `"Filip"` occurs two times and `"Anna"` three times. What if we want filter out the duplicates and get an array with the unique names?
+In this array, `Filip` occurs two times and `Anna` three times. What if we want filter out the duplicates and get an array with the unique names?
 
 <!-- truncate -->
 
@@ -28,7 +28,6 @@ A perfect use case for the `Set` object! `Set` objects can by definition only ho
 
 ```js
 const namesSet = new Set(names);
-console.log(namesSet);
 // > Set(5) {'Filip', 'Anna', 'Jennifer', 'Robert', 'Emma'}
 ```
 
@@ -38,7 +37,6 @@ Converting a `Set` object to an array can be done using `Array.from()`:
 
 ```js
 const uniqueNames = Array.from(namesSet);
-console.log(uniqueNames);
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
@@ -46,8 +44,6 @@ Another option is using the spread operator:
 
 ```js
 const uniqueNames = Array.from(namesSet);
-console.log(uniqueNames);
-[...namesSet];
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
@@ -68,6 +64,5 @@ const names = [
 ];
 
 const uniqueNames = Array.from(new Set(names));
-console.log(uniqueNames);
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
