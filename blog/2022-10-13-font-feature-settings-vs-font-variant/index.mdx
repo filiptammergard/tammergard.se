@@ -1,0 +1,83 @@
+---
+slug: font-feature-settings-vs-font-variant
+title: font-feature-settings vs font-variant
+authors: [filip]
+tags: [css]
+---
+
+We recently did some tweaks to the font we use at work. For one thing, we changed the appearance of 0 (number zero) to include a slash (like `0`), to make it easier to differentiate from capital letter O. I learned something new during the proccess that I'd like to share!
+
+## Slashed zeros
+
+There are two main ways to configure slashed zeros.
+
+1. `font-feature-settings: "zero" 1;`
+2. `font-variant: slashed-zero;`
+
+<!-- truncate -->
+
+:::note
+
+A prerequisite for this to work is that the font you are using supports slashed zeros.
+
+:::
+
+### font-feature-settings
+
+The `font-feature-settings` property is a bit strange. It accepts one or more font feature tags consisting of 4 ASCII characters. If a tag is followed by `1` or `on`, that font feature is enabled, and if followed by `0` or `off`, it's disabled. As mentioned, here's how to enable slashed zeros:
+
+```css
+font-feature-settings: "zero" 1;
+```
+
+:::note
+
+`font-feature-settings: "zero";` works as well, because if no value is provided, it defaults to 1,
+
+:::
+
+In the case of slashed zeros, the tag "zero" is clear. But in other cases, it's pretty much gibberish. As an example, can you figure out what font features this enables?
+
+```css
+font-feature-settings: "c2sc", "smcp";
+```
+
+Me neither!
+
+When I dove into some [documentation](https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings#syntax), I noticed that `font-variant` should be preferred over `font-feature-settings` whenever possible. Apparently, `font-feature-settings` is mostly a kind of backup property for when `font-variant` can't accomplish the same thing. So let's explore `font-variant` instead!
+
+## font-variant
+
+`font-variant` was a lot easier to understand compared to `font-feature-settings`. No 4 ASCII characters here—but rather describing property values! Look at this beauty:
+
+```css
+font-variant: slashed-zero;
+```
+
+Super clear!
+
+Turns out, `font-variant` is actually a shorthand for these properties:
+
+- `font-variant-alternates`
+- `font-variant-caps`
+- `font-variant-east-asian`
+- `font-variant-ligatures`
+- `font-variant-numeric`
+
+These properties can be used to target subsets of glyphs. As an example, `font-variant-caps` only targets capital letters.
+
+In the case of slashed zeros, it will naturally only take effect on numbers. Therefore, it makes sense to use `font-variant-numeric` that only targets numbers.
+
+```css
+font-variant-numeric: slashed-zero;
+```
+
+## Conclusion
+
+- Enabling and disabling font features can be done in many ways.
+- Prefer `font-variant` over `font-feature-settings`. Consider `font-feature-settings` to be a backup for when `font-variant` can't do the same thing.
+- Prefer being specific with what subsets of glyphs should be targeted when applicable instead of using the `font-variant` shorthand. For example, `font-variant-numeric` only targets numbers.
+
+## Further reading
+
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings
