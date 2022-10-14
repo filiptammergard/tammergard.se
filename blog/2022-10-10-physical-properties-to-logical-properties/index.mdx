@@ -5,89 +5,117 @@ authors: [filip]
 tags: [css]
 ---
 
-I have been making the switch over from physical to logical properties over the past months. Logical properties require a different mental model compared to physical properties. `top`, `right`, `bottom` and `left` in the physical declration world are simple to reason about, since you can see the direction in your head immediately. `top` is `top` and `left` is `left`—simple as that. However, this is also where physical properties become problematic.
+In the last months, I have been diving into the beautiful world of logical properties. [The CSS spec](https://www.w3.org/TR/css-logical-1/) has one sentence that I think describes what logical properties are in such a clear and concise way:
+
+> [Logical] properties are writing-mode relative equivalents of their corresponding physical properties.
+
+Physical properties are simple to reason about, since they represent physical directions. Top, right, bottom and left are absolute directions. Left is always left—simple as that. Logical properties, on the other hand, are _relative_—the physical direction they correspond to will vary.
+
+As mentioned, the absolute nature of physical properties makes them simple to reason about. However, the absolute nature is also a limitation.
 
 <!-- truncate -->
 
 ## The problem with physical properties
 
-Let's say we want to display a simple paragraph with a border and some margin to the left:
+Let's say we want to display a qoute with a red border to the left together with some padding:
 
 ```html
-<p>Hello!</p>
+<blockquote>Hello</blockquote>
 ```
 
 ```css
-p {
-  border: 1px solid red;
-  margin-left: 2rem;
+blockquote {
+  border-left: 2px solid red;
+  padding-left: 1rem;
 }
 ```
 
-<p style={{ border: "1px solid red", marginLeft: "2rem" }}>Hello!</p>
+Result:
+
+<blockquote style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}>
+  Hello
+</blockquote>
 
 Cool!
+
+But what happens if we translate the paragraph to Arabic? Arabic has a right-to-left text direction, so let's specify that with `dir="rtl"`, and also provide mark that Arabic is used in the paragraph with `lang="ar"`.
 
 But what happens if this is done in a language with a right-to-left text direction? Let's try updating the text direction while keeping the same CSS:
 
 ```html
-<p dir="rtl">Hello!</p>
+<blockquote dir="rtl" lang="ar">أهلا</blockquote>
 ```
 
-<p dir="rtl" style={{ border: "1px solid red", marginLeft: "2rem" }}>
-  Hello!
-</p>
+Result:
 
-That's not really what we want...
+<blockquote
+  dir="rtl"
+  lang="ar"
+  style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}
+>
+  أهلا
+</blockquote>
 
-We want the margin to update with the change of text direction. But left is always left, independent on the direction of the text.
+That's not what we want... 😕
+
+When the text direction is changed, we want the margin to be updated with it. But left is still left, even when the text direction is changed.
 
 ## Enter logical properties
 
 Let's try using logical properties instead!
 
 ```html
-<p>Hello!</p>
+<blockquote>Hello!</blockquote>
 ```
 
 ```css
-p {
-  border: 1px solid red;
-  margin-inline-start: 2rem;
+blockquote {
+  border-inline-start: 1px solid red;
+  padding-inline-start: 2rem;
 }
 ```
 
-<p style={{ border: "1px solid red", marginInlineStart: "2rem" }}>Hello!</p>
+Result:
+
+<blockquote
+  style={{ borderInlineStart: "2px solid red", paddingInlineStart: "1rem" }}
+>
+  Hello
+</blockquote>
+
+Let's see what happens now when translating to Arabic.
 
 Let's try to change the text direction again while keeping the same CSS.
 
 ```html
-<p dir="rtl">Hello!</p>
+<blockquote dir="rtl" lang="ar">أهلا</blockquote>
 ```
 
-<p dir="rtl" style={{ border: "1px solid red", marginInlineStart: "2rem" }}>
-  Hello!
-</p>
+Result:
 
-That's what we want!
+<blockquote
+  dir="rtl"
+  lang="ar"
+  style={{
+    borderInlineStart: "2px solid red",
+    paddingInlineStart: "1rem",
+    borderLeft: "none",
+  }}
+>
+  أهلا
+</blockquote>
 
-As mentioned, logical properties require a different mental model compared to physical properties. In the long run, it's useful to start thinking in block flow and inline flow instead of in physical directions. During a transition, however, when you most likely still think in physical properties, it can be useful to be able to map the physical properties to the corresponding logical properties.
+Yeah! 🎉
 
-:::note
-
-The physical directions of logical properties change depending on writing mode and text direction. Actually, that's the point. But it also means the writing mode and text direction environment needs to be specified to enable mapping physical properties to logical.
-
-:::
-
-from physical properties in the English (left-to-right, top-to-bottom) world to logical properties. That's what the rest of this post handles!
+I scratched my head a lot when I started converting physical properties to their logical equivalents. During the process, I made some conversion tables for future reference.
 
 ## Converting to logical properties
 
-In the following conversion tables, the baseline writing mode and text direction is English (left-to-right, top-to-bottom).
+In the following conversion tables, the baseline text direction is left-to-right, top-to-bottom, as regular English.
 
 ### Padding
 
-Here's how physical padding properties translate to logical:
+Here's how physical padding properties are converted to logical:
 
 | Physical property | Logical property       |
 | ----------------- | ---------------------- |
@@ -98,9 +126,9 @@ Here's how physical padding properties translate to logical:
 
 #### Shorthands
 
-The `padding` property is a shorthand that enables setting paddings in multiple directions in one declaration. `padding: 1rem;` sets `1rem` padding in all four directions. Since it sets the same padding in all direction, there's no need to convert to logical.
+The `padding` property is a shorthand that enables setting padding in multiple directions in one declaration. `padding: 1rem;` sets `1rem` padding in all four directions. Since it sets the same padding in all direction, there's no need to convert to logical—it would still have the same result.
 
-Take a look at this padding declaration:
+But consider this padding declaration:
 
 ```css
 p {
@@ -108,7 +136,7 @@ p {
 }
 ```
 
-That's a shorthand for this:
+That's a shorthand for these declarations:
 
 ```css
 p {
@@ -128,17 +156,17 @@ p {
 }
 ```
 
-:::info
+:::note
 
-In the physical property world, setting top and bottom padding is commonly done with `padding: 1rem 0;`. However, a side effect of using the shorthand is that `padding-left` and `padding-right` is set to 0. Therefore, converting to the logical `padding-block: 1rem`, is not truly equivalent, as there is no side effect in this case.
+In physical property land, setting top and bottom padding is commonly done with the shorthand `padding: 1rem 0;`. However, this sets left and right padding to the default value `0` as a "side effect". The logical `padding-block: 1rem;`, therefore, is not truly equivalent, as left and right padding is not set in that case.
 
-I think setting default values just to be able to use the shorthands should be avoided, which is another reason why `padding-block` and `padding-inline` are great replacements for the `padding` shorthand.
+Setting default values when there's no need for unsetting, just to be able to use the shorthands, might be considered bad practice. This is another reason why `padding-block` and `padding-inline` are great replacements for the `padding` shorthand in many cases!
 
 :::
 
 ### Margin
 
-Logical margin properties work in the exact same way as logical padding properties. Here's the translation table:
+Logical margin properties work in the exact same way as logical padding properties. Here's the conversion table:
 
 | Physical property | Logical property      |
 | ----------------- | --------------------- |
@@ -147,28 +175,53 @@ Logical margin properties work in the exact same way as logical padding properti
 | `margin-bottom`   | `margin-block-end`    |
 | `margin-right`    | `margin-inline-start` |
 
-These are the only margin properties that have a one-to-one mapping between physical and logical. But there's more!
+The margin property has also has shorthands equivalent to the padding shorthands.
+
+<details>
+  <summary>
+    Proposal for flow-relative <code>margin</code> shorthand
+  </summary>
+  In the future, we might have a <code>margin-logical</code>, as a logical shorthand
+  equivalent to the physical <code>margin</code> shorthand. See the proposal discussion
+  here: <a href="https://github.com/w3c/csswg-drafts/issues/1282">https://github.com/w3c/csswg-drafts/issues/1282</a>
+</details>
 
 ### Borders
 
-Converting border radii to logical required me to be careful about the order of properties. The format is `border-{block-direction}-{inline-direction}-radius`.
+Here's the conversion table for border properties:
+
+| Physical property | Logical property      |
+| ----------------- | --------------------- |
+| `border-top`      | `border-block-start`  |
+| `border-right`    | `border-inline-end`   |
+| `border-bottom`   | `border-block-end`    |
+| `border-left`     | `border-inline-start` |
+
+`border-top-{color|style|width}` can also be converted to `border-block-start-{color|style|width}`, exactly as you would imagine. I won't add these to the conversion table to avoid making it too cluttered.
+
+#### Shorthands
+
+A logical property shorthand addition is that you can set block and inline borders, respectively, in one declaration:
+
+| Physical declaration                                              | Logical declaration             |
+| ----------------------------------------------------------------- | ------------------------------- |
+| `border-top: 1px solid red;`<br />`border-bottom: 1px solid red;` | `border-block: 1px solid red;`  |
+| `border-left: 1px solid red;`<br />`border-right: 1px solid red;` | `border-inline: 1px solid red;` |
+
+### Border radii
+
+Converting border radius to logical requires thinking about the order of properties carefully. The format is `border-{block-direction}-{inline-direction}-radius`:
 
 | Physical property            | Logical property            |
 | ---------------------------- | --------------------------- |
-| `border-top`                 | `border-block-start`        |
-| `border-right`               | `border-inline-end`         |
-| `border-bottom`              | `border-block-end`          |
-| `border-left`                | `border-inline-start`       |
 | `border-top-left-radius`     | `border-start-start-radius` |
 | `border-top-right-radius`    | `border-start-end-radius`   |
 | `border-bottom-right-radius` | `border-end-end-radius`     |
 | `border-bottom-left-radius`  | `border-end-start-radius`   |
 
-`border-top-{color|style|width}` can also be converted to `border-block-start-{color|style|width}`, exactly as you would image.
-
 ### Sizing
 
-Here's the conversion table for sizing properties.
+Here's the conversion table for sizing properties:
 
 | Physical property | Logical property  |
 | ----------------- | ----------------- |
@@ -181,7 +234,7 @@ Here's the conversion table for sizing properties.
 
 ### Alignment
 
-As you might have noticed, physical directions like `left` and `right` don't exist at all in logical property land. That's not only true for property names, but also for values. `left` can mostly be translated to `start` and `right` to `end`.
+As you might have noticed, physical directions like `left` and `right` don't exist at all in logical property land. That's not only true for property names, but also for values. `left` can mostly be converted to `start` and `right` to `end`.
 
 | Physical declaration      | Logical declaration       |
 | ------------------------- | ------------------------- |
@@ -190,7 +243,7 @@ As you might have noticed, physical directions like `left` and `right` don't exi
 | `justify-content: left;`  | `justify-content: start;` |
 | `justify-content: right;` | `justify-content: end;`   |
 
-:::info
+:::note
 
 The `justify-content` property accepts `start` and `end` as values, but also `flex-start` and `flex-end`. So what's the difference? The main difference is browser support. `flex-{start|end}` has better support, but `start|end` will replace the flex values eventually.
 
@@ -217,10 +270,68 @@ There are some useful shorthands as well!
 | `left: 0;`<br />`right: 0;`                                  | `inset-inline: 0;`  |
 | `top: 0;`<br />`right: 0;`<br />`bottom: 0;`<br />`left: 0;` | `inset: 0;`         |
 
-## Further reading
+:::note
 
-Here's some great additional resources for anyone interested in diving deeper into the fantastic world of logical properties:
+There's also an `inset` shorthand, that sets inset in all directions. However, it defineds physical offsets rather than logical.
+
+:::
+
+### Scroll margin and scroll padding
+
+Here's the conversion table for scroll margin and scroll padding:
+
+| Physical property       | Logical property              |
+| ----------------------- | ----------------------------- |
+| `scroll-padding-top`    | `scroll-padding-block-start`  |
+| `scroll-padding-right`  | `scroll-padding-inline-end`   |
+| `scroll-padding-bottom` | `scroll-padding-block-bottom` |
+| `scroll-padding-left`   | `scroll-padding-inline-start` |
+| `scroll-margin-top`     | `scroll-margin-block-start`   |
+| `scroll-margin-right`   | `scroll-margin-inline-end`    |
+| `scroll-margin-bottom`  | `scroll-margin-block-bottom`  |
+| `scroll-margin-left`    | `scroll-margin-inline-start`  |
+
+#### Shorthands
+
+Here are some shorthands:
+
+| Physical declaration                                          | Logical declaration           |
+| ------------------------------------------------------------- | ----------------------------- |
+| `scroll-margin-top: 1px;`<br />`scroll-margin-bottom: 1px;`   | `scroll-margin-block: 1px;`   |
+| `scroll-margin-left: 1px;`<br />`scroll-margin-right: 1px;`   | `scroll-margin-inline: 1px;`  |
+| `scroll-padding-top: 1px;`<br />`scroll-padding-bottom: 1px;` | `scroll-padding-block: 1px;`  |
+| `scroll-padding-left: 1px;`<br />`scroll-padding-right: 1px;` | `scroll-padding-inline: 1px;` |
+
+## Browser support
+
+Logical properties are not supported in Internet Explorer. But since it has reached end-of-life, we might not need to consider that. Other than that, browser support is generally great.
+
+There are a few exceptions, though.
+
+- Flow-relative `resize` values: https://caniuse.com/mdn-css_properties_resize_flow_relative_support
+- Flow-relative `overflow` properties `overflow-inline` and `overflow-block`: https://caniuse.com/?search=overflow-inline
+
+## Logical vs physical properties
+
+It might be tempting to do a complete migration from physical to logicl properties, and perhaps even add some kind of linting rule that prevents physical properties from being used. However, physical properties are not deprecated in any sense. In some situations, it does not make sense to convert. Here's an example from [the CSS spec](https://www.w3.org/TR/css-logical-1/#intro):
+
+> Documents might need both logical and physical properties. For instance the drop shadows on buttons on a page must remain consistent throughout, so their offset will be chosen based on visual considerations and physical directions, and not vary by writing system.
+
+It's important to remember that left is always left. If you say that something is placed on the left side of the screen, `left` should be used rather than `inset-inline-start`.
+
+Stay pragmatic!
+
+## Conclusion
+
+- Logical properties are awesome!
+- Both logical and physical properties might be needed. Think about whether something should be relative to writing mode or not when you choose between logical and physical properties.
+- Consider browser support before using logical properties.
+
+## References
 
 - https://web.dev/learn/css/logical-properties/
+- https://www.w3.org/TR/css-logical-1/
 - https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties
 - https://adactio.com/journal/19457
+- https://adrianroselli.com/2019/11/css-logical-properties.html
+- https://github.com/w3c/csswg-drafts/issues/1282
