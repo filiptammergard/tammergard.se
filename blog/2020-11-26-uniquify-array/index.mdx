@@ -43,7 +43,7 @@ const uniqueNames = Array.from(namesSet);
 Another option is using the spread operator:
 
 ```js
-const uniqueNames = Array.from(namesSet);
+const uniqueNames = [...namesSet];
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
@@ -63,6 +63,16 @@ const names = [
   "Anna",
 ];
 
-const uniqueNames = Array.from(new Set(names));
+const uniqueNames = [...new Set(names)];
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
+
+## Conclusion
+
+- Removing duplicates from an array can be done by converting the array to a `Set` object, and then convert it back to an array.
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax
