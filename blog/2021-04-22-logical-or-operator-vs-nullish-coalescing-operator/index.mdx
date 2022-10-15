@@ -1,6 +1,6 @@
 ---
-slug: when-to-use-logical-or-operator-and-when-to-use-nullish-coalescing-operator
-title: When to use `||` and when to use `??`
+slug: logical-or-operator-vs-nullish-coalescing-operator
+title: "|| vs ??"
 authors: [filip]
 tags: [javascript]
 ---
@@ -57,7 +57,7 @@ Here are all nullish values in JavaScript:
 - keyword `null`
 - keyword `undefined`
 
-:::info
+:::note
 
 As you can see, all nullish values are falsy, but not all falsy values are nullish.
 
@@ -65,9 +65,22 @@ As you can see, all nullish values are falsy, but not all falsy values are nulli
 
 ## Try it out!
 
-The best way to solidify knowledge about this difference is to experiment with it. In the code
+A good way to solidify knowledge about this difference is to experiment with it. In the code
 below, there is a `leftValue` and a `rightValue` variable. You can select what value you want `leftValue` to take. Then you'll see what the two operators will output.
 
 <CompareOperators />
 
 Now you know when to use `||` and when to use `??`! 🎉
+
+## Conclusion
+
+- Be intentional when you choose between `||` and `??`—using the wrong operator can cause bugs.
+- Use `??` when you only want to specify a fallback for nullish values (`null` and `undefined`).
+- Use `||` when you want to specify a fallback for all falsy values.
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
+- https://developer.mozilla.org/en-US/docs/Glossary/Nullish
+- https://developer.mozilla.org/en-US/docs/Glossary/Falsy

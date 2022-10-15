@@ -22,7 +22,7 @@ A prerequisite for this to work is that the font you are using supports slashed 
 
 :::
 
-### font-feature-settings
+## font-feature-settings
 
 The `font-feature-settings` property is a bit strange. It accepts one or more font feature tags consisting of 4 ASCII characters. If a tag is followed by `1` or `on`, that font feature is enabled, and if followed by `0` or `off`, it's disabled. As mentioned, here's how to enable slashed zeros:
 
@@ -78,6 +78,8 @@ font-variant-numeric: slashed-zero;
 - Prefer `font-variant` over `font-feature-settings`. Consider `font-feature-settings` to be a backup for when `font-variant` can't do the same thing.
 - Prefer being specific with what subsets of glyphs should be targeted instead of using the `font-variant` shorthand. For example, `font-variant-numeric` only targets numbers.
 
-## Further reading
+## References
 
 - https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric
