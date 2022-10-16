@@ -34,7 +34,7 @@ const config = {
         docs: false,
         blog: {
           showReadingTime: true,
-          editUrl: "https://github.com/filiptammergard/tammergard/tree/main/",
+          editUrl: "https://github.com/filiptammergard/tammergard.se/tree/main/",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
