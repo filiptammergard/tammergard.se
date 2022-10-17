@@ -1,0 +1,38 @@
+---
+slug: ways-to-control-writing-mode
+title: Ways to control writing mode
+authors: [filip]
+tags: [html, css]
+draft: true
+---
+
+Languages use various writing modes. Some use a left-to-right top-to-bottom writing mode (e.g. English). Others use right-to-left top-to-bottom (e.g. Arabic). There are even languages that use a vertical or bidirectional writing mode. CSS has a set of properties and features to support these different writing modes. The CSS specification [CSS Writing Modes](https://www.w3.org/TR/css-writing-modes-4/) is an interesting read—but it's quite technical.
+
+Undetstanding the concept of writing modes is a prerequisite for using [logical properties](/blog/physical-properties-to-logical-properties) effectively, and by extension supporting internationalized layouts.
+
+In this blog post, we'll explore some CSS and HTML features that control writing mode.
+
+## writing-mode
+
+It's a bit unfortunate that the `writing-mode` property uses the same name as the writing mode CSS concept. They are related of course, but the `writing-mode` property only holds a part of the picture.
+
+## direction
+
+## text-orientation
+
+## dir attribute
+
+## `<bdo>` element
+
+## Conclusion
+
+-
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
+- https://developer.mozilla.org/en-US/docs/Web/CSS/direction
+- https://developer.mozilla.org/en-US/docs/Web/CSS/text-orientation
+- https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir
+- https://www.w3.org/TR/css-writing-modes-4/
+- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/bdo
