@@ -25,15 +25,15 @@ Let's say we want to display a qoute with a red border to the left together with
 
 ```css
 blockquote {
-  border-left: 2px solid red;
-  padding-left: 1rem;
+	border-left: 2px solid red;
+	padding-left: 1rem;
 }
 ```
 
 Result:
 
 <blockquote style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}>
-  Hello
+	Hello
 </blockquote>
 
 Cool!
@@ -49,11 +49,11 @@ But what happens if this is done in a language with a right-to-left text directi
 Result:
 
 <blockquote
-  dir="rtl"
-  lang="ar"
-  style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}
+	dir="rtl"
+	lang="ar"
+	style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}
 >
-  أهلا
+	أهلا
 </blockquote>
 
 That's not what we want... 😕
@@ -70,17 +70,17 @@ Let's try using logical properties instead!
 
 ```css
 blockquote {
-  border-inline-start: 1px solid red;
-  padding-inline-start: 2rem;
+	border-inline-start: 1px solid red;
+	padding-inline-start: 2rem;
 }
 ```
 
 Result:
 
 <blockquote
-  style={{ borderInlineStart: "2px solid red", paddingInlineStart: "1rem" }}
+	style={{ borderInlineStart: "2px solid red", paddingInlineStart: "1rem" }}
 >
-  Hello
+	Hello
 </blockquote>
 
 Let's see what happens now when translating to Arabic.
@@ -94,15 +94,15 @@ Let's try to change the text direction again while keeping the same CSS.
 Result:
 
 <blockquote
-  dir="rtl"
-  lang="ar"
-  style={{
-    borderInlineStart: "2px solid red",
-    paddingInlineStart: "1rem",
-    borderLeft: "none",
-  }}
+	dir="rtl"
+	lang="ar"
+	style={{
+		borderInlineStart: "2px solid red",
+		paddingInlineStart: "1rem",
+		borderLeft: "none",
+	}}
 >
-  أهلا
+	أهلا
 </blockquote>
 
 Yeah! 🎉
@@ -132,7 +132,7 @@ But consider this padding declaration:
 
 ```css
 p {
-  padding: 1rem 2rem;
+	padding: 1rem 2rem;
 }
 ```
 
@@ -140,10 +140,10 @@ That's a shorthand for these declarations:
 
 ```css
 p {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
 }
 ```
 
@@ -151,8 +151,8 @@ In logical property land, this is the equivalent:
 
 ```css
 p {
-  padding-block: 1rem;
-  padding-inline: 2rem;
+	padding-block: 1rem;
+	padding-inline: 2rem;
 }
 ```
 
@@ -178,12 +178,12 @@ Logical margin properties work in the exact same way as logical padding properti
 The margin property has also has shorthands equivalent to the padding shorthands.
 
 <details>
-  <summary>
-    Proposal for flow-relative <code>margin</code> shorthand
-  </summary>
-  In the future, we might have a <code>margin-logical</code>, as a logical shorthand
-  equivalent to the physical <code>margin</code> shorthand. See the proposal discussion
-  here: <a href="https://github.com/w3c/csswg-drafts/issues/1282">https://github.com/w3c/csswg-drafts/issues/1282</a>
+	<summary>
+		Proposal for flow-relative <code>margin</code> shorthand
+	</summary>
+	In the future, we might have a <code>margin-logical</code>, as a logical shorthand
+	equivalent to the physical <code>margin</code> shorthand. See the proposal discussion
+	here: <a href="https://github.com/w3c/csswg-drafts/issues/1282">https://github.com/w3c/csswg-drafts/issues/1282</a>
 </details>
 
 ### Borders

@@ -9,15 +9,15 @@ Consider this array of names:
 
 ```js
 const names = [
-  "Filip",
-  "Anna",
-  "Jennifer",
-  "Anna",
-  "Robert",
-  "Emma",
-  "Filip",
-  "Anna",
-];
+	"Filip",
+	"Anna",
+	"Jennifer",
+	"Anna",
+	"Robert",
+	"Emma",
+	"Filip",
+	"Anna",
+]
 ```
 
 In this array, `Filip` occurs two times and `Anna` three times. What if we want filter out the duplicates and get an array with the unique names?
@@ -27,7 +27,7 @@ In this array, `Filip` occurs two times and `Anna` three times. What if we want 
 A perfect use case for the `Set` object! `Set` objects can by definition only hold unique values, so when converting an array to a `Set` object, duplicates are automatically filtered out.
 
 ```js
-const namesSet = new Set(names);
+const namesSet = new Set(names)
 // > Set(5) {'Filip', 'Anna', 'Jennifer', 'Robert', 'Emma'}
 ```
 
@@ -36,14 +36,14 @@ Here we have a `Set` object with unique names in it! Now we just need to convert
 Converting a `Set` object to an array can be done using `Array.from()`:
 
 ```js
-const uniqueNames = Array.from(namesSet);
+const uniqueNames = Array.from(namesSet)
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
 Another option is using the spread operator:
 
 ```js
-const uniqueNames = [...namesSet];
+const uniqueNames = [...namesSet]
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
@@ -53,17 +53,17 @@ Here's the full example doing the two steps in one go:
 
 ```js
 const names = [
-  "Filip",
-  "Anna",
-  "Jennifer",
-  "Anna",
-  "Robert",
-  "Emma",
-  "Filip",
-  "Anna",
-];
+	"Filip",
+	"Anna",
+	"Jennifer",
+	"Anna",
+	"Robert",
+	"Emma",
+	"Filip",
+	"Anna",
+]
 
-const uniqueNames = [...new Set(names)];
+const uniqueNames = [...new Set(names)]
 // > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
 ```
 
