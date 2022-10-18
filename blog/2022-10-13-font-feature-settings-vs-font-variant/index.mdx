@@ -5,7 +5,7 @@ authors: [filip]
 tags: [css]
 ---
 
-We recently did some tweaks to the font we use at work. For one thing, we changed the appearance of 0 (number zero) to include a slash (like `0`), to make it easier to differentiate from capital letter O. I learned something new during the proccess that I'd like to share!
+We recently did some font feature tweaks at work. For one thing, we changed the appearance of 0 (number zero) to include a slash (like `0`), to make it easier to differentiate from capital letter O. I learned a few things in the process that I'd like to share!
 
 ## Slashed zeros
 
@@ -44,11 +44,15 @@ font-feature-settings: "c2sc", "smcp";
 
 Me neither!
 
-When I dove into some [documentation](https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings#syntax), I noticed that `font-variant` should be preferred over `font-feature-settings` whenever possible. Apparently, `font-feature-settings` is mostly a kind of backup property for when `font-variant` can't accomplish the same thing. So let's explore `font-variant` instead!
+The `font-feature-settings` property is also error-prone, since [it sets every font feature that you don't explicitly list to it's default value](https://pixelambacht.nl/2022/boiled-down-fixing-variable-font-inheritance/).
+
+Most font features can also be set with the `font-variant` property, which does not have the side effect of unsetting unlisted font features. For this reason, [it's generally recommended to use `font-variant` instead of `font-feature-settings` whenever possible](https://almanac.httparchive.org/en/2022/fonts#opentype-features).
+
+So let's explore `font-variant` instead!
 
 ## font-variant
 
-`font-variant` was a lot easier to understand compared to `font-feature-settings`. No 4 ASCII characters here—but rather describing property values! Look at this beauty:
+The `font-variant` property is a lot easier to understand compared to `font-feature-settings`. No 4 ASCII characters here—but rather describing property values! Look at this beauty:
 
 ```css
 font-variant: slashed-zero;
@@ -56,7 +60,7 @@ font-variant: slashed-zero;
 
 Super clear!
 
-Turns out, `font-variant` is actually a shorthand for these properties:
+`font-variant` is actually a shorthand for these properties:
 
 - `font-variant-alternates`
 - `font-variant-caps`
@@ -64,7 +68,7 @@ Turns out, `font-variant` is actually a shorthand for these properties:
 - `font-variant-ligatures`
 - `font-variant-numeric`
 
-These properties can be used to target subsets of glyphs. As an example, `font-variant-caps` only targets capital letters.
+These longhand properties can be used to target subsets of glyphs. As an example, `font-variant-caps` only targets capital letters.
 
 In the case of slashed zeros, it will naturally only take effect on numbers. Therefore, it makes sense to use `font-variant-numeric` that only targets numbers.
 
@@ -83,3 +87,5 @@ font-variant-numeric: slashed-zero;
 - https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings
 - https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
 - https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric
+- https://pixelambacht.nl/2022/boiled-down-fixing-variable-font-inheritance/
+- https://almanac.httparchive.org/en/2022/fonts
