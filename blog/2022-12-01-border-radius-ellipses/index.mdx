@@ -1,0 +1,259 @@
+---
+slug: border-radius-ellipses
+title: border-radius ellipses
+authors: [filip]
+tags: [css]
+---
+
+import { Shape } from "./Shape"
+
+When I started learning about CSS many years back, I learned that `border-radius: 50%` turns a shape into an ellipse.
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50%;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50%",
+	}}
+/>
+
+<br />
+
+I never questioned why. But as you might guess, `50%` is not some kind of "ellipse hack". It all makes sense.
+
+## `border-radius` longhand
+
+`border-radius` is a shorthand property for the following for properties:
+
+- `border-top-left-radius`
+- `border-top-right-radius`
+- `border-bottom-right-radius`
+- `border-bottom-left-radius`
+
+In other words:
+
+```css
+border-radius: 50%;
+
+/* Is equivalent to: */
+border-top-left-radius: 50%;
+border-top-right-radius: 50%;
+border-bottom-right-radius: 50%;
+border-bottom-left-radius: 50%;
+```
+
+The individual `border-radius` properties take either one or two values. Specifying only one value is equivalent to specifying that value twice:
+
+```css
+border-top-left-radius: 50%;
+
+/* Is equivalent to: */
+border-top-left-radius: 50% 50%;
+```
+
+The first value refers to the circle radius in the horizontal axis and the second value refers to the circle radius in the vertical axis. In the following example, `border-top-left-radius` is specified to be 50% of the width in the horizontal axis and 25% of the height in the vertical axis.
+
+```css
+div {
+	width: 200px;
+	height: 100px;
+	background-color: hotpink;
+	border-top-left-radius: 50% 25%;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderTopLeftRadius: "50% 25%",
+	}}
+/>
+
+<br />
+
+So what does a value in percentages actually mean when it comes to `border-radius`? In this example, `50%` makes the circle radius in the horizontal axis equal 50% of the width, and `25%` makes the cirle radius equal 25% of the height.
+
+50% of the width is 100px and 25% of the height is 25px. In other words, the example is equivalent to this:
+
+```css
+div {
+	width: 200px;
+	height: 100px;
+	background-color: hotpink;
+	border-top-left-radius: 100px 25px;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderTopLeftRadius: "100px 25px",
+	}}
+/>
+
+<br />
+
+## Ellipsis
+
+With this background knowledge, we can revisit the initial topic—why `border-radius: 50%` turns a shape into an ellipsis:
+
+```css
+border-radius: 50%;
+
+/* Is equivalent to: */
+border-top-left-radius: 50%;
+border-top-right-radius: 50%;
+border-bottom-right-radius: 50%;
+border-bottom-left-radius: 50%;
+
+/* Which is equivalent to: */
+border-top-left-radius: 50% 50%;
+border-top-right-radius: 50% 50%;
+border-bottom-right-radius: 50% 50%;
+border-bottom-left-radius: 50% 50%;
+```
+
+Given this square:
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+	}}
+/>
+
+<br />
+
+How do we make it a circle? We define the circle radius in the horizontal and vertical axises in all corners to be 50px, since that's the radius of a circle with a diameter of 100px.
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50px;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50px",
+	}}
+/>
+
+<br />
+
+However, if we increase the width and height to be 200px, 50px is no longer the radius of the circle, and the shape will no longer be a circle:
+
+```css
+div {
+	width: 200px;
+	height: 200px;
+	background-color: hotpink;
+	border-radius: 50px;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "200px",
+		background: "hotpink",
+		borderRadius: "50px",
+	}}
+/>
+
+<br />
+
+Now we have to change the `border-radius` value to `100px` to make it a circle again. Instead of doing the math ourselves when we want to achieve a circle, we can let CSS to the math by using `border-radius: 50%`!
+
+In other words, setting the circle radius to half the width in the horizontal axis and half the height in the vertical axis in all corners will always make it an ellipse. And that's exactly what 50% does!
+
+When the width and height are equal, `border-radius: 50%` will produce a circle. If they are not equal, it will produce an oval, as in the example below.
+
+```css
+div {
+	width: 200;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50%;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50%",
+	}}
+/>
+
+<br />
+
+Here's an example where the height and the width are animated, to make it visible that the shape is always an ellipse when `border-radius: 50%`.
+
+```css
+@keyframes morph {
+	0% {
+		width: 50px;
+		height: 100px;
+	}
+	25% {
+		width: 150px;
+		height: 50px;
+	}
+	75% {
+		width: 100px;
+		height: 100px;
+	}
+	100% {
+		width: 200px;
+		height: 150px;
+	}
+}
+
+div {
+	background: hotpink;
+	border-radius: 50%;
+	animation: 5s ease-in-out infinite alternate morph;
+}
+```
+
+<Shape />
+
+## Conclusion
+
+- `border-radius: 50%` turns a shape into an ellipse, but not by magic—it's all math.
+- The individual `border-radius` longhand properties allow two values, to control the circle radius in the two axises individually.
+- When using percentages, the circle radius relates to the width in the horizontal axis and the height in the vertical axis, which makes achiving ellipses simple.
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius

@@ -1,0 +1,28 @@
+.wrapper {
+  height: 150px;
+}
+
+.shape {
+  background: hotpink;
+  border-radius: 50%;
+  animation: 5s ease-in-out infinite alternate morph;
+}
+
+@keyframes morph {
+  0% {
+    width: 50px;
+    height: 100px;
+  }
+  25% {
+    width: 150px;
+    height: 50px;
+  }
+  75% {
+    width: 100px;
+    height: 100px;
+  }
+  100% {
+    width: 200px;
+    height: 150px;
+  }
+}
