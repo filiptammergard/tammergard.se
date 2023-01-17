@@ -30,8 +30,8 @@
 		"@docusaurus/module-type-aliases": "2.2.0",
 		"@tammergard/prettier-config": "2.0.0",
 		"@tsconfig/docusaurus": "1.0.6",
-		"prettier": "2.8.0",
-		"typescript": "4.9.3"
+		"prettier": "2.8.3",
+		"typescript": "4.9.4"
 	},
 	"browserslist": {
 		"production": [
