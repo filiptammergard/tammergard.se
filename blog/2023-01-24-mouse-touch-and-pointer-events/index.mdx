@@ -7,6 +7,8 @@ tags: [javascript]
 
 I recently stumbled upon a bug related to the subtle differences between mouse, touch and pointer events. The bug made me confused—and curious. What is actually the difference between these events?
 
+<!-- truncate -->
+
 ## Mouse events
 
 [Mouse events](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) came first and handle events related to using a mouse. Then came touch devices. For compatibility with the existing mouse-based web, touch events were configured by user agents to fire corresponding mouse events. The mapping between mouse events and touch events came with an ambiguity problem, where it's no longer easy to know whether a mouse event represents an actual mouse event or if it's rather a synthetic touch event, which might need to be handled differently.
