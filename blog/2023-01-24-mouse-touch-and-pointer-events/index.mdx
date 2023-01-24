@@ -1,0 +1,36 @@
+---
+slug: mouse-touch-and-pointer-events
+title: Mouse, Touch and Pointer events
+authors: [filip]
+tags: [javascript]
+---
+
+I recently stumbled upon a bug related to the subtle differences between mouse, touch and pointer events. The bug made me confused—and curious. What is actually the difference between these events?
+
+## Mouse events
+
+[Mouse events](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) came first and handle events related to using a mouse. Then came touch devices. For compatibility with the existing mouse-based web, touch events were configured by user agents to fire corresponding mouse events. The mapping between mouse events and touch events came with an ambiguity problem, where it's no longer easy to know whether a mouse event represents an actual mouse event or if it's rather a synthetic touch event, which might need to be handled differently.
+
+Additionally, there are also situations where a touch event can't be represented with a mouse event—for example when it comes to multi-touch.
+
+## Touch events
+
+To properly account for touch devices, [touch events](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent) were introduced. Great! Or is it really great? The problem is that there now is a need of listening for two types of events, which can cause confusion and bugs. Then came pens—a device that provides yet another type of pointer input. Should pen events be introduced? That would lead to the need of having to listen to yet another event type, and it would probably also require firing synthetic mouse events again that would make mouse events even more difficult to use.
+
+Instead of going further down this rabbit hole, a new more abstract type of event was introduced. It's called pointer events.
+
+## Pointer events
+
+A [pointer event](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent) is not tied to any specific input device, but represents any type of contact on the screen. This means you can listen to pointer events only, and all types of pointer input is taken care of. If you for some reason want to handle devices differently, the pointer event provides a way of inspecting the device type that produced the pointer event.
+
+## Conclusion
+
+While mouse and touch events are tied to a specific type of device, pointer events are hardware agnostic. Pointer events can be used instead of other types of events to avoid duplicated event handling logic and general overhead when adding support for the input types of the future.
+
+## References
+
+- https://www.w3.org/TR/pointerevents/
+- https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+- https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
+- https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent
+- https://javascript.info/pointer-events
