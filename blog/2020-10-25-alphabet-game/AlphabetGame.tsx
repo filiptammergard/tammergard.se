@@ -1,6 +1,6 @@
 import { Input } from "@site/src/components/TextInput/TextInput"
 import { useInterval } from "@site/src/hooks/useInterval"
-import React, { KeyboardEvent, useState } from "react"
+import React, { KeyboardEvent, useReducer } from "react"
 import styles from "./styles.module.css"
 
 type GameState = "idle" | "running" | "lost" | "won"
@@ -8,74 +8,115 @@ type GameState = "idle" | "running" | "lost" | "won"
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const INTERVAL_MS = 100
 
+interface State {
+	correctLetter: string
+	incorrectLetter: string
+	input: string
+	instruction: string
+	state: GameState
+	time: number
+}
+
+type Action =
+	| {
+			type: "correct letter"
+			input: string
+	  }
+	| {
+			type: "incorrect letter"
+			correctLetter: string
+			incorrectLetter: string
+	  }
+	| {
+			type: "finished"
+	  }
+	| { type: "reset" }
+	| { type: "tick" }
+
+const initialState: State = {
+	correctLetter: "",
+	incorrectLetter: "",
+	input: "",
+	instruction: ALPHABET[0],
+	state: "idle",
+	time: 0,
+}
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "correct letter":
+			return {
+				...state,
+				state: "running",
+				input: action.input,
+				instruction: getNextLetter(action.input),
+			}
+		case "incorrect letter":
+			return {
+				...state,
+				state: "lost",
+				instruction: `Too bad! You wrote ${
+					action.incorrectLetter
+				} when it should have been ${getNextLetter(action.correctLetter)}.`,
+			}
+		case "finished":
+			return { ...state, state: "won", instruction: "Success!" }
+		case "tick":
+			return { ...state, time: state.time + INTERVAL_MS }
+		case "reset":
+			return initialState
+	}
+}
+
 export function AlphabetGame() {
-	const [input, setInput] = useState("")
-	const [gameState, setGameState] = useState<GameState>("idle")
-	const [time, setTime] = useState(0)
-	const [invalidLetter, setInvalidLetter] = useState("")
+	const [state, dispatch] = useReducer(reducer, initialState)
 
 	useInterval(
-		() => setTime(time + INTERVAL_MS),
-		gameState === "running" ? INTERVAL_MS : null,
+		() => dispatch({ type: "tick" }),
+		state.state === "running" ? INTERVAL_MS : null,
 	)
-
-	const nextLetter = input === "" ? ALPHABET[0] : getNextLetter(input.slice(-1))
 
 	function handleInputChange(letterInput: string) {
 		const inputLength = letterInput.length
-		if (gameState === "won") {
+		console.log({ letterInput, inputLength })
+		if (state.state === "idle" && letterInput !== ALPHABET[0]) {
 			return
-		} else if (gameState === "lost") {
+		} else if (state.state === "lost") {
+			return
+		} else if (state.state === "won") {
 			return
 		} else if (letterInput === ALPHABET) {
-			setGameState("won")
+			dispatch({ type: "finished" })
 		} else if (letterInput === ALPHABET.slice(0, inputLength)) {
-			setGameState("running")
-			setInput(letterInput)
+			dispatch({ type: "correct letter", input: letterInput })
 		} else {
-			setGameState("lost")
-			console.log(letterInput)
-			setInvalidLetter(letterInput.slice(-1))
+			dispatch({
+				type: "incorrect letter",
+				correctLetter: ALPHABET[inputLength - 2],
+				incorrectLetter: letterInput.slice(-1),
+			})
 		}
 	}
 
 	function handleEnterClick(e: KeyboardEvent<HTMLInputElement>) {
 		if (e.key === "Enter") {
-			reset()
+			dispatch({ type: "reset" })
 		}
-	}
-
-	function reset() {
-		setGameState("idle")
-		setInput("")
-		setInvalidLetter("")
-		setTime(0)
-	}
-
-	function getInstruction() {
-		if (gameState === "won") {
-			return "Success!"
-		}
-		if (gameState === "lost") {
-			return `Too bad! You wrote ${invalidLetter} when it should have been ${nextLetter}.`
-		}
-		return nextLetter
 	}
 
 	return (
 		<>
-			<p className={styles.instructions}>{getInstruction()}</p>
+			<p className={styles.instructions}>{state.instruction}</p>
 			<div className={styles.innerWrapper}>
 				<Input
-					type="text"
 					onChange={(e) => handleInputChange(e.target.value.toUpperCase())}
 					onKeyDown={handleEnterClick}
-					value={input}
+					value={state.input}
 					placeholder="Type alphabet (click enter to restart)"
 				/>
-				<button onClick={reset}>Reset</button>
+				<button onClick={() => dispatch({ type: "reset" })}>Reset</button>
 			</div>
-			<p className={styles.time}>{formatTime(time)} s</p>
+			<p className={styles.time}>{formatTime(state.time)} s</p>
 		</>
 	)
 }

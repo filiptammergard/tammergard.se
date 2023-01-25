@@ -4,5 +4,5 @@ import styles from "./styles.module.css"
 type Props = ComponentPropsWithoutRef<"input">
 
 export function Input(props: Props) {
-	return <input className={styles.input} {...props} />
+	return <input className={styles.input} type="text" {...props} />
 }
