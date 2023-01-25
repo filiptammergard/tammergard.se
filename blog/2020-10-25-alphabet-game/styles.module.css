@@ -1,0 +1,15 @@
+.instructions {
+  text-align: center;
+  font-size: 2rem;
+}
+
+.time {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 2rem;
+}
+
+.innerWrapper {
+  display: flex;
+  gap: 1rem;
+}
