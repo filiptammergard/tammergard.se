@@ -48,7 +48,7 @@ Let's play around with this knowledge for a while! Use the checkboxes to call `p
 We can see a few things in action here:
 
 - When no `preventDefault` is called, clicking the button with a mouse results in one `mousedown` event and one `pointerdown` event.
-- When no `preventDefault` is called, clicking the button with a finger on a touch device results in one `touchstart` event and one `pointerdown` event.
+- When no `preventDefault` is called, clicking the button with a finger on a touch device results in one `touchstart`, one `mousedown` event and one `pointerdown` event.
 - When `preventDefault` is called on the `touchstart` event, no `mousedown` event is fired when clicking the button with a finger on a touch device.
 - When `preventDefault` is called on the `pointerdown` event, no `mousedown` event is fired when clicking the button with a mouse.
 - Calling `preventDefault` on the `mousedown` event has no effect on any of the event counts compared to not calling it.

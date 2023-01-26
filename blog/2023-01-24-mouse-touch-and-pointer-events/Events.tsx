@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import styles from "./styles.module.css"
 
 export function Events() {
@@ -9,6 +9,41 @@ export function Events() {
 	const [preventMouseDown, setPreventMouseDown] = useState(false)
 	const [preventTouchStart, setPreventTouchStart] = useState(false)
 	const [preventPointerDown, setPreventPointerDown] = useState(false)
+
+	const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+	useEffect(() => {
+		const handleMouseDown = (e: MouseEvent) => {
+			if (preventMouseDown) e.preventDefault()
+			setMouseDownCount((count) => count + 1)
+		}
+		buttonRef?.current?.addEventListener("mousedown", handleMouseDown)
+		return () => {
+			buttonRef?.current?.removeEventListener("mousedown", handleMouseDown)
+		}
+	}, [buttonRef.current, preventMouseDown])
+
+	useEffect(() => {
+		const handleTouchStart = (e: TouchEvent) => {
+			if (preventTouchStart) e.preventDefault()
+			setTouchStartCount((count) => count + 1)
+		}
+		buttonRef?.current?.addEventListener("touchstart", handleTouchStart)
+		return () => {
+			buttonRef?.current?.removeEventListener("touchstart", handleTouchStart)
+		}
+	}, [buttonRef.current, preventTouchStart])
+
+	useEffect(() => {
+		const handlePointerDown = (e: PointerEvent) => {
+			if (preventPointerDown) e.preventDefault()
+			setPointerDownCount((count) => count + 1)
+		}
+		buttonRef?.current?.addEventListener("pointerdown", handlePointerDown)
+		return () => {
+			buttonRef?.current?.removeEventListener("pointerdown", handlePointerDown)
+		}
+	}, [buttonRef.current, preventPointerDown])
 
 	return (
 		<>
@@ -36,21 +71,7 @@ export function Events() {
 				/>{" "}
 				Prevent default on <code>pointerdown</code> event
 			</label>
-			<button
-				className={styles.button}
-				onMouseDown={(e) => {
-					if (preventMouseDown) e.preventDefault()
-					setMouseDownCount((count) => count + 1)
-				}}
-				onTouchStart={(e) => {
-					if (preventTouchStart) e.preventDefault()
-					setTouchStartCount((count) => count + 1)
-				}}
-				onPointerDown={(e) => {
-					if (preventPointerDown) e.preventDefault()
-					setPointerDownCount((count) => count + 1)
-				}}
-			>
+			<button ref={buttonRef} className={styles.button}>
 				Click me and see what's happening to the event counts!
 			</button>
 			<p>
