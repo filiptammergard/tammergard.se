@@ -5,29 +5,74 @@ authors: [filip]
 tags: [javascript]
 ---
 
+import { Events } from "./Events"
+
 I recently stumbled upon a bug related to the subtle differences between mouse, touch and pointer events. The bug made me confused—and curious. What is actually the difference between these events?
+
+I [opened an issue for the bug](https://github.com/radix-ui/primitives/issues/1903) that you can check out if you're also curious—but before trying to understand the bug, we need to set the stage with some knowledge around different types of events.
 
 <!-- truncate -->
 
 ## Mouse events
 
-[Mouse events](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent) came first and handle events related to using a mouse. Then came touch devices. For compatibility with the existing mouse-based web, touch events were configured by user agents to fire corresponding mouse events. The mapping between mouse events and touch events came with an ambiguity problem, where it's no longer easy to know whether a mouse event represents an actual mouse event or if it's rather a synthetic touch event, which might need to be handled differently.
+Historically, the mouse was the only type of input device. Because of that, the only type of input event was [mouse events](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent). This is the baseline.
 
-Additionally, there are also situations where a touch event can't be represented with a mouse event—for example when it comes to multi-touch.
+Then came touch devices. Touching a screen with a finger can partly be represented with a mouse click, but for example when it comes to multi-touch, such representation is not possible. We needed touch events!
 
 ## Touch events
 
-To properly account for touch devices, [touch events](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent) were introduced. Great! Or is it really great? The problem is that there now is a need of listening for two types of events, which can cause confusion and bugs. Then came pens—a device that provides yet another type of pointer input. Should pen events be introduced? That would lead to the need of having to listen to yet another event type, and it would probably also require firing synthetic mouse events again that would make mouse events even more difficult to use.
+For compatibility with the existing mouse-based web, [touch events](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent) were configured by user agents to fire subsequent mouse events, called "[compatibility mouse events](https://www.w3.org/TR/pointerevents/#compatibility-mapping-with-mouse-events)". The compatibility mouse events came with an ambiguity problem. If you for some reason need to listen to both events to handle mouse clicks and touches separately, a mouse click only fires the mouse event, while a touch fires both. It became difficult to know whether a mouse event was fired by an actual mouse click or a touch.
+
+User agents were configured to make use of `preventDefault` to solve the ambiguity problem.
+
+From the [spec for touch events](https://www.w3.org/TR/touch-events/):
+
+> If the preventDefault method of touchstart or touchmove is called, the user agent should not dispatch any mouse event that would be a consequential result of the the prevented touch event.
+
+Then came pens—a device that provides yet another type of device input. Should pen events be introduced? That would lead to the need of having to listen to yet another event type, and it would probably also require firing compatibility mouse events that yet again would lead to ambiguity problems.
 
 Instead of going further down this rabbit hole, a new more abstract type of event was introduced. It's called pointer events.
 
 ## Pointer events
 
-A [pointer event](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent) is not tied to any specific input device, but represents any type of contact on the screen. This means you can listen to pointer events only, and all types of pointer input is taken care of. If you for some reason want to handle devices differently, the pointer event provides a way of inspecting the device type that produced the pointer event.
+A [pointer event](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent) is not tied to any specific input device, but represents any type of device input. This means you can listen to pointer events only, and all types of device input is taken care of. If you want to handle types of device input differently, the pointer event provides a way of inspecting the device type that produced the pointer event.
+
+Yet again, compatibility mouse events are fired to support the existing web. And yet again `preventDefault` was utilized to make it possible to opt out of firing these compatibility mouse events.
+
+## Playground
+
+Let's play around with this knowledge for a while! Use the checkboxes to call `preventDefault` on different types of events. Then click the button and see what happens with the event counts.
+
+<Events />
+
+We can see a few things in action here:
+
+- When no `preventDefault` is called, clicking the button with a mouse results in one `mousedown` event and one `pointerdown` event.
+- When no `preventDefault` is called, clicking the button with a finger on a touch device results in one `touchstart` event and one `pointerdown` event.
+- When `preventDefault` is called on the `touchstart` event, no `mousedown` event is fired when clicking the button with a finger on a touch device.
+- When `preventDefault` is called on the `pointerdown` event, no `mousedown` event is fired when clicking the button with a mouse.
+- Calling `preventDefault` on the `mousedown` event has no effect on any of the event counts compared to not calling it.
+
+## Back to the bug
+
+A thorough description of the bug can be found in the [GitHub issue](https://github.com/radix-ui/primitives/issues/1903). I'll do a quick summary here.
+
+I had a date picker that closed when I clicked outside. But when I clicked on the menu button, the menu was opened while the date picker was not closed. In other words, after clicking the date picker and then the menu button, both of them were left open.
+
+Turns out that the date picker was closed on `mousedown` and `touchstart` events. Changing it to close on `pointerdown` solved to issue. That is an easy fix, but it's not satisfying to solve a bug without understanding what caused the problem and why the fix solves it.
+
+The [menu button called `preventDefault` on the `pointerdown` event](https://github.com/radix-ui/primitives/blob/21a7c97dc8efa79fecca36428eec49f187294085/packages/react/dropdown-menu/src/DropdownMenu.tsx#L124), to prevent the menu button from being focused when clicked and hence make it possible to give focus to the menu content without competition.
+
+As we have learned, calling `preventDefault` on a `pointerdown` event also prevents compatibility mouse events from being fired. Since the date picker listened to `mousedown` and `touchstart` to close, and none of these events were called, it didn't close.
+
+Since a `pointerdown` event was called, the date picker did close when listening to `pointerdown` instead of `mousedown` and `touchstart`.
+
+Mouse and touch events are still used in many places, probably partly due to the fact that they have better browser support. But support for pointer events is really good now and most of the web would probably benefit from using pointer events only.
 
 ## Conclusion
 
-While mouse and touch events are tied to a specific type of device, pointer events are hardware agnostic. Pointer events can be used instead of other types of events to avoid duplicated event handling logic and general overhead when adding support for the input types of the future.
+- While mouse and touch events are tied to a specific type of device, pointer events are hardware agnostic.
+- Pointer events can be used instead of other types of events to avoid duplicated event handling logic and problems related to compatibility mouse events.
 
 ## References
 
