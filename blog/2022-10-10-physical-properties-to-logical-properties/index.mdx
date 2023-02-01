@@ -321,6 +321,29 @@ It's important to remember that left is always left. If you say that something i
 
 Stay pragmatic!
 
+## Logical units
+
+We have been talking a lot about logical properties here, and a little bit about logical values. But what about units? Let me explain with an example declaration:
+
+```css
+inline-size: 70vw;
+```
+
+Does it ring a bell? It probably should. In this declaration, the logical `inline-size` property is used, but the declaration value `70vw` is physical. In other words, `inline-size` can define the horizontal or vertical size depending on writing mode, while `70vw` is always calculated based on the horizontal size undependent on the writing mode. In practice, we probably want the value to be flow relative as well in this case.
+
+The units `vb` and `vi` can make this happen! `vb` is the percentage the viewport's block size, while `vi` is the percentage of the viewport's inline size. So here's what you can do instead to make the value flow relative:
+
+```css
+inline-size: 70vi;
+```
+
+Here it is in table format:
+
+| Physical unit | Logical unit |
+| ------------- | ------------ |
+| `vh `         | `vb`         |
+| `vw `         | `vi`         |
+
 ## Conclusion
 
 - Logical properties are awesome!
