@@ -57,9 +57,9 @@ We can see a few things in action here:
 
 A thorough description of the bug can be found in the [GitHub issue](https://github.com/radix-ui/primitives/issues/1903). I'll do a quick summary here.
 
-I had a date picker that closed when I clicked outside. But when I clicked on the menu button, the menu was opened while the date picker was not closed. In other words, after clicking the date picker and then the menu button, both of them were left open.
+I had a date picker that closed when I clicked outside. But when I clicked on a menu button, the menu was opened while the date picker was not closed. In other words, after clicking the date picker and then the menu button, both of them were left open.
 
-Turns out that the date picker was closed on `mousedown` and `touchstart` events. Changing it to close on `pointerdown` solved to issue. That is an easy fix, but it's not satisfying to solve a bug without understanding what caused the problem and why the fix solves it.
+Turns out that the date picker was closed on `mousedown` and `touchstart` events. Changing it to close on `pointerdown` solved the issue. That is an easy fix, but it's not satisfying to solve a bug without understanding what caused the problem and why the fix solves it.
 
 The [menu button called `preventDefault` on the `pointerdown` event](https://github.com/radix-ui/primitives/blob/21a7c97dc8efa79fecca36428eec49f187294085/packages/react/dropdown-menu/src/DropdownMenu.tsx#L124), to prevent the menu button from being focused when clicked and hence make it possible to give focus to the menu content without competition.
 
