@@ -1,0 +1,7 @@
+.th {
+  writing-mode: vertical-lr;
+}
+
+.true {
+  background: var(--ifm-color-primary-lightest);
+}
