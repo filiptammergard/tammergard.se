@@ -23,7 +23,7 @@ export function Table() {
 					checked={equality === "triple"}
 					onClick={() => setEquality("triple")}
 				/>
-				Triple equals (identity operator)
+				Triple equals (strict equality operator)
 			</label>
 			<br />
 			<br />
