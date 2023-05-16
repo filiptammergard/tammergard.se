@@ -10,6 +10,12 @@ dependencies:
   '@docusaurus/theme-live-codeblock':
     specifier: 2.4.1
     version: 2.4.1(react-dom@17.0.2)(react@17.0.2)(typescript@5.0.4)
+  '@mdx-js/react':
+    specifier: 1.6.22
+    version: 1.6.22(react@17.0.2)
+  prism-react-renderer:
+    specifier: 2.0.4
+    version: 2.0.4(react@17.0.2)
   react:
     specifier: 17.0.2
     version: 17.0.2
@@ -2826,6 +2832,10 @@ packages:
 
   /@types/parse5@5.0.3:
     resolution: {integrity: sha512-kUNnecmtkunAoQ3CnjmMkzNU/gtxG8guhi+Fk2U/kOpIKjIMKnXGp4IJCgQJrXSgMsWYimYG4TGjz/UzbGEBTw==}
+    dev: false
+
+  /@types/prismjs@1.26.0:
+    resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
     dev: false
 
   /@types/prop-types@15.7.5:
@@ -6728,6 +6738,16 @@ packages:
     peerDependencies:
       react: '>=0.14.9'
     dependencies:
+      react: 17.0.2
+    dev: false
+
+  /prism-react-renderer@2.0.4(react@17.0.2):
+    resolution: {integrity: sha512-1fcayBPhlGWLjKHeZMA2eJbvLsq1YJsoP3CUOF0BNlobw4knAYS6EWHYawywaZ5zoIxYkgxuqrrkCj7b+135ow==}
+    peerDependencies:
+      react: '>=16.0.0'
+    dependencies:
+      '@types/prismjs': 1.26.0
+      clsx: 1.2.1
       react: 17.0.2
     dev: false
 
