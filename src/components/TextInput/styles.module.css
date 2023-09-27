@@ -1,11 +1,11 @@
 .input {
-  display: block;
-  padding-block: 0.6rem;
-  padding-inline: 1rem;
-  width: 100%;
-  font-size: 1rem;
+	display: block;
+	padding-block: 0.6rem;
+	padding-inline: 1rem;
+	width: 100%;
+	font-size: 1rem;
 }
 
 .input::placeholder {
-  color: var(--ifm-color-secondary);
+	color: var(--ifm-color-secondary);
 }

@@ -1,10 +1,10 @@
 .button {
-  margin-block: 2rem;
-  padding-inline: 1rem;
-  padding-block: 0.6rem;
-  font-size: 1rem;
+	margin-block: 2rem;
+	padding-inline: 1rem;
+	padding-block: 0.6rem;
+	font-size: 1rem;
 }
 
 .label {
-  display: block;
+	display: block;
 }

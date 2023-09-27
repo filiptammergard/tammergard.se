@@ -1,7 +1,7 @@
 .th {
-  writing-mode: vertical-lr;
+	writing-mode: vertical-lr;
 }
 
 .true {
-  background: var(--ifm-color-primary-lightest);
+	background: var(--ifm-color-primary-lightest);
 }

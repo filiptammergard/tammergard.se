@@ -8,7 +8,7 @@
 	--ifm-color-primary-lightest: #3cad6e;
 	--ifm-code-font-size: 100%;
 	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  --ifm-color-secondary: #555555;
+	--ifm-color-secondary: #555555;
 }
 
 [data-theme="dark"] {
@@ -20,5 +20,5 @@
 	--ifm-color-primary-lighter: #32d8b4;
 	--ifm-color-primary-lightest: #4fddbf;
 	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
-  --ifm-color-secondary: #AAAAAA;
+	--ifm-color-secondary: #aaaaaa;
 }
