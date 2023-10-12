@@ -27,7 +27,7 @@
 	},
 	"devDependencies": {
 		"@docusaurus/module-type-aliases": "2.4.3",
-		"@tammergard/prettier-config": "2.0.2",
+		"@tammergard/prettier-config": "2.1.0",
 		"@tsconfig/docusaurus": "2.0.1",
 		"prettier": "3.0.3",
 		"typescript": "5.2.2"
