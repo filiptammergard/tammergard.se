@@ -13,7 +13,7 @@ dependencies:
     version: 3.0.0(@algolia/client-search@4.20.0)(@types/react@18.2.6)(react-dom@18.2.0)(react@18.2.0)(search-insights@2.9.0)(typescript@5.2.2)
   '@docusaurus/theme-live-codeblock':
     specifier: 3.0.0
-    version: 3.0.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
+    version: 3.0.0(@docusaurus/types@3.0.0)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
   '@mdx-js/react':
     specifier: 3.0.0
     version: 3.0.0(@types/react@18.2.6)(react@18.2.0)
@@ -34,6 +34,9 @@ devDependencies:
   '@docusaurus/tsconfig':
     specifier: 3.0.0
     version: 3.0.0
+  '@docusaurus/types':
+    specifier: 3.0.0
+    version: 3.0.0(react-dom@18.2.0)(react@18.2.0)
   '@tammergard/prettier-config':
     specifier: 2.1.0
     version: 2.1.0(prettier@3.0.3)
@@ -2181,7 +2184,7 @@ packages:
       - webpack-cli
     dev: false
 
-  /@docusaurus/theme-live-codeblock@3.0.0(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
+  /@docusaurus/theme-live-codeblock@3.0.0(@docusaurus/types@3.0.0)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2):
     resolution: {integrity: sha512-q5B65DQ2aH4pK4XNwzMSZ91jTSQK95nQhYa0h9gR1ANarYS8MJfAv4LXS9Ej0M5cRYdzVugM5VjC/4vWYGZbQQ==}
     engines: {node: '>=18.0'}
     peerDependencies:
