@@ -39,10 +39,10 @@ devDependencies:
     version: 3.1.0(react-dom@18.2.0)(react@18.2.0)
   '@tammergard/prettier-config':
     specifier: 2.1.0
-    version: 2.1.0(prettier@3.2.3)
+    version: 2.1.0(prettier@3.2.4)
   prettier:
-    specifier: 3.2.3
-    version: 3.2.3
+    specifier: 3.2.4
+    version: 3.2.4
   typescript:
     specifier: 5.3.3
     version: 5.3.3
@@ -2704,12 +2704,12 @@ packages:
       defer-to-connect: 2.0.1
     dev: false
 
-  /@tammergard/prettier-config@2.1.0(prettier@3.2.3):
+  /@tammergard/prettier-config@2.1.0(prettier@3.2.4):
     resolution: {integrity: sha512-1jhoyqQ6ovcOV3fqNPfJJFyyAQtZh5Mw2eSRS20Zd2oty5wq+cmpB3u7d9DoCe3JQrxCflBuSeWtqSv/2A5dig==}
     peerDependencies:
       prettier: '>=2.6.0'
     dependencies:
-      prettier: 3.2.3
+      prettier: 3.2.4
     dev: true
 
   /@trysound/sax@0.2.0:
@@ -7336,8 +7336,8 @@ packages:
       source-map-js: 1.0.2
     dev: false
 
-  /prettier@3.2.3:
-    resolution: {integrity: sha512-QNhUTBq+mqt1oH1dTfY3phOKNhcDdJkfttHI6u0kj7M2+c+7fmNKlgh2GhnHiqMcbxJ+a0j2igz/2jfl9QKLuw==}
+  /prettier@3.2.4:
+    resolution: {integrity: sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
