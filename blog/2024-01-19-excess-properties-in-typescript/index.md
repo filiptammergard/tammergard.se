@@ -22,6 +22,8 @@ const person: Person = {
 
 In this case, TypeScript makes it clear that `lastName` is not defined in the `Person` type and is therefore not allowed.
 
+<!-- truncate -->
+
 However, in other cases, TypeScript does not check for excess properties:
 
 ```ts
