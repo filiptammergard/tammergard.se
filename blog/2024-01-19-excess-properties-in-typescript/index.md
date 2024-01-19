@@ -83,9 +83,12 @@ const person = {
 printPerson(person) // 👍 This is fine!
 ```
 
-Sounds like [there could be a future when TypeScript runs excess property checks in all these cases](https://github.com/microsoft/TypeScript/issues/12936#issuecomment-284590083) so that excess properties would never be allowed.
+TypeScript being a structural type system means it checks _minimum_ requirements rather than _exact_ requirements – at least in some cases.
+
+The reason TypeScript is doing excess property checks when passing an "inline" object is probably since it won't be used anywhere else and [TypeScript can assume the excess property is a mistake](https://twitter.com/AndaristRake/status/1748250533331136947).
 
 ## References
 
 - https://www.typescriptlang.org/docs/handbook/interfaces.html
 - https://github.com/microsoft/TypeScript/issues/12936#issuecomment-284590083
+- https://twitter.com/AndaristRake/status/1748250533331136947
