@@ -23,7 +23,7 @@ const memo = useMemo(() => {
 
 <!-- truncate -->
 
-In this case, `useState` is used without a `set` function, which means `state` cannot be changed programmatically – kind of like `useMemo`.
+In this case, `useState` is used without a `set` function, which means `state` cannot be changed programmatically—kind of like `useMemo`.
 
 The difference is the dependency array of `useMemo`. When `input` changes, `memo` will be updated accordingly. In contrast, `state` will stay the same. The reason is that the initializer function will only run when initializing the component, but it won't "react" to updates to `input`.
 

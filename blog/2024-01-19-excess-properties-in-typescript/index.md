@@ -41,7 +41,7 @@ const person: Person = {
 }
 ```
 
-This is, to me, a pretty weird thing about TypeScript – but it is [well documented in the docs](https://www.typescriptlang.org/docs/handbook/interfaces.html).
+This is, to me, a pretty weird thing about TypeScript—but it is [well documented in the docs](https://www.typescriptlang.org/docs/handbook/interfaces.html).
 
 Notice that is does not have to do with the spread syntax specifically, but rather that TypeScript does not run excess property checks on objects when they are defined separately.
 
@@ -83,7 +83,7 @@ const person = {
 printPerson(person) // 👍 This is fine!
 ```
 
-TypeScript being a structural type system means it checks _minimum_ requirements rather than _exact_ requirements – at least in some cases.
+TypeScript being a structural type system means it checks _minimum_ requirements rather than _exact_ requirements—at least in some cases.
 
 The reason TypeScript is doing excess property checks when passing an "inline" object is probably since it won't be used anywhere else and [TypeScript can assume the excess property is a mistake](https://twitter.com/AndaristRake/status/1748250533331136947).
 
