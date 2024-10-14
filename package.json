@@ -31,7 +31,7 @@
 		"@docusaurus/types": "3.5.2",
 		"@tammergard/prettier-config": "2.1.0",
 		"prettier": "3.3.3",
-		"typescript": "5.6.2"
+		"typescript": "5.6.3"
 	},
 	"browserslist": {
 		"production": [
