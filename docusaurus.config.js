@@ -52,8 +52,8 @@ const config = {
 						position: "right",
 					},
 					{
-						href: "https://twitter.com/tammergard",
-						label: "Twitter",
+						href: "https://x.com/tammergard",
+						label: "X",
 						position: "right",
 					},
 					{
@@ -73,8 +73,8 @@ const config = {
 								href: "https://github.com/filiptammergard",
 							},
 							{
-								label: "Twitter",
-								href: "https://twitter.com/tammergard",
+								label: "X",
+								href: "https://x.com/tammergard",
 							},
 						],
 					},
