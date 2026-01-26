@@ -41,10 +41,10 @@ importers:
         version: 3.9.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tammergard/prettier-config':
         specifier: 2.1.0
-        version: 2.1.0(prettier@3.8.0)
+        version: 2.1.0(prettier@3.8.1)
       prettier:
-        specifier: 3.8.0
-        version: 3.8.0
+        specifier: 3.8.1
+        version: 3.8.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -4179,8 +4179,8 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  prettier@3.8.0:
-    resolution: {integrity: sha512-yEPsovQfpxYfgWNhCfECjG5AQaO+K3dp6XERmOepyPDVqcJm+bjyCVO3pmU+nAPe0N5dDvekfGezt/EIiRe1TA==}
+  prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -7427,9 +7427,9 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tammergard/prettier-config@2.1.0(prettier@3.8.0)':
+  '@tammergard/prettier-config@2.1.0(prettier@3.8.1)':
     dependencies:
-      prettier: 3.8.0
+      prettier: 3.8.1
 
   '@trysound/sax@0.2.0': {}
 
@@ -10621,7 +10621,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  prettier@3.8.0: {}
+  prettier@3.8.1: {}
 
   pretty-error@4.0.0:
     dependencies:
