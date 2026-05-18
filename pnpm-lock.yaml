@@ -40,8 +40,8 @@ importers:
         specifier: 3.10.1
         version: 3.10.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tammergard/prettier-config':
-        specifier: 2.1.0
-        version: 2.1.0(prettier@3.8.3)
+        specifier: 3.0.0
+        version: 3.0.0(prettier@3.8.3)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -1581,10 +1581,10 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@tammergard/prettier-config@2.1.0':
-    resolution: {integrity: sha512-1jhoyqQ6ovcOV3fqNPfJJFyyAQtZh5Mw2eSRS20Zd2oty5wq+cmpB3u7d9DoCe3JQrxCflBuSeWtqSv/2A5dig==}
+  '@tammergard/prettier-config@3.0.0':
+    resolution: {integrity: sha512-UEkgHSambDW4MozqZ3Uq7nfWtuvR3R2rLA1lV/eoRvuo6rhkKZDJsxyfDSl13+j8CV2ydqNts7WE9FI1EN9DNA==}
     peerDependencies:
-      prettier: '>=2.6.0'
+      prettier: '>=3.0.0'
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -7698,7 +7698,7 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tammergard/prettier-config@2.1.0(prettier@3.8.3)':
+  '@tammergard/prettier-config@3.0.0(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 

@@ -29,7 +29,7 @@
 		"@docusaurus/module-type-aliases": "3.10.1",
 		"@docusaurus/tsconfig": "3.10.1",
 		"@docusaurus/types": "3.10.1",
-		"@tammergard/prettier-config": "2.1.0",
+		"@tammergard/prettier-config": "3.0.0",
 		"prettier": "3.8.3",
 		"typescript": "6.0.3"
 	},
