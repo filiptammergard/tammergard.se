@@ -90,4 +90,13 @@ export const featuredPosts: FeaturedPost[] = [
 			sv: "JavaScripts likhetstabell",
 		},
 	},
+	{
+		slug: "namnsdag-api",
+		date: "2026-05-21",
+		tag: "javascript",
+		title: {
+			en: "A JSON API for namedays",
+			sv: "Ett JSON-API för namnsdagar",
+		},
+	},
 ]

@@ -1,0 +1,129 @@
+---
+slug: namnsdag-api
+title: Ett JSON-API för namnsdagar
+description: Ett litet gratis JSON-API för att slå upp namnsdagar i Sverige, Norge, Danmark, Tyskland, Tjeckien och Polen.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TodayJson } from "@site/blog/2026-05-21-namnsdag-api/TodayJson"
+import { TodayNames } from "@site/blog/2026-05-21-namnsdag-api/TodayNames"
+
+I dag har **<TodayNames locale="sv" />** namnsdag i Sverige.
+
+Jag har precis lagt till ett litet JSON-API på [namnsdag.tammergard.se](https://namnsdag.tammergard.se) för att slå upp namnsdagar i Sverige, Norge, Danmark, Tyskland, Tjeckien och Polen.
+
+{/* truncate */}
+
+Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla ursprung. Statiska endpoints (`/all`, `/on`, `/when`, `/where`, `/who`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att dygnsskiftet inte serverar gårdagens namn. Fullständig dokumentation på [namnsdag.tammergard.se/api](https://namnsdag.tammergard.se/api).
+
+## I dag
+
+```ts
+const res = await fetch("https://namnsdag.tammergard.se/api/v1/today?countryCode=SE")
+const data = await res.json()
+```
+
+Live-svar just nu:
+
+<TodayJson />
+
+Query-parametern `countryCode` är valfri och har `SE` som standard. Stödda koder är `SE`, `NO`, `DK`, `DE`, `CZ` och `PL`.
+
+## Ett specifikt datum
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/12/24?countryCode=SE")
+// [
+//   {
+//     id: "SE-12-24-1",
+//     countryCode: "SE",
+//     name: "Eva",
+//     month: 12,
+//     day: 24
+//   }
+// ]
+```
+
+## När har ett namn namnsdag?
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/when/filip?countryCode=SE")
+// [
+//   {
+//     id: "SE-5-2-1",
+//     countryCode: "SE",
+//     name: "Filip",
+//     month: 5,
+//     day: 2
+//   }
+// ]
+```
+
+## Alla namnsdagar för ett land
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/where/SE")
+// [
+//   {
+//     id: "SE-1-1-1",
+//     countryCode: "SE",
+//     name: "Nyårsdagen",
+//     month: 1,
+//     day: 1
+//   },
+//   {
+//     id: "SE-1-2-1",
+//     countryCode: "SE",
+//     name: "Svea",
+//     month: 1,
+//     day: 2
+//   },
+//   ...
+// ]
+```
+
+Det finns också `/api/v1/all?countryCode=SE` om du hellre vill skicka landet som query-parameter.
+
+## En enskild post via id
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/who/SE-5-21-1")
+// {
+//   id: "SE-5-21-1",
+//   countryCode: "SE",
+//   name: "Conny",
+//   month: 5,
+//   day: 21
+// }
+```
+
+Det här är den enda endpointen som returnerar ett enskilt objekt i stället för en lista. Okända id:n returnerar `404`.
+
+## Fel
+
+Felsvaren följer [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) och skiljer på felformaterad indata och semantiskt ogiltig indata. Felformaterade värden – till exempel en sträng där ett heltal förväntas – returnerar `400`:
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/abc/1")
+// {
+//   error: {
+//     status: 400,
+//     message: 'Invalid month "abc". Must be an integer.'
+//   }
+// }
+```
+
+Värden som har rätt form men är utanför tillåtet intervall eller på annat sätt inte tillåtna – som månad `13` eller en okänd landskod – returnerar `422`:
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/13/1")
+// {
+//   error: {
+//     status: 422,
+//     message: 'Invalid month "13". Must be between 1 and 12.'
+//   }
+// }
+```
+
+Det är hela API:et. Utforska mer kring namnsdagar på [namnsdag.tammergard.se](https://namnsdag.tammergard.se).

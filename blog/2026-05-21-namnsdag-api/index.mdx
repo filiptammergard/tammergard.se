@@ -1,0 +1,129 @@
+---
+slug: namnsdag-api
+title: A JSON API for namedays
+description: A small free JSON API for looking up namedays in Sweden, Norway, Denmark, Germany, Czechia and Poland.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TodayJson } from "./TodayJson"
+import { TodayNames } from "./TodayNames"
+
+In Sweden, today is **<TodayNames locale="en" />**'s nameday.
+
+I just added a small JSON API to [namnsdag.tammergard.se](https://namnsdag.tammergard.se) for looking up namedays in Sweden, Norway, Denmark, Germany, Czechia and Poland.
+
+{/* truncate */}
+
+All endpoints live under `/api/v1/`, return JSON, and have CORS enabled for all origins. Static endpoints (`/all`, `/on`, `/when`, `/where`, `/who`) are CDN-cached for a week, while `/today` is cached until the next midnight in `Europe/Stockholm` so the day rollover doesn't serve yesterday's names. Full docs at [namnsdag.tammergard.se/api](https://namnsdag.tammergard.se/api).
+
+## Today
+
+```ts
+const res = await fetch("https://namnsdag.tammergard.se/api/v1/today?countryCode=SE")
+const data = await res.json()
+```
+
+Live response right now:
+
+<TodayJson />
+
+The `countryCode` query parameter is optional and defaults to `SE`. Supported codes are `SE`, `NO`, `DK`, `DE`, `CZ` and `PL`.
+
+## A specific date
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/12/24?countryCode=SE")
+// [
+//   {
+//     id: "SE-12-24-1",
+//     countryCode: "SE",
+//     name: "Eva",
+//     month: 12,
+//     day: 24
+//   }
+// ]
+```
+
+## When does a name have its day?
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/when/filip?countryCode=SE")
+// [
+//   {
+//     id: "SE-5-2-1",
+//     countryCode: "SE",
+//     name: "Filip",
+//     month: 5,
+//     day: 2
+//   }
+// ]
+```
+
+## All namedays for a country
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/where/SE")
+// [
+//   {
+//     id: "SE-1-1-1",
+//     countryCode: "SE",
+//     name: "Nyårsdagen",
+//     month: 1,
+//     day: 1
+//   },
+//   {
+//     id: "SE-1-2-1",
+//     countryCode: "SE",
+//     name: "Svea",
+//     month: 1,
+//     day: 2
+//   },
+//   ...
+// ]
+```
+
+There's also `/api/v1/all?countryCode=SE` if you'd rather pass the country as a query parameter.
+
+## A single entry by id
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/who/SE-5-21-1")
+// {
+//   id: "SE-5-21-1",
+//   countryCode: "SE",
+//   name: "Conny",
+//   month: 5,
+//   day: 21
+// }
+```
+
+This is the only endpoint that returns a single object instead of an array. Unknown ids return `404`.
+
+## Errors
+
+Errors follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) and distinguish malformed input from semantically invalid input. Malformed values — for example a non-integer where an integer is expected — return `400`:
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/abc/1")
+// {
+//   error: {
+//     status: 400,
+//     message: 'Invalid month "abc". Must be an integer.'
+//   }
+// }
+```
+
+Values that are well-formed but out of range or otherwise not allowed — like a month of `13` or an unknown country code — return `422`:
+
+```ts
+await fetch("https://namnsdag.tammergard.se/api/v1/on/13/1")
+// {
+//   error: {
+//     status: 422,
+//     message: 'Invalid month "13". Must be between 1 and 12.'
+//   }
+// }
+```
+
+That's the whole API. Explore more namedays at [namnsdag.tammergard.se](https://namnsdag.tammergard.se).
