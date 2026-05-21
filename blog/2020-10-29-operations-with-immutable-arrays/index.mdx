@@ -1,0 +1,152 @@
+---
+slug: operations-with-immutable-arrays
+title: Operations in JavaScript with immutable arrays
+description: Add, replace and remove array items without mutation using the spread operator, filter and map instead of push, splice and friends.
+authors: [filip]
+tags: [javascript]
+---
+
+As mentioned many times before, I always try to keep my variables immutable when developing. Let's take a closer look at how we accomplish immutable arrays in JavaScript when adding, replacing or removing elements. We start with an array of birds:
+
+```js
+const birds = ["Great tit", "Blue tit", "Pine grosbeak", "Stock dove"]
+```
+
+{/* truncate */}
+
+## Adding an element
+
+How do we add a bird, say a mute swan, to the list? Even though the array is declared with `const` and so is "immutable", it isn't really. You can still add elements to the list with for example `push`.
+
+```js
+// Don't try this at home
+
+birds.push("Mute swan")
+
+/*
+  birds = [
+    'Great tit',
+    'Blue tit',
+    'Pine grosbeak',
+    'Stock dove',
+    'Mute swan'
+  ]
+*/
+```
+
+But we don't do that — we want to keep immutable variables unchanged (even if they aren't really fully immutable). What we want to do is add the mute swan and store the new set of birds in a new immutable array. You might be tempted to try the same thing again and save the result in a new array:
+
+```js
+// Don't try this at home
+
+const newBirds = birds.push("Mute swan")
+
+// newBirds = 5
+```
+
+That's not how `push` is used. The new variable `newBirds` gets the value `5` because `push` returns the new length of the array. Another problem is that the original array `birds` now has the mute swan in it, which wasn't the intention.
+
+Here, we want to use the _spread_ operator.
+
+```js
+const newBirds = [...birds, "Mute swan"]
+
+/*
+  newBirds = [
+    'Great tit',
+    'Blue tit',
+    'Pine grosbeak',
+    'Stock dove',
+    'Mute swan'
+  ]
+*/
+```
+
+Now `newBirds` gets the mute swan, but `birds` stays as it was, just as we wanted. The spread `...birds` inserts all elements from `birds` and then we simply add the mute swan after them and save in the new array.
+
+## Replacing an element
+
+We might decide that "Pine grosbeak" was a needlessly uncommon bird in our array and want to swap it for a "Hooded crow". How? Spread again!
+
+```js
+const newBirds = [...birds.slice(0, 2), "Hooded crow", ...birds.slice(3)]
+
+/*
+  newBirds = [
+    'Great tit',
+    'Blue tit',
+    'Hooded crow',
+    'Stock dove'
+  ]
+*/
+```
+
+We add all birds before "Pine grosbeak" from `birds` into `newBirds`, insert "Hooded crow", and finally add all birds after "Pine grosbeak". If we don't know in advance where "Pine grosbeak" is in the array, we can find out and use that knowledge:
+
+```js
+const pineGrosbeakIndex = birds.findIndex((bird) => bird === "Pine grosbeak")
+
+const newBirds = [
+	...birds.slice(0, pineGrosbeakIndex),
+	"Hooded crow",
+	...birds.slice(pineGrosbeakIndex + 1),
+]
+
+/*
+  newBirds = [
+    'Great tit',
+    'Blue tit',
+    'Hooded crow',
+    'Stock dove'
+  ]
+*/
+```
+
+If it isn't important that the birds end up in the same order as before, we can do the update in a smoother way:
+
+```js
+const newBirds = [
+	...birds.filter((bird) => bird !== "Pine grosbeak"),
+	"Hooded crow",
+]
+
+/*
+  newBirds = [
+    'Great tit',
+    'Blue tit',
+    'Stock dove',
+    'Hooded crow'
+  ]
+*/
+```
+
+Spread solves most of it!
+
+## Removing an element
+
+Removing an element is actually the easiest of these operations. We start again from the original `birds` array and remove the blue tit.
+
+```js
+const newBirds = birds.filter((bird) => bird !== "Blue tit")
+
+/*
+  newBirds = [
+    'Great tit',
+    'Pine grosbeak',
+    'Stock dove'
+  ]
+*/
+```
+
+## ES2023 update
+
+ES2023 added immutable array methods that make most of the above much simpler: `Array.prototype.with(index, value)`, `toSpliced(start, deleteCount, ...items)`, `toSorted()` and `toReversed()`. They all return new arrays without mutating the original.
+
+```js
+const newBirds = birds.toSpliced(2, 1, "Hooded crow")
+// > ['Great tit', 'Blue tit', 'Hooded crow', 'Stock dove']
+```
+
+When the runtime supports them, prefer these over the spread-based patterns.
+
+Done!

@@ -1,12 +1,44 @@
 ---
 title: Hey
+description: Filip Tammergård's personal website and blog.
+hide_table_of_contents: true
 ---
 
+import { Hero } from "@site/src/components/Hero"
 import { Presentation } from "@site/src/components/Presentation"
-import Translate from "@docusaurus/Translate"
+import { FeaturedPosts } from "@site/src/components/FeaturedPosts"
+import { LinkCards } from "@site/src/components/LinkCards"
 
-# Hey 👋
+<Hero
+	title={<>Hey 👋</>}
+	subtitle="I'm Filip — a developer in Uppsala writing about the small, curious corners of the web."
+>
+	This is the place where I share things I find interesting: tiny experiments,
+	JavaScript and CSS notes, and the occasional rabbit hole. Enjoy!
+</Hero>
 
 <Presentation />
 
-This is the place where I write about things I find interesting. Enjoy!
+<FeaturedPosts />
+
+<LinkCards
+	cards={[
+		{
+			title: "Blog",
+			href: "/blog",
+			description: "Notes on JavaScript, TypeScript, CSS, and React.",
+		},
+		{
+			title: "Recipes",
+			href: "https://recept.tammergard.se",
+			description: "My personal recipe collection (in Swedish).",
+			external: true,
+		},
+		{
+			title: "GitHub",
+			href: "https://github.com/filiptammergard",
+			description: "Side projects and open source.",
+			external: true,
+		},
+	]}
+/>

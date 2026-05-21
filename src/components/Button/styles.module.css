@@ -1,0 +1,79 @@
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition:
+		background-color 150ms ease,
+		border-color 150ms ease,
+		color 150ms ease,
+		transform 60ms ease;
+	user-select: none;
+}
+
+.button:active:not(:disabled) {
+	transform: translateY(1px);
+}
+
+.button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.button:focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+.size_sm {
+	padding: 0.4rem 0.75rem;
+	font-size: 0.875rem;
+}
+
+.size_md {
+	padding: 0.55rem 1rem;
+	font-size: 0.9375rem;
+}
+
+.variant_primary {
+	background-color: var(--ifm-color-primary);
+	color: #fff;
+	border-color: var(--ifm-color-primary);
+}
+
+.variant_primary:hover:not(:disabled) {
+	background-color: var(--ifm-color-primary-dark);
+	border-color: var(--ifm-color-primary-dark);
+}
+
+[data-theme="dark"] .variant_primary {
+	color: #18171a;
+}
+
+.variant_secondary {
+	background-color: var(--ifm-background-surface-color);
+	color: var(--ifm-font-color-base);
+	border-color: var(--ifm-color-emphasis-300);
+}
+
+.variant_secondary:hover:not(:disabled) {
+	border-color: var(--ifm-color-primary);
+	color: var(--ifm-color-primary);
+}
+
+.variant_ghost {
+	background-color: transparent;
+	color: var(--ifm-font-color-base);
+	border-color: transparent;
+}
+
+.variant_ghost:hover:not(:disabled) {
+	background-color: var(--ifm-color-emphasis-100);
+	color: var(--ifm-color-primary);
+}

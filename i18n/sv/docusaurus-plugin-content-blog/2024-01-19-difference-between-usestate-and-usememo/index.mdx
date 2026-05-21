@@ -1,0 +1,47 @@
+---
+slug: difference-between-usestate-and-usememo
+title: Skillnaden mellan useState och useMemo
+description: useState och useMemo kan se lika ut, men bara den ena reagerar på ändringar – en titt på vad initialiserarfunktionen faktiskt gör.
+authors: [filip]
+tags: [react]
+---
+
+Titeln på det här inlägget kan verka löjlig. Självklart är `useState` och `useMemo` olika.
+
+Men i ett avseende är de ganska lika.
+
+Betrakta det här exemplet:
+
+```ts
+const [state] = useState(() => {
+	return calculateSomething(input)
+})
+
+const memo = useMemo(() => {
+	return calculateSomething(input)
+}, [input])
+```
+
+{/* truncate */}
+
+I det här fallet används `useState` utan en `set`-funktion, vilket innebär att `state` inte kan ändras programmatiskt – ungefär som `useMemo`.
+
+Skillnaden är `useMemo`:s dependency-array. När `input` ändras uppdateras `memo` därefter. `state` förblir däremot detsamma. Anledningen är att initialiserarfunktionen bara körs när komponenten initialiseras – den "reagerar" inte på uppdateringar av `input`.
+
+I [dokumentationen för `useState`](https://react.dev/reference/react/useState) står detta om initialiserarfunktionen:
+
+> Den ska vara ren, inte ta några argument och returnera ett värde av valfri typ.
+
+Anledningen till att den inte ska ta några argument är förmodligen just det här. Att låta funktionen ta argument är konstigt eftersom React inte bryr sig om att de uppdateras.
+
+:::note
+
+Med React Compiler blir manuella `useMemo`-anrop allt mer onödiga – kompilatorn memoizerar automatiskt. Om du använder den, ta till `useMemo` bara när du faktiskt behöver dependency-tracking-semantiken, inte för prestanda.
+
+:::
+
+## Referenser
+
+- https://react.dev/reference/react/useState
+- https://react.dev/reference/react/useMemo
+- https://react.dev/learn/keeping-components-pure

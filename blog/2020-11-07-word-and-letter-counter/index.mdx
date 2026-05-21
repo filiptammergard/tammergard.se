@@ -1,0 +1,145 @@
+---
+slug: word-and-letter-counter
+title: Word and character counter
+description: Count words, characters and arbitrary substrings in a text with JavaScript using length, split and a small custom helper.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TextCounter } from "./TextCounter"
+
+Use this counter if you want to count words, characters or a sequence of characters in a text!
+
+<TextCounter />
+
+{/* truncate */}
+
+## How do the calculations work?
+
+If you're curious about how I implemented the calculations, keep reading!
+
+### Number of characters
+
+Counting the number of characters is the easiest:
+
+```js
+const text = "Lorem ipsum dolor sit amet."
+
+const symbols = text.length
+
+// symbols = 27
+```
+
+<br />
+
+Done!
+
+### Number of words
+
+There are many ways to count words in a text. The smoothest option, in my eyes, is to split the text so that each word becomes an element in an array, and then check the array's length. The split can be done at every space.
+
+```js
+const text = "Lorem ipsum dolor sit amet."
+
+const words = text.split(" ").length
+
+// words = 5
+```
+
+<br />
+
+It works! But there are a few problems. Some examples:
+
+```js
+const threeSpaces = "   "
+const words = threeSpaces.split(" ")
+
+// words = ["", "", "", ""]
+```
+
+<br />
+
+Here we count words in a string that contains just three spaces. When the separator in `split` appears multiple times in a row, the string is still split at every position, which results in empty elements in the array. Those aren't words, so we want to filter them out.
+
+```js
+const text = "Lorem ipsum dolor sit amet. "
+
+const wordsArray = text.split(" ")
+
+// wordsArray = ["Lorem", "ipsum", "dolor", "sit", "amet.", ""]
+
+const filteredWordsArray = wordsArray.filter((word) => word !== "")
+
+// filteredWordsArray = ["Lorem", "ipsum", "dolor", "sit", "amet."]
+
+const words = filteredWordsArray.length
+
+// words = 5
+```
+
+<br />
+
+One more problem:
+
+```js
+const text = `Text spanning
+over two lines.`
+
+const wordsArray = text.split(" ").filter((word) => word !== "")
+
+// wordsArray = ["Text", "spanning↵over", "two", "lines."]
+
+const words = wordsArray.length
+
+// words = 4
+```
+
+<br />
+
+That doesn't look right. Line breaks aren't the same as spaces, so the split won't happen at line breaks. We need to redesign our `split` to split the string at every word separator, not just spaces.
+
+These are the word separators I can think of:
+
+- space: " "
+- tab: \t
+- newline: \n
+- carriage return: \r
+
+Regex comes in handy here! `split(/ |\t|\n|\r/)` splits the string at every occurrence of a word separator. Let's try again:
+
+```js
+const text = `Text spanning
+over two lines.`
+
+const wordsArray = text.split(/ |\t|\n|\r/).filter((word) => word !== "")
+
+// wordsArray = ["Text", "spanning", "over", "two", "lines."]
+
+const words = wordsArray.length
+
+// words = 5
+```
+
+<br />
+
+There we go!
+
+### Character sequences
+
+Character sequences are surprisingly easy to count. We define a sequence we want the number of occurrences of in a text:
+
+```js
+const text = "Lorem ipsum dolor sit amet. Dolor lives matter."
+
+const sequence = "dolor"
+
+const occurrences = text.toLowerCase().split(sequence.toLowerCase()).length - 1
+
+// occurrences = 2
+```
+
+<br />
+
+Everything is lowercased to find all occurrences regardless of capitalization. `split` divides the string at every occurrence of the sequence. If the sequence never appears, the array's length is 1. So the sum has to be subtracted by 1 to match what we want.
+
+Happy counting!

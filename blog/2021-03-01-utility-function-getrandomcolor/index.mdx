@@ -1,0 +1,70 @@
+---
+slug: utility-function-getrandomcolor
+title: "Utility function: getRandomColor"
+description: A tiny TypeScript utility that returns a random rgb color string, handy for prototypes and demos that need fresh colors on demand.
+authors: [filip]
+tags: [javascript]
+---
+
+import { RandomColor } from "./RandomColor"
+
+I've had some fun with random colors lately! To speed up development, I made a utility function for getting a random color. It's really simple:
+
+```ts
+export const getRandomColor = () => {
+	const red = Math.floor(Math.random() * 256)
+	const green = Math.floor(Math.random() * 256)
+	const blue = Math.floor(Math.random() * 256)
+
+	const color = `rgb(${red}, ${green}, ${blue})`
+
+	return color
+}
+```
+
+{/* truncate */}
+
+## Usage example
+
+Let's try it out! Press the button to generate a new random color in the box below.
+
+<RandomColor />
+
+<br />
+
+This is how I use `getRandomColor` together with React state and inline styles:
+
+```tsx
+import { useState } from "react"
+import { getRandomColor } from "utils/getRandomColor"
+
+const INITIAL_BACKGROUND_COLOR = "rgb(91, 197, 231)"
+
+const RandomColor = () => {
+	const [background, setBackground] = useState(INITIAL_BACKGROUND_COLOR)
+
+	function handleClick() {
+		setBackground(getRandomColor())
+	}
+
+	return (
+		<>
+			<button onClick={handleClick}>Generate random color</button>
+			<div
+				style={{
+					background,
+					border: "1px solid black",
+					borderRadius: "8px",
+					margin: "15px 0",
+					padding: "10px",
+					textAlign: "center",
+				}}
+			>
+				{background}
+			</div>
+		</>
+	)
+}
+
+export default RandomColor
+```

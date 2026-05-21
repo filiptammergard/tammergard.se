@@ -1,6 +1,7 @@
 ---
 slug: border-radius-ellipses
 title: border-radius ellipses
+description: Why border-radius 50% produces an ellipse, and how the border-radius longhand properties let you draw far more interesting curved shapes.
 authors: [filip]
 tags: [css]
 ---
@@ -31,7 +32,7 @@ div {
 
 I never questioned why. But as you might guess, `50%` is not some kind of "ellipse hack". It all makes sense.
 
-<!-- truncate -->
+{/* truncate */}
 
 ## `border-radius` longhand
 
@@ -85,7 +86,7 @@ div {
 
 <br />
 
-So what does a value in percentages actually mean when it comes to `border-radius`? In this example, `50%` makes the circle radius in the horizontal axis equal 50% of the width, and `25%` makes the cirle radius equal 25% of the height.
+So what does a value in percentages actually mean when it comes to `border-radius`? In this example, `50%` makes the circle radius in the horizontal axis equal 50% of the width, and `25%` makes the circle radius equal 25% of the height.
 
 50% of the width is 100px and 25% of the height is 25px. In other words, the example is equivalent to this:
 
@@ -193,7 +194,7 @@ div {
 
 <br />
 
-Now we have to change the `border-radius` value to `100px` to make it a circle again. Instead of doing the math ourselves when we want to achieve a circle, we can let CSS to the math by using `border-radius: 50%`!
+Now we have to change the `border-radius` value to `100px` to make it a circle again. Instead of doing the math ourselves when we want to achieve a circle, we can let CSS do the math by using `border-radius: 50%`!
 
 In other words, setting the circle radius to half the width in the horizontal axis and half the height in the vertical axis in all corners will always make it an ellipse. And that's exactly what 50% does!
 
@@ -201,7 +202,7 @@ When the width and height are equal, `border-radius: 50%` will produce a circle.
 
 ```css
 div {
-	width: 200;
+	width: 200px;
 	height: 100px;
 	background-color: hotpink;
 	border-radius: 50%;
@@ -253,8 +254,8 @@ div {
 ## Conclusion
 
 - `border-radius: 50%` turns a shape into an ellipse, but not by magic—it's all math.
-- The individual `border-radius` longhand properties allow two values, to control the circle radius in the two axises individually.
-- When using percentages, the circle radius relates to the width in the horizontal axis and the height in the vertical axis, which makes achiving ellipses simple.
+- The individual `border-radius` longhand properties allow two values, to control the circle radius in the two axes individually.
+- When using percentages, the circle radius relates to the width in the horizontal axis and the height in the vertical axis, which makes achieving ellipses simple.
 
 ## References
 

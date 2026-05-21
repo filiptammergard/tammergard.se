@@ -1,0 +1,103 @@
+---
+slug: operations-with-immutable-objects
+title: Operations in JavaScript with immutable objects
+description: Add, update and remove object properties without mutation using the spread operator and destructuring instead of direct assignment.
+authors: [filip]
+tags: [javascript]
+---
+
+Let's look at how to perform operations on immutable objects in JavaScript, just like we did for arrays in [this post](/blog/operations-with-immutable-arrays).
+
+We start with an object representing a person:
+
+```js
+const person = {
+	name: "Filip",
+	age: 26,
+	city: "Uppsala",
+}
+```
+
+{/* truncate */}
+
+## Adding a property
+
+Let's say we want to add information about gender. We use the spread operator again as in the array post.
+
+```js
+const newPerson = {
+	...person,
+	gender: "Male",
+}
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 26,
+    city: "Uppsala",
+    gender: "Male"
+  }
+*/
+```
+
+If the gender information is already in a variable, it can be added like this with the same result:
+
+```js
+const gender = "Male"
+
+const newPerson = {
+	...person,
+	gender,
+}
+```
+
+Or if the information is already in an object:
+
+```js
+const info = {
+	gender: "Male",
+}
+
+const newPerson = {
+	...person,
+	...info,
+}
+```
+
+## Replacing a property
+
+If Filip turns 27 and the object therefore needs to be updated manually, we can do this:
+
+```js
+const newPerson = {
+	...person,
+	age: 27,
+}
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 27,
+    city: "Uppsala",
+  }
+*/
+```
+
+## Removing a property
+
+If we realize the city information is unnecessary and want to remove that property from the object, we can do this:
+
+```js
+const { city, ...newPerson } = person
+
+// city = "Uppsala"
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 26,
+  }
+*/
+```
+
+Here we use a nice spread trick. We first pull out the city from the object, then save the rest of the object in the new object `newPerson`. Don't forget that the city is also saved in the variable `city`, and it has to be named exactly that to match the property name.

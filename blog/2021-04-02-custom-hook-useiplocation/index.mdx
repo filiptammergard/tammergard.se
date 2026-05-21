@@ -1,0 +1,92 @@
+---
+slug: custom-hook-useiplocation
+title: "Custom hook: useIpLocation"
+description: Turn an Ipapi fetch call into a reusable React hook with TypeScript types so any component can read the user's IP location.
+authors: [filip]
+tags: [react, typescript]
+---
+
+In my last post [IP Location](/blog/ip-location), I used an API to get the location of a user's IP address.
+
+In this post, I want to show how to make it a hook, so a user's IP location can be used in an easy way anywhere in your application.
+
+{/* truncate */}
+
+Here's how I designed the hook:
+
+```ts
+/* eslint-disable camelcase */
+import { useEffect, useState } from "react"
+
+interface IpLocation {
+	ip: string
+	version: string
+	city: string
+	region: string
+	region_code: string
+	country: string
+	country_name: string
+	country_code: string
+	country_code_iso3: string
+	country_capital: string
+	country_tld: string
+	continent_code: string
+	in_eu: string
+	postal: string
+	latitude: number
+	longitude: number
+	timezone: string
+	utc_offset: string
+	country_calling_code: string
+	currency: string
+	currency_name: string
+	languages: string
+	country_area: number
+	country_population: number
+	asn: string
+	org: string
+}
+
+export const useIpLocation = () => {
+	const [ipLocation, setIpLocation] = useState<IpLocation | null>(null)
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState("")
+
+	useEffect(() => {
+		setLoading(true)
+		setIpLocation(null)
+		setError("")
+		fetch("https://ipapi.co/json/")
+			.then((res) => res.json())
+			.then((ipLocation: IpLocation) => {
+				setIpLocation(ipLocation)
+			})
+			.catch(() => {
+				setError("Could not get IP address information.")
+			})
+			.finally(() => {
+				setLoading(false)
+			})
+	}, [])
+
+	return { ipLocation, loading, error }
+}
+```
+
+<br />
+
+And getting the data in a component is as easy as this:
+
+```tsx
+const { ipLocation, loading, error } = useIpLocation()
+```
+
+<br />
+
+There are many reasons why extracting API calls to a hook is a good idea. One major reason is [encapsulation](https://kyleshevlin.com/use-encapsulation).
+
+`useEffect` is awesome, but the name doesn't at all reveal what it is actually doing. You have to parse the callback to understand what's happening. Extracting to a hook makes it possible to give the hook a name that is much easier to understand. In this case `useIpLocation`.
+
+Another nice thing when using TypeScript is that you can define the response type `IpLocation` in the hook, and it will be inferred wherever it is used. Making the API call in a `useEffect` in each component that uses it would require defining or importing the response type in all places.
+
+A third advantage is that the error and loading logic can be defined in one place and used as needed in each component instead of having to figure out how to handle those things in every component.

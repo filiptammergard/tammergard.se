@@ -1,0 +1,25 @@
+.wrapper {
+	margin-block-end: 1rem;
+}
+
+.center {
+	text-align: center;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	margin-block-start: 1rem;
+	gap: 1rem;
+	align-items: center;
+}
+
+.value {
+	text-align: center;
+	font-family: var(--ifm-font-family-monospace);
+}
+
+.swatch {
+	border-radius: 1rem;
+	min-height: 2rem;
+}

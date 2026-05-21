@@ -1,0 +1,39 @@
+.inputWrapper {
+	display: grid;
+	grid-template-columns: 1fr min-content;
+	gap: 10px;
+	align-items: end;
+	margin-block-end: 4px;
+}
+
+.inputWrapper input {
+	padding-block: 0.6rem;
+	padding-inline: 1rem;
+	font-size: 1rem;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.smallBlock {
+	display: block;
+	margin-block-end: 8px;
+}
+
+.results {
+	text-align: center;
+	font-family: var(--ifm-font-family-monospace);
+	margin-block-start: 24px;
+}
+
+.results p {
+	margin: 0 0 12px;
+}
+
+.monospace {
+	font-family: var(--ifm-font-family-monospace);
+}
+
+.todayButton {
+	padding-block: 0.6rem;
+	padding-inline: 1rem;
+}

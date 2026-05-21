@@ -1,0 +1,41 @@
+.wrapper {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+}
+
+.grid {
+	display: grid;
+	place-items: center;
+}
+
+.flex {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.gridMargin {
+	display: grid;
+}
+
+.gridMargin span {
+	margin: auto;
+}
+
+.gridEnd {
+	display: grid;
+	place-items: center end;
+}
+
+.gridMargin2 {
+	display: grid;
+}
+
+.gridMargin2 span {
+	border: 1px solid var(--ifm-color-emphasis-1000, #000);
+}
+
+.center {
+	margin: auto;
+}

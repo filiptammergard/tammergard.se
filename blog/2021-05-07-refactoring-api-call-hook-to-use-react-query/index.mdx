@@ -1,0 +1,153 @@
+---
+slug: refactoring-api-call-hook-to-use-react-query
+title: Refactoring API call hook to use TanStack Query
+description: Refactor a hand-rolled useEffect data-fetching hook into a much smaller TanStack Query implementation that gets caching and retries for free.
+authors: [filip]
+tags: [react]
+---
+
+A few weeks ago, I wrote a blog post on [how to turn an API call into a hook](/blog/custom-hook-useiplocation) to make it easy to use. By then, I hadn't used [TanStack Query](https://tanstack.com/query) (formerly React Query) yet. Turns out lots of cool stuff comes for free when using it. Let me show you.
+
+{/* truncate */}
+
+This is what my hook looked like initially:
+
+```ts
+/* eslint-disable camelcase */
+import { useEffect, useState } from "react"
+
+interface IpLocation {
+	ip: string
+	version: string
+	city: string
+	region: string
+	region_code: string
+	country: string
+	country_name: string
+	country_code: string
+	country_code_iso3: string
+	country_capital: string
+	country_tld: string
+	continent_code: string
+	in_eu: string
+	postal: string
+	latitude: number
+	longitude: number
+	timezone: string
+	utc_offset: string
+	country_calling_code: string
+	currency: string
+	currency_name: string
+	languages: string
+	country_area: number
+	country_population: number
+	asn: string
+	org: string
+}
+
+export const useIpLocation = () => {
+	const [ipLocation, setIpLocation] = useState<IpLocation | null>(null)
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState("")
+
+	useEffect(() => {
+		setLoading(true)
+		setIpLocation(null)
+		setError("")
+		fetch("https://ipapi.co/json/")
+			.then((res) => res.json())
+			.then((ipLocation: IpLocation) => {
+				setIpLocation(ipLocation)
+			})
+			.catch(() => {
+				setError("Could not get IP address information.")
+			})
+			.finally(() => {
+				setLoading(false)
+			})
+	}, [])
+
+	return { ipLocation, loading, error }
+}
+```
+
+<br />
+
+`useState` and `useEffect` are used to keep track of loading and error logic and to make sure the API isn't called unnecessarily often. Turns out this is kind of reinventing the wheel, since TanStack Query handles those things (much better) automatically.
+
+Refactoring to use TanStack Query's `useQuery` makes it possible to remove almost everything:
+
+```ts
+/* eslint-disable camelcase */
+import { useQuery } from "@tanstack/react-query"
+
+interface IpLocation {
+	ip: string
+	version: string
+	city: string
+	region: string
+	region_code: string
+	country: string
+	country_name: string
+	country_code: string
+	country_code_iso3: string
+	country_capital: string
+	country_tld: string
+	continent_code: string
+	in_eu: string
+	postal: string
+	latitude: number
+	longitude: number
+	timezone: string
+	utc_offset: string
+	country_calling_code: string
+	currency: string
+	currency_name: string
+	languages: string
+	country_area: number
+	country_population: number
+	asn: string
+	org: string
+}
+
+export const useIpLocation = () => {
+	return useQuery<IpLocation, Error>({
+		queryKey: ["ip-location"],
+		queryFn: () => fetch("https://ipapi.co/json/").then((res) => res.json()),
+	})
+}
+```
+
+<br />
+
+`["ip-location"]` is the query key used for caching the query, and it could be anything. `queryFn` is the query function — a function that either resolves the data or throws an error.
+
+Initially, the hook was used like this:
+
+```tsx
+const { ipLocation, loading, error } = useIpLocation()
+```
+
+<br />
+
+`useQuery` returns the same things but with slightly different names:
+
+```tsx
+const { data, isPending, error } = useIpLocation()
+```
+
+<br />
+
+And that's it!
+
+(Not entirely. You also need to [provide the TanStack Query client to your app](https://tanstack.com/query/latest/docs/framework/react/quick-start).)
+
+To use the refactored hook without having to change anything else, we can rename the returned data to the previously used names:
+
+```tsx
+const { data: ipLocation, isPending: loading, error } = useIpLocation()
+```
+
+<br />
+
+There are lots of benefits to using TanStack Query beyond ease of use. More on those another time!

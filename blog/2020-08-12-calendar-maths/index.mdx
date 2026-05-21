@@ -1,0 +1,242 @@
+---
+slug: calendar-maths
+title: Calendar maths
+description: Why some years have 53 weeks instead of 52, how leap years complicate the rules, and how to model it all in JavaScript.
+authors: [filip]
+tags: [javascript]
+---
+
+import { CalendarMaths } from "./CalendarMaths"
+
+You might think week numbers are dead simple. _Surely you just start at week 1 and go up to week 52, then start over?_ Unfortunately it's not that easy. It turns out to be surprisingly complicated!
+
+## TL;DR
+
+- Most years have 52 weeks, but some have 53.
+- Whether the 53rd week exists depends both on what day of the week January 1 of the following year falls on, and whether the current year is a leap year.
+- Leap years occur slightly less than every four years on average, which makes the model for when 53 weeks appear tricky.
+
+Try the finished week-numbering and leap-year model here:
+
+<CalendarMaths />
+
+{/* truncate */}
+
+## So how do week numbers actually work?
+
+Most years have 52 weeks. But if you look at a calendar, roughly every fifth or sixth year seems to have 53. What determines whether the 53rd week exists isn't simple — it's something as odd as which day of the week the new year starts on. If January 1 is a Monday, Tuesday, Wednesday or Thursday, the week containing January 1 is week 1. If January 1 is a Friday, that week is week 53 (even though it's January). If January 1 is a Saturday, the week is 53 if the previous year was a leap year and 52 if it wasn't. If January 1 is a Sunday, the week is 52 regardless of whether the previous year was a leap year.
+
+### Week-numbering model
+
+The model can be clarified and summarized in a list:
+
+- If January 1 is a Monday, Tuesday, Wednesday or Thursday, the day belongs to week 1.
+- If January 1 is a Friday, the day belongs to week 53.
+- If January 1 is a Saturday, the day belongs to week 53 (in a leap year) or 52 (in a normal year).
+- If January 1 is a Sunday, the day belongs to week 52.
+
+### Weekday shift without leap years
+
+A normal year has 365 days, which means that if January 1 in one normal year is a Monday, January 1 in the next normal year is a Tuesday. The math is that 365 isn't evenly divisible by 7 (the number of days in a week). If a year had 364 days instead, there would be no weekday shift between two normal years since 364 is divisible by 7 (364/7 = 52).
+
+If leap years didn't exist, reasonably every seventh year would have 53 weeks, since January 1 would land on a Friday every seventh year (according to the shift), and only those years would have 53 weeks per the week-numbering model.
+
+### Weekday shift with leap years
+
+The presence of leap years really messes up the weekday shift. In a leap year, the shift becomes two days instead of one. If January 1 in a leap year is a Monday, January 1 the next year is a Wednesday.
+
+Let's say year 1 is the first normal year after a leap year, and January 1 that year is a Monday. Then the weekday on January 1 in the following years is:
+
+1: Monday (normal)<br /> 2: Tuesday (normal)<br /> 3: Wednesday (normal)<br /> 4: **Thursday (leap)**<br /> 5: Saturday (normal)<br /> 6: Sunday (normal)<br /> 7: Monday (normal)<br /> 8: **Tuesday (leap)**<br /> 9: Thursday (normal)<br /> 10: Friday (normal)<br /> 11: Saturday (normal)<br /> 12: **Sunday (leap)**<br /> 13: Tuesday (normal)<br /> 14: Wednesday (normal)<br /> 15: Thursday (normal)<br /> 16: **Friday (leap)**<br /> 17: Sunday (normal)<br /> 18: Monday (normal)<br /> 19: Tuesday (normal)<br /> 20: **Wednesday (leap)**<br /> 21: Friday (normal)<br /> 22: Saturday (normal)<br /> 23: Sunday (normal)<br /> 24: **Monday (leap)**<br /> 25: Wednesday (normal)<br /> 26: Thursday (normal)<br /> 27: Friday (normal)<br /> 28: **Saturday (leap)**<br /> 29: Monday (normal)
+
+So year 29 is again January 1 on a Monday in a year that's the first normal year after a leap year. After that the same sequence repeats. Years 1–28 form a sequence whose weekdays look the same for the next 28 years (years 29–56). It's not that strange that the sequence is exactly 28 years. 28 is the lowest common multiple of 4 (leap year frequency) and 7 (days per week).
+
+Multiples of 4: 4, 8, 12, 16, 20, 24, **28**
+
+Multiples of 7: 7, 14, 21, **28**
+
+The multiples can be visualized in the list because January 1 in leap years (which happen every fourth year) has to take all seven weekdays before the same weekday comes back.
+
+Here's the same list with only the leap years, plus year 32:
+
+4: Friday (leap)<br /> 8: Wednesday (leap)<br /> 12: Monday (leap)<br /> 16: Saturday (leap)<br /> 20: Thursday (leap)<br /> 24: Tuesday (leap)<br /> 28: Sunday (leap)<br /> 32: Friday (leap)
+
+You can see that all seven weekdays appear before the same weekday repeats.
+
+Remind yourself of the week-numbering model:
+
+> January 1 belongs to week 53 if it's a Friday in either a normal year or leap year, or a Saturday in a leap year.
+
+Now you can look at the weekday-shift list and count how many years in a 28-year sequence will get 53 weeks. The answer is that these years will have 53 weeks:
+
+4: Friday (leap)<br /> 10: Friday (normal)<br /> 16: Saturday (leap)<br /> 21: Friday (normal)<br /> 27: Friday (normal)
+
+So during years 1–28 (one sequence), there are 5 years with 53 weeks, the rest have 52. Four of these years get 53 weeks because January 1 is a Friday, and one of the years gets 53 weeks because January 1 is a Saturday and the year is a leap year. If leap years didn't exist, 4 years per sequence would have 53 weeks. This matches my earlier statement that every seventh year should have 53 weeks without leap years, since 28/4 = 7.
+
+With leap years counted, 5 years with 53 weeks happen per sequence. 28/5 = 5.6, which means 53-week years occur every 5.6 years on average. So sometimes there are 5 years between 53-week years, and sometimes 6.
+
+### …but how do leap years actually work?
+
+That 53-week years appear every 5.6 years was a bit trickier than you might have thought. But it's unfortunately even more complex than that. I've ignored the real frequency of leap years.
+
+The reason leap years exist at all is to prevent seasons from drifting forward or backward in the calendar over time. If every year had 365 days, seasons, equinoxes and solstices would shift by several weeks over a 100-year period. A real tropical year is actually 365 days, 5 hours, 48 minutes and 45 seconds, which equals 365.2421875 days. If a tropical year had been 365 + 1/4 = 365.25 days = 365 days and 6 hours, a leap year every four years would have fully compensated for the drift. But in reality a tropical year is 11 minutes and 15 seconds shorter than that, which means a leap-year frequency of every four years is slightly too high.
+
+The slightly-too-high leap-year frequency is compensated for by century years not being leap years. Normally all years divisible by 4 are leap years (for example years 4, 16 or 2020), but century years not being leap years means years 100, 1900 or 2100 aren't leap years, even though they are divisible by 4 (which they always are mathematically).
+
+The century-year rule would be perfect if a tropical year had been 365 + 1/4 - 1/100 = 365.24 days = 365 days, 5 hours, 45 minutes and 36 seconds. But a tropical year is 3 minutes and 9 seconds longer than that, which means this leap-year frequency would be slightly too low.
+
+The slightly-too-low leap-year frequency in this case is compensated for by century years divisible by 400 being an exception to the rule about century years, so they are leap years anyway. Years 1900 and 2100 aren't divisible by 400 and are therefore not leap years, while years 2000 and 2400 are divisible by 400 and are leap years.
+
+The exception for century years divisible by 400 would be perfect if a tropical year had been 365 + 1/4 - 1/100 + 1/400 = 365.2425 = 365 days, 5 hours, 49 minutes and 12 seconds. But a tropical year is 27 seconds shorter than that. Now you might think the difference would warrant yet another rule, and maybe several more, but it doesn't. With a calendar year that's 27 seconds longer than the tropical year, the drift becomes 7.5 hours over 1,000 years, which apparently wasn't a big enough problem.
+
+The leap-year rules can be summarized as a list:
+
+- Years evenly divisible by 4 are leap years (with the exceptions below).
+- Years evenly divisible by 100 are not leap years despite being divisible by 4 (with the exception below).
+- Years evenly divisible by 400 are leap years despite being divisible by 100.
+
+Or in one sentence:
+
+> The years evenly divisible by 4, except for century years not evenly divisible by 400, are leap years.
+
+### The model as a JavaScript function
+
+With all that knowledge we should be able to build a function where you pass in a year and get back the number of weeks. Something like:
+
+```js
+function getWeeksInYear(year) {
+	// logic
+	return weeks
+}
+```
+
+<br />
+
+To determine how many weeks a year has, we need to know what day of the week January 1 of the following year falls on, and whether the current year is a leap year. Perfect cases for two separate functions!
+
+```js
+function getWeeksInYear(year) {
+	// logic
+	return weeks
+}
+
+function getFirstWeekdayInYear(year) {
+	// logic
+	return weekday
+}
+
+function isLeapYear(year) {
+	// logic
+	return boolean
+}
+```
+
+<br />
+
+We can start from the bottom with `isLeapYear`. My first attempt at implementing the leap-year rules straight off looked something like this:
+
+```js
+function isLeapYear(year) {
+	if (year % 4 === 0) {
+		if (year % 100 === 0) {
+			if (year % 400 === 0) return true
+			else if (year % 400 !== 0) return false
+		} else if (year % 100 !== 0) return true
+	} else return false
+}
+```
+
+<br />
+
+Even though the function does what it should, it's incredibly hard to read. Modulus is used in five places, which clutters the code, and nested `if` statements are hard to follow. With the approach of starting with the narrowest rule, you can get a much cleaner function. We also take the opportunity to extract the modulus operation:
+
+```js
+function isLeapYear(year) {
+	if (isDivisibleBy(year, 400)) return true
+
+	if (isDivisibleBy(year, 100)) return false
+
+	if (isDivisibleBy(year, 4)) return true
+
+	return false
+}
+
+function isDivisibleBy(numerator, denominator) {
+	return numerator % denominator === 0
+}
+```
+
+<br />
+
+Here we use that years divisible by 400 are always leap years, that the other years divisible by 100 aren't leap years, and finally that the other years divisible by 4 are leap years (and the rest aren't). Clear and good! The advantage of extracting `isDivisibleBy` is that it can now be used wherever you need to know if a number is divisible by another. In the next function we want to know what the first weekday of the next year is. A first thought might be that the function should simply return the first weekday of next year. But to make the function more generally useful, I think it's a better idea that the function returns the first weekday of the year you pass in, and you pass in the next year. Like this:
+
+```js
+function getFirstWeekdayInYear(year) {
+	const firstDateInYear = new Date(year, 0, 1) // 0 = January, 1 = first day of the month
+	const firstWeekdayInYear = firstDateInYear.getDay()
+	return firstWeekdayInYear
+}
+```
+
+<br />
+
+Here we use the built-in `Date` object, where `year`, month 0 (January) and day 1 (first of the month) are used to get a `Date` for the first day of the year you pass in. The weekday is computed with the built-in `getDay` which returns 0 for Sunday, 1 for Monday and so on up to 6 for Saturday. So when we use this function we won't get back something like 'Tuesday', but `2` representing Tuesday.
+
+What now about `getWeeksInYear` so that it returns the number of weeks for any given year?
+
+<br />
+
+```js
+function getWeeksInYear(year) {
+	if (getFirstWeekdayInYear(year + 1) === 5) return 53
+
+	if (getFirstWeekdayInYear(year + 1) === 6 && isLeapYear(year)) return 53
+
+	return 52
+}
+```
+
+<br />
+
+The full functionality looks like this:
+
+```js
+function getWeeksInYear(year) {
+	if (getFirstWeekdayInYear(year + 1) === 5) return 53
+
+	if (getFirstWeekdayInYear(year + 1) === 6 && isLeapYear(year)) return 53
+
+	return 52
+}
+
+function getFirstWeekdayInYear(year) {
+	const firstDateInYear = new Date(year, 0, 1) // 0 = January, 1 = first day of the month
+	const firstWeekdayInYear = firstDateInYear.getDay()
+	return firstWeekdayInYear
+}
+
+function isLeapYear(year) {
+	if (isDivisibleBy(year, 400)) return true
+
+	if (isDivisibleBy(year, 100)) return false
+
+	if (isDivisibleBy(year, 4)) return true
+
+	return false
+}
+
+function isDivisibleBy(numerator, denominator) {
+	return numerator % denominator === 0
+}
+```
+
+<CalendarMaths />
+<br />
+
+Note that all negative and positive integers produce a result. Year -3008, for example, gives the result "Year -3008 has 52 weeks and is a leap year." Of course the week-numbering and leap-year model hasn't always looked like it does today, and it doesn't look the same in other countries, so the result only represents the current model in Sweden.
+
+### Better alternatives than doing week calculations yourself
+
+I think it's useful to practise writing correct and readable functions when programming. In the case of week-number calculations, though, I'd rarely recommend doing the math manually like I have here. There are excellent libraries for this. The advantage of such libraries is that you can avoid these complicated functions in your own code, but maybe primarily that the risk of bugs that's large with home-grown functions is much smaller in well-tested libraries used by many. One example of an excellent library is [date-fns](https://date-fns.org/).
+
+There you go — now you know all about the math behind week numbers and leap years!

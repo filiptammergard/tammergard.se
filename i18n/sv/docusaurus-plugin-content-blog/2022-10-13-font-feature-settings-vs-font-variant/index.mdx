@@ -1,0 +1,92 @@
+---
+slug: font-feature-settings-vs-font-variant
+title: font-feature-settings vs font-variant
+description: Aktivera font-features som snedstreckade nollor och kapitäler – och förstå när du ska föredra font-variant framför font-feature-settings.
+authors: [filip]
+tags: [css]
+---
+
+Vi gjorde nyligen några justeringar av font-features på jobbet. Bland annat ändrade vi utseendet på 0 (siffran noll) till att inkludera ett snedstreck (som `0`), för att göra det lättare att skilja från versalen O. Jag lärde mig några saker i processen som jag vill dela med mig av!
+
+## Snedstreckade nollor
+
+Det finns två huvudsakliga sätt att konfigurera snedstreckade nollor.
+
+1. `font-feature-settings: "zero" 1;`
+2. `font-variant: slashed-zero;`
+
+{/* truncate */}
+
+:::note
+
+En förutsättning är att fonten du använder stödjer snedstreckade nollor.
+
+:::
+
+## font-feature-settings
+
+Egenskapen `font-feature-settings` är lite märklig. Den accepterar en eller flera font-feature-taggar bestående av 4 ASCII-tecken. Om en tagg följs av `1` eller `on` aktiveras den font-featuren, och om den följs av `0` eller `off` inaktiveras den. Som nämnts aktiveras snedstreckade nollor så här:
+
+```css
+font-feature-settings: "zero" 1;
+```
+
+:::note
+
+`font-feature-settings: "zero";` fungerar också – utan värde defaultar det till 1.
+
+:::
+
+För snedstreckade nollor är taggen "zero" tydlig. Men i andra fall är det rätt obegripligt. Som ett exempel – kan du lista ut vilka font-features det här aktiverar?
+
+```css
+font-feature-settings: "c2sc", "smcp";
+```
+
+Inte jag heller!
+
+Egenskapen `font-feature-settings` är dessutom felbenägen, eftersom [den sätter alla font-features du inte listar explicit till deras default-värde](https://pixelambacht.nl/2022/boiled-down-fixing-variable-font-inheritance/).
+
+De flesta font-features kan också sättas med `font-variant`-egenskapen, som inte har den biverkningen att den nollställer ej listade font-features. Av den anledningen [rekommenderas det generellt att använda `font-variant` i stället för `font-feature-settings` när det är möjligt](https://almanac.httparchive.org/en/2022/fonts#opentype-features).
+
+Så vi utforskar `font-variant` i stället!
+
+## font-variant
+
+Egenskapen `font-variant` är mycket lättare att förstå än `font-feature-settings`. Inga 4 ASCII-tecken här – utan beskrivande egenskapsvärden! Titta på denna skönhet:
+
+```css
+font-variant: slashed-zero;
+```
+
+Helt tydligt!
+
+`font-variant` är faktiskt en shorthand för de här egenskaperna:
+
+- `font-variant-alternates`
+- `font-variant-caps`
+- `font-variant-east-asian`
+- `font-variant-ligatures`
+- `font-variant-numeric`
+
+Dessa longhand-egenskaper kan användas för att rikta in sig på delmängder av glyfer. Som exempel påverkar `font-variant-caps` bara versaler.
+
+För snedstreckade nollor påverkar det naturligtvis bara siffror. Därför är det vettigt att använda `font-variant-numeric` som bara riktar in sig på siffror.
+
+```css
+font-variant-numeric: slashed-zero;
+```
+
+## Slutsats
+
+- Att aktivera font-features kan göras på många sätt.
+- Föredra `font-variant` framför `font-feature-settings`. Betrakta `font-feature-settings` som en backup för när `font-variant` inte kan göra samma sak.
+- Föredra att vara specifik med vilka delmängder av glyfer som ska påverkas i stället för att använda shorthand-versionen `font-variant`. Till exempel påverkar `font-variant-numeric` bara siffror.
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant
+- https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric
+- https://pixelambacht.nl/2022/boiled-down-fixing-variable-font-inheritance/
+- https://almanac.httparchive.org/en/2022/fonts

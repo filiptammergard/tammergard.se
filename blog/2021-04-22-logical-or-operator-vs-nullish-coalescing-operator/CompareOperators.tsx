@@ -1,11 +1,13 @@
 import CodeBlock from "@theme/CodeBlock"
-import React, { ChangeEvent, useState } from "react"
+import { type ChangeEvent, useState } from "react"
+
+type LeftValueKey = keyof typeof LEFT_VALUES
 
 export function CompareOperators() {
-	const [leftValue, setLeftValue] = useState<string | number>(LEFT_VALUES[0])
+	const [leftValue, setLeftValue] = useState<LeftValueKey>("0")
 
 	function handleChange(e: ChangeEvent<HTMLSelectElement>) {
-		setLeftValue(e.target.value)
+		setLeftValue(e.target.value as LeftValueKey)
 	}
 
 	const codeString = `const leftValue = ${leftValue}

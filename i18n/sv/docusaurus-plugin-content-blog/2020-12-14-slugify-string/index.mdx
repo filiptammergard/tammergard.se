@@ -1,0 +1,34 @@
+---
+slug: slugify-string
+title: Sluggifiera sträng
+description: Omvandla godtyckliga titlar till URL-vänliga sluggar med normalize, regex och en handfull strängoperationer i JavaScript.
+authors: [filip]
+tags: [javascript]
+---
+
+import { Slugify } from "@site/blog/2020-12-14-slugify-string/Slugify"
+
+När du genererar URL:er från titlar kan titeln vanligtvis inte användas rakt av – mellanslag, frågetecken och andra specialtecken hör inte hemma i URL-sluggar. Då kommer en `slugify`-funktion väl till pass.
+
+{/* truncate */}
+
+Här är funktionen jag gillar att använda:
+
+```js
+const slugify = (str) => {
+	return str
+		.normalize("NFD")
+		.replace(/[̀-ͯ]/g, "")
+		.toLowerCase()
+		.trim()
+		.replace(/\s+/g, "-")
+		.replace(/[^\w\-]+/g, "")
+		.replace(/\-\-+/g, "-")
+}
+```
+
+<br />
+
+Den gör några coola saker. Testa själv här:
+
+<Slugify />

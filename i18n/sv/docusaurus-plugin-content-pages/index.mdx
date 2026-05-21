@@ -1,0 +1,44 @@
+---
+title: Hej
+description: Filip Tammergårds personliga hemsida och blogg.
+hide_table_of_contents: true
+---
+
+import { Hero } from "@site/src/components/Hero"
+import { Presentation } from "@site/src/components/Presentation"
+import { FeaturedPosts } from "@site/src/components/FeaturedPosts"
+import { LinkCards } from "@site/src/components/LinkCards"
+
+<Hero
+	title={<>Hej 👋</>}
+	subtitle="Jag heter Filip – utvecklare i Uppsala som skriver om de små, nyfikna hörnen av webben."
+>
+	Här delar jag saker jag tycker är intressanta: små experiment, anteckningar
+	om JavaScript och CSS, och då och då något kaninhål. Hoppas du gillar det!
+</Hero>
+
+<Presentation />
+
+<FeaturedPosts />
+
+<LinkCards
+	cards={[
+		{
+			title: "Blogg",
+			href: "/blog",
+			description: "Anteckningar om JavaScript, TypeScript, CSS och React.",
+		},
+		{
+			title: "Recept",
+			href: "https://recept.tammergard.se",
+			description: "Min personliga receptsamling.",
+			external: true,
+		},
+		{
+			title: "GitHub",
+			href: "https://github.com/filiptammergard",
+			description: "Sidoprojekt och öppen källkod.",
+			external: true,
+		},
+	]}
+/>

@@ -1,0 +1,103 @@
+---
+slug: operations-with-immutable-objects
+title: Operationer i JavaScript med oföränderliga objekt
+description: Lägg till, ändra och ta bort egenskaper i objekt utan mutation med spread-syntax och destrukturering.
+authors: [filip]
+tags: [javascript]
+---
+
+Nu ska vi se hur vi gör operationer på oföränderliga objekt i JavaScript, precis som vi gjorde för arrayer i det [här](/blog/operations-with-immutable-arrays) inlägget.
+
+Här utgår vi från ett objekt med en person:
+
+```js
+const person = {
+	name: "Filip",
+	age: 26,
+	city: "Uppsala",
+}
+```
+
+{/* truncate */}
+
+## Lägga till egenskap
+
+Låt säga att vi vill lägga till information om kön. Då använder vi pastejen igen som i array-inlägget.
+
+```js
+const newPerson = {
+	...person,
+	gender: "Male",
+}
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 26,
+    city: "Uppsala",
+    gender: "Male"
+  }
+*/
+```
+
+Om informationen om kön redan finns i en variabel kan det läggas till så här med samma resultat:
+
+```js
+const gender = "Male"
+
+const newPerson = {
+	...person,
+	gender,
+}
+```
+
+Eller om informationen redan finns som ett objekt:
+
+```js
+const info = {
+	gender: "Male",
+}
+
+const newPerson = {
+	...person,
+	...info,
+}
+```
+
+## Byta ut egenskap
+
+Om Filip fyller 27 år och objektet därför behöver uppdateras lite härligt manuellt kan vi göra så här:
+
+```js
+const newPerson = {
+	...person,
+	age: 27,
+}
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 27,
+    city: "Uppsala",
+  }
+*/
+```
+
+## Ta bort egenskap
+
+Om vi inser att informationen om stad är onödig och vill ta bort den egenskapen från objektet kan vi göra så här:
+
+```js
+const { city, ...newPerson } = person
+
+// city = "Uppsala"
+
+/*
+  newPerson = {
+    name: "Filip",
+    age: 26,
+  }
+*/
+```
+
+Här använder vi ett trevligt pastej-knep. Vi plockar först ut staden ur objektet, sen sparar vi resten av objektet i det nya objektet `newPerson`. Här får vi inte glömma att staden också sparas i variabeln `city` och den måste heta just det för att matcha egenskapsnamnet.

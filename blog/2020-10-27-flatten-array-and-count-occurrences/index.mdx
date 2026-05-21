@@ -1,0 +1,200 @@
+---
+slug: flatten-array-and-count-occurrences
+title: Flatten array and count occurrences
+description: Flatten a nested array of categories and count how often each value appears, producing a tallied array with plain JavaScript.
+authors: [filip]
+tags: [javascript]
+---
+
+I recently added support for filtering [blog posts](/blog) by categories. (I've since replaced that with category and author pages, so this functionality is no longer used.) Next to each category in the filter view, the number of posts in that category was also shown. In this post I'll walk through what I was trying to accomplish and how I solved it.
+
+{/* truncate */}
+
+Let's take a slightly simplified example with the blog posts. The starting point was roughly this array of post objects:
+
+```js
+const posts = [
+	{
+		title: "Calendar maths",
+		categories: ["trivia", "modeling", "javascript", "clean code"],
+	},
+	{
+		title: "Letter game",
+		categories: ["game", "react", "styled components"],
+	},
+	{
+		title: "Robber language generator",
+		categories: ["trivia", "modeling", "javascript", "clean code"],
+	},
+	{
+		title: "Sum numbers in an array with JavaScript",
+		categories: ["javascript", "clean code"],
+	},
+]
+```
+
+<br />
+
+My goal was an array describing how many times each category appears, like this:
+
+```js
+const categories = [
+	{ name: "trivia", amount: 2 },
+	{ name: "modeling", amount: 2 },
+	{ name: "javascript", amount: 3 },
+	{ name: "clean code", amount: 3 },
+	{ name: "game", amount: 1 },
+	{ name: "react", amount: 1 },
+	{ name: "styled components", amount: 1 },
+]
+```
+
+<br />
+
+How do we get there?
+
+Since only the categories are interesting, we can start with a simple `map` to extract the category arrays:
+
+```js
+// Starting from the posts variable defined earlier
+
+const categoryArrays = posts.map((post) => post.categories)
+
+/*
+  categoryArrays = [
+    ["trivia", "modeling", "javascript", "clean code"],
+    ["game", "react", "styled components"],
+    ["trivia", "modeling", "javascript", "clean code"],
+    ["javascript", "clean code"],
+  ]
+*/
+```
+
+<br />
+
+An array of arrays isn't quite what we want. As a starting point it makes sense to "flatten" `categoryArrays` into a simple array of all categories. We can do that like this:
+
+```js
+// Starting from the categoryArrays variable defined earlier
+
+const flatCategories = categoryArrays.reduce((flat, toFlatten) =>
+	flat.concat(toFlatten),
+)
+
+/*
+  flatCategories = [
+    "trivia", "modeling", "javascript", "clean code",
+    "game", "react", "styled components",
+    "trivia", "modeling", "javascript", "clean code",
+    "javascript", "clean code",
+  ]
+*/
+```
+
+<br />
+
+With `flatCategories` as a starting point, we want to count the occurrences of each category and save them in an array that matches our target `categories` variable. As usual there are many ways to solve this. Here's how I did it:
+
+```js
+// Starting from the flatCategories variable defined earlier
+
+const categories = flatCategories.reduce((acc, curr) => {
+	const updatedAcc = acc.some((category) => category.name === curr)
+		? acc
+		: [...acc, { name: curr, amount: 0 }]
+
+	return updatedAcc.map((category) =>
+		category.name === curr
+			? { ...category, amount: category.amount + 1 }
+			: category,
+	)
+}, [])
+```
+
+<br />
+
+We start by adding the category object to the categories array if it doesn't already exist. Then we add 1 to `amount` on the current category each time it appears again. This was the best solution I came up with. Unfortunately it does a lot of loop iterations — as is often the case when _higher-order functions_ are nested. To find out exactly how many iterations, we can add a counter:
+
+```js
+// Starting from the flatCategories variable defined earlier
+
+let counter = 0
+
+const categories = flatCategories.reduce((acc, curr) => {
+	const updatedAcc = acc.some((category) => {
+		counter++
+		return category.name === curr
+	})
+		? acc
+		: [...acc, { name: curr, amount: 0 }]
+
+	return updatedAcc.map((category) => {
+		counter++
+		return category.name === curr
+			? { ...category, amount: category.amount + 1 }
+			: category
+	})
+}, [])
+
+// counter = 108
+```
+
+<br />
+
+A whopping 108 iterations even though there are only 13 categories in `flatCategories`. The dream would have been to do it in 13 iterations. Reach out if you have a better solution — I'm not the first person to run into this challenge.
+
+We finish off by tidying the code into functions:
+
+```js
+function flatten(arrayOfArrays) {
+	return arrayOfArrays.reduce((flat, toFlatten) => {
+		return flat.concat(toFlatten)
+	}, [])
+}
+
+function getCategories(array) {
+	return array.reduce((acc, curr) => {
+		const updatedAcc = acc.some((category) => category.name === curr)
+			? acc
+			: [...acc, { name: curr, amount: 0 }]
+
+		return updatedAcc.map((category) =>
+			category.name === curr
+				? { ...category, amount: category.amount + 1 }
+				: category,
+		)
+	}, [])
+}
+
+const flatCategories = flatten(categoryArrays)
+const categories = getCategories(flatCategories)
+```
+
+<br />
+
+## Modern alternatives
+
+Since this post was written, the language has gained much better tools for both steps.
+
+For flattening, `Array.prototype.flat()` (ES2019) does the job:
+
+```js
+const flatCategories = categoryArrays.flat()
+```
+
+For counting, `Object.groupBy()` (ES2024) handles grouping natively:
+
+```js
+const grouped = Object.groupBy(flatCategories, (category) => category)
+
+const categories = Object.entries(grouped).map(([name, items]) => ({
+	name,
+	amount: items.length,
+}))
+```
+
+Or with `Map.groupBy()` if you want a `Map` instead of a plain object.
+
+When the runtime supports them, these are clearly the way to go.
+
+There you go!

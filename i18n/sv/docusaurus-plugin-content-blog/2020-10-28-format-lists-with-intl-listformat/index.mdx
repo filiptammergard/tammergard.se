@@ -1,0 +1,97 @@
+---
+slug: format-lists-with-intl-listformat
+title: Formatera listor med Intl.ListFormat
+description: Gör snygga uppräkningar av arrayer på olika språk med Intl.ListFormat – slipp manuella loopar med komma och "och".
+authors: [filip]
+tags: [javascript]
+---
+
+Låt säga att vi har den här arrayen med städer:
+
+```js
+const cities = ["Uppsala", "Stockholm", "Lycksele", "Lund"]
+```
+
+Och låt säga att vi vill skriva ut städerna i arrayen i en mening i stil med denna:
+
+> Uppsala, Stockholm, Lycksele och Lund är 4 fina städer i Sverige.
+
+Hur?!
+
+{/* truncate */}
+
+Det finns ett osmidigt sätt att göra det på:
+
+```js
+let sentence = ""
+
+cities.forEach((city, index) => {
+	if (index === cities.length - 1) {
+		sentence += `och ${city}`
+	} else if (index === cities.length - 2) {
+		sentence += `${city} `
+	} else {
+		sentence += `${city}, `
+	}
+})
+
+sentence += ` är ${cities.length} fina städer i Sverige.`
+
+// sentence = "Uppsala, Stockholm, Lycksele och Lund är 4 fina städer i Sverige."
+```
+
+Usch. Det där vill vi undvika för allt i världen.
+
+I JavaScript finns det trevliga inbyggda objektet `Intl` som kan hjälpa till med saken. `Intl` står för _Internationalization_ och har alltså att göra med att kunna anpassa olika typer av format till olika regioners standarder. I `Intl`-objektet finns funktionen `ListFormat` tillgänglig som hjälper oss att lösa listformateringen på ett trevligare sätt.
+
+```js
+const formatter = new Intl.ListFormat("sv")
+
+const sentence = `${formatter.format(cities)} är ${
+	cities.length
+} fina städer i Sverige.`
+
+// sentence = "Uppsala, Stockholm, Lycksele och Lund är 4 fina städer i Sverige."
+```
+
+Å så trevligt! Den första parametern `sv` definierar att svensk standard ska gälla. Om amerikansk standard (`en-US`) används blir meningen i stället denna:
+
+> Uppsala, Stockholm, Lycksele, and Lund är 4 fina städer i Sverige.
+
+Dels blir det "and" i stället för "och" och dels blir det ett kommatecken efter näst sista staden (Lycksele i det här fallet), vilket skiljer sig från svensk standard.
+
+`ListFormat` har också en andra valbar parameter som är ett objekt med val som kan göras. Om inget annat anges blir valet _type_ automatiskt _conjunction_, vilket innebär att det blir ett "och" i slutet av listan. Låt säga att vi i stället vill skriva den här meningen:
+
+> Uppsala, Stockholm, Lycksele eller Lund är Sveriges finaste stad.
+
+Då kan vi helt enkelt definiera att typen i stället ska vara _disjunction_, så här:
+
+```js
+const formatter = new Intl.ListFormat("sv", { type: "disjunction" })
+
+const sentence = `${formatter.format(cities)} är Sveriges finaste stad.`
+
+// sentence = "Uppsala, Stockholm, Lycksele eller Lund är Sveriges finaste stad."
+```
+
+Om vi varken vill ha en "och"-lista eller en "eller"-lista utan helt enkelt lista några städer kan vi använda typen `unit`:
+
+```js
+const formatter = new Intl.ListFormat("sv", { type: "unit" })
+
+const sentence = `Städer: ${formatter.format(cities)}`
+
+// sentence = "Städer: Uppsala, Stockholm, Lycksele, Lund"
+```
+
+Om vi inte ens vill ha kommaseparation kan vi lägga till att valet `style` ska vara `narrow`:
+
+```js
+const formatter = new Intl.ListFormat("sv", { type: "unit", style: "narrow" })
+
+const sentence = formatter.format(cities)
+
+// sentence = "Uppsala Stockholm Lycksele Lund"
+```
+
+Såja!

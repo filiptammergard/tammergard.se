@@ -1,0 +1,21 @@
+.container {
+	text-align: center;
+	margin-block-end: 3rem;
+}
+
+.letter {
+	font-family: var(--ifm-font-family-monospace);
+	font-size: 4rem;
+}
+
+.input {
+	width: 4rem;
+	height: 4rem;
+	font-size: 4rem;
+	margin-block-end: 1rem;
+	text-align: center;
+}
+
+.time {
+	font-family: var(--ifm-font-family-monospace);
+}

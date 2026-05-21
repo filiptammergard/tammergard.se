@@ -1,0 +1,140 @@
+---
+slug: centering-with-css
+title: Centrera med CSS
+description: Centrera element horisontellt och vertikalt med moderna CSS-tekniker som flexbox och grid – och slipp gamla bökiga lösningar.
+authors: [filip]
+tags: [css]
+---
+
+import {
+	Start,
+	Grid,
+	Flex,
+	GridMargin,
+	GridEnd,
+	GridMargin2,
+} from "@site/blog/2020-11-12-centering-with-css/Center"
+
+Jag ställs ofta inför uppgiften att centrera något. Antingen horisontellt eller vertikalt, och ofta på båda ledderna samtidigt. När inte `flex` och `grid` fanns i CSS kunde det vara ganska bökigt att få till vertikal och horisontell centrering. Nu finns det smidiga lösningar!
+
+Vi utgår från ett `span`-element i en `div`:
+
+<Start />
+<br />
+
+{/* truncate */}
+
+Inga konstigheter här.
+
+```html
+<div>
+	<span>Jag vill centreras!</span>
+</div>
+```
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+}
+```
+
+<br />
+
+Men hur får vi texten centrerad? Det finns en massa krångliga sätt att göra det på som var vanliga förut, men jag försöker alltid hålla mig till trevligare lösningar. Här är en lösning med `flex` och samma HTML som ovan:
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+```
+
+<Flex />
+<br />
+
+Här är det `justify-content: center` som löser den horisontella centreringen och `align-items: center` som löser den vertikala. Trevligt! Men med `grid` är det faktiskt ännu lite trevligare:
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+	display: grid;
+	place-items: center;
+}
+```
+
+<Grid />
+<br />
+
+Här löser `place-items: center` all centrering. Supertrevligt! Med `place-items` har vi stora möjligheter att påverka placeringen precis som vi vill. Om vi skulle vilja högercentrera `span`-elementet i mitten av ramen kan vi göra det genom att bara lägga till `end` efter `center`:
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+	display: grid;
+	place-items: center end;
+}
+```
+
+<GridEnd />
+<br />
+
+Ett alternativ till `place-items` är att använda `margin: auto` på `span`-elementet:
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+	display: grid;
+}
+
+span {
+	margin: auto;
+}
+```
+
+<GridMargin />
+<br />
+
+Fördelen med `margin: auto` på elementet som ska centreras är att det möjliggör att ha flera element i ramen där alla inte är centrerade, vilket är svårare när CSS för centrering i stället anges på `div`-elementet som omsluter elementen:
+
+```html
+<div>
+	<span class="center">Jag vill centreras!</span>
+	<span>Jag vill inte centreras.</span>
+</div>
+```
+
+```css
+div {
+	border: 1px solid goldenrod;
+	border-radius: 8px;
+	height: 100px;
+	display: grid;
+}
+
+span {
+	border: 1px solid #000000;
+}
+
+.center {
+	margin: auto;
+}
+```
+
+<GridMargin2 />
+<br />
+
+Jag la också på en svart ram på `span`-elementen så att vi kan se vad som händer. Elementet som vill centreras har en marginal runt sig så att texten hamnar mitt i övre halvan av `div`-elementet. Det andra elementet har ingen marginal och tar därför upp hela andra halvan av `div`-elementet, och texten hamnar högst upp till vänster.
+
+Glad centrering!

@@ -1,0 +1,124 @@
+---
+slug: the-h1-class-h2-pattern-debate
+title: The h1 class="h2" pattern debate
+description: A defense of the `<h1 class="h2">` pattern as a pragmatic way to decouple semantic heading levels from their visual styling.
+authors: [filip]
+tags: [css, html]
+---
+
+import { Headings, H1AsH2 } from "./Headings"
+
+```html
+<h1 class="h2"></h1>
+```
+
+<br />
+
+That's a line of code (or at least an HTML start tag with a class) that apparently makes many people mad or confused.
+
+{/* truncate */}
+
+However, I'd like to propose that the pattern actually is pretty good and also easy to understand under certain circumstances.
+
+Let's say the CSS specific to headings in a code base looks like this:
+
+```css
+h1 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+Here are the three headings (I'm consciously messing with the HTML semantics of the page here):
+
+<Headings />
+<br />
+
+Now, what if we want to add some text that has the styles of an `h2`, but semantically it would be an `h1`?
+
+A really bad solution would be to just make it an `h2`. The choice of HTML heading element should not be based on what style you want it to have, but rather on what is semantically correct. Maybe this is a heading of an article which can be long, and therefore the smaller `h2` styles work better.
+
+A better solution would be to make it possible to use an `h1` element with the styles of an `h2` element. And how would we do that? In my opinion, doing like the code at the beginning of this page is a perfectly valid solution — perhaps even the best one. To make it work, classes are added to the style sheet:
+
+```css
+h1,
+.h1 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2,
+.h2 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3,
+.h3 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+The goal can now be achieved like this:
+
+```html
+<h1 class="h2">I'm an h1 heading, but I look like an h2</h1>
+```
+
+<br />
+
+<H1AsH2 />
+
+<br />
+
+Super easy!
+
+Some people seem to understand the use case, but prefer another class name like "small-h1" or something. But then I have to ask, in what way is that better and easier to understand? To me, that just means lots of new class names that I will have to remember or look up each time I need to do something like this.
+
+And what if you want an `h1` to be able to look like an `h3` too? And an `h2` to be able to look like an `h1` or an `h3` and so on. Is this a clean solution?
+
+```css
+h1,
+.big-h2,
+.super-big-h3 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2,
+.small-h1,
+.big-h3 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3,
+.super-small-h1,
+.small-h2 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+I don't see how this would be better.
+
+I guess you could argue that an `h1` always should look like an `h1` and that's it. However, that's a limitation that is often difficult to hold on to in the long run — there are so many cases where an exception is needed.
+
+That's my take on it!

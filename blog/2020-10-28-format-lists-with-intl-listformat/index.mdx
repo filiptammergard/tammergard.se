@@ -1,0 +1,97 @@
+---
+slug: format-lists-with-intl-listformat
+title: Format lists with Intl.ListFormat
+description: Turn an array into a natural-language sentence like "A, B, C and D" using the Intl.ListFormat API instead of a hand-rolled forEach.
+authors: [filip]
+tags: [javascript]
+---
+
+Let's say we have this array of cities:
+
+```js
+const cities = ["Uppsala", "Stockholm", "Lycksele", "Lund"]
+```
+
+And let's say we want to write the cities from the array in a sentence like this:
+
+> Uppsala, Stockholm, Lycksele and Lund are 4 nice cities in Sweden.
+
+How?!
+
+{/* truncate */}
+
+There's an awkward way of doing it:
+
+```js
+let sentence = ""
+
+cities.forEach((city, index) => {
+	if (index === cities.length - 1) {
+		sentence += `and ${city}`
+	} else if (index === cities.length - 2) {
+		sentence += `${city} `
+	} else {
+		sentence += `${city}, `
+	}
+})
+
+sentence += ` are ${cities.length} nice cities in Sweden.`
+
+// sentence = "Uppsala, Stockholm, Lycksele and Lund are 4 nice cities in Sweden."
+```
+
+Yuck. We want to avoid that at all costs.
+
+In JavaScript there's the lovely built-in `Intl` object that can help with this. `Intl` stands for _Internationalization_ and is about adapting different formats to different regions' standards. The `Intl` object contains the `ListFormat` function that helps us solve list formatting in a much nicer way.
+
+```js
+const formatter = new Intl.ListFormat("en")
+
+const sentence = `${formatter.format(cities)} are ${
+	cities.length
+} nice cities in Sweden.`
+
+// sentence = "Uppsala, Stockholm, Lycksele, and Lund are 4 nice cities in Sweden."
+```
+
+Oh, so nice! The first parameter `en` defines that the English standard should be used. If Swedish standard (`sv`) is used instead, the sentence becomes:
+
+> Uppsala, Stockholm, Lycksele och Lund are 4 nice cities in Sweden.
+
+The "and" becomes "och" and the comma before the last city (Lycksele in this case) is dropped, which differs from the American standard.
+
+`ListFormat` also has a second optional parameter, an object with choices. If nothing else is specified, the _type_ defaults to _conjunction_, which means there's an "and" at the end of the list. Let's say we want to write this sentence instead:
+
+> Uppsala, Stockholm, Lycksele or Lund is the nicest city in Sweden.
+
+Then we can simply define the type to be _disjunction_:
+
+```js
+const formatter = new Intl.ListFormat("en", { type: "disjunction" })
+
+const sentence = `${formatter.format(cities)} is the nicest city in Sweden.`
+
+// sentence = "Uppsala, Stockholm, Lycksele, or Lund is the nicest city in Sweden."
+```
+
+If we want neither an "and" list nor an "or" list but simply to list some cities, we can use the `unit` type:
+
+```js
+const formatter = new Intl.ListFormat("en", { type: "unit" })
+
+const sentence = `Cities: ${formatter.format(cities)}`
+
+// sentence = "Cities: Uppsala, Stockholm, Lycksele, Lund"
+```
+
+If we don't even want comma separation, we can add the option `style: "narrow"`:
+
+```js
+const formatter = new Intl.ListFormat("en", { type: "unit", style: "narrow" })
+
+const sentence = formatter.format(cities)
+
+// sentence = "Uppsala Stockholm Lycksele Lund"
+```
+
+There we go!

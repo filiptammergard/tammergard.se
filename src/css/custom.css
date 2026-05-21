@@ -1,24 +1,224 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
 :root {
-	--ifm-color-primary: #2e8555;
-	--ifm-color-primary-dark: #29784c;
-	--ifm-color-primary-darker: #277148;
-	--ifm-color-primary-darkest: #205d3b;
-	--ifm-color-primary-light: #33925d;
-	--ifm-color-primary-lighter: #359962;
-	--ifm-color-primary-lightest: #3cad6e;
-	--ifm-code-font-size: 100%;
-	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-	--ifm-color-secondary: #555555;
+	--ifm-color-primary: #b8543a;
+	--ifm-color-primary-dark: #a64a33;
+	--ifm-color-primary-darker: #9c4631;
+	--ifm-color-primary-darkest: #803a28;
+	--ifm-color-primary-light: #c25e44;
+	--ifm-color-primary-lighter: #c8674e;
+	--ifm-color-primary-lightest: #d68063;
+	--ifm-color-secondary: #5b5b5b;
+
+	--ifm-background-color: #faf7f2;
+	--ifm-background-surface-color: #f4f0e8;
+
+	--ifm-font-family-base:
+		"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+		sans-serif;
+	--ifm-heading-font-family:
+		"Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+	--ifm-font-family-monospace:
+		"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	--ifm-font-size-base: 17px;
+	--ifm-line-height-base: 1.7;
+	--ifm-heading-line-height: 1.2;
+	--ifm-heading-font-weight: 600;
+	--ifm-h1-font-size: 2.75rem;
+	--ifm-h2-font-size: 2rem;
+	--ifm-h3-font-size: 1.5rem;
+	--ifm-container-width: 1140px;
+
+	--ifm-code-font-size: 92%;
+	--ifm-code-background: #f0ece2;
+	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] {
-	--ifm-color-primary: #25c2a0;
-	--ifm-color-primary-dark: #21af90;
-	--ifm-color-primary-darker: #1fa588;
-	--ifm-color-primary-darkest: #1a8870;
-	--ifm-color-primary-light: #29d5b0;
-	--ifm-color-primary-lighter: #32d8b4;
-	--ifm-color-primary-lightest: #4fddbf;
-	--docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
-	--ifm-color-secondary: #aaaaaa;
+	--ifm-color-primary: #f3a172;
+	--ifm-color-primary-dark: #ef8d57;
+	--ifm-color-primary-darker: #ed8348;
+	--ifm-color-primary-darkest: #e56a26;
+	--ifm-color-primary-light: #f7b58d;
+	--ifm-color-primary-lighter: #f8bf9c;
+	--ifm-color-primary-lightest: #fbd6bf;
+	--ifm-color-secondary: #b5b5b5;
+
+	--ifm-background-color: #18171a;
+	--ifm-background-surface-color: #1f1d20;
+
+	--ifm-code-background: #24222a;
+	--docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.06);
+}
+
+html {
+	font-feature-settings:
+		"ss01" on,
+		"cv11" on;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--ifm-heading-font-family);
+	letter-spacing: -0.015em;
+	font-feature-settings:
+		"ss01" on,
+		"ss03" on;
+}
+
+h1 {
+	font-weight: 700;
+	letter-spacing: -0.025em;
+}
+
+article {
+	font-size: 1.0625rem;
+}
+
+.markdown > h2 {
+	margin-top: 2.5em;
+}
+
+.markdown > h3 {
+	margin-top: 2em;
+}
+
+.markdown a {
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+}
+
+.navbar {
+	box-shadow: none;
+	border-bottom: 1px solid var(--ifm-color-emphasis-200);
+	backdrop-filter: saturate(180%) blur(10px);
+	background-color: color-mix(
+		in srgb,
+		var(--ifm-background-color) 85%,
+		transparent
+	);
+}
+
+.navbar__title {
+	font-family: var(--ifm-heading-font-family);
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.footer {
+	background-color: var(--ifm-background-surface-color);
+	border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+[data-theme="dark"] .footer,
+[data-theme="dark"] .navbar {
+	border-color: var(--ifm-color-emphasis-300);
+}
+
+/* Form controls — unified look for all raw <button>, <input>, <select>, <textarea>
+   inside MDX/blog content. Components with their own className opt out. */
+
+:where(.markdown, article) button:not([class]) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.55rem 1rem;
+	font-family: inherit;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--ifm-font-color-base);
+	background-color: var(--ifm-background-surface-color);
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	cursor: pointer;
+	transition:
+		border-color 150ms ease,
+		color 150ms ease,
+		transform 60ms ease;
+}
+
+:where(.markdown, article) button:not([class]):hover {
+	border-color: var(--ifm-color-primary);
+	color: var(--ifm-color-primary);
+}
+
+:where(.markdown, article) button:not([class]):active {
+	transform: translateY(1px);
+}
+
+:where(.markdown, article) button:not([class]):focus-visible {
+	outline: 2px solid var(--ifm-color-primary);
+	outline-offset: 2px;
+}
+
+:where(.markdown, article)
+	:where(input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], input[type="date"], input[type="datetime-local"], input[type="time"], textarea, select):not(
+		[class]
+	) {
+	padding: 0.55rem 0.875rem;
+	font-family: inherit;
+	font-size: 0.9375rem;
+	line-height: 1.4;
+	color: var(--ifm-font-color-base);
+	background-color: var(--ifm-background-color);
+	border: 1px solid var(--ifm-color-emphasis-300);
+	border-radius: 8px;
+	transition:
+		border-color 150ms ease,
+		box-shadow 150ms ease;
+}
+
+:where(.markdown, article)
+	:where(input, textarea, select):not([class])::placeholder {
+	color: var(--ifm-color-emphasis-500);
+}
+
+:where(.markdown, article) :where(input, textarea, select):not([class]):hover {
+	border-color: var(--ifm-color-emphasis-400);
+}
+
+:where(.markdown, article) :where(input, textarea, select):not([class]):focus,
+:where(.markdown, article)
+	:where(input, textarea, select):not([class]):focus-visible {
+	outline: none;
+	border-color: var(--ifm-color-primary);
+	box-shadow: 0 0 0 3px
+		color-mix(in srgb, var(--ifm-color-primary) 20%, transparent);
+}
+
+:where(.markdown, article) textarea:not([class]) {
+	min-height: 6rem;
+	resize: vertical;
+}
+
+/* Custom select chevron — native arrow is inconsistent across browsers */
+:where(.markdown, article) select:not([class]) {
+	appearance: none;
+	-webkit-appearance: none;
+	padding-right: 2.25rem;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%235b5b5b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5l3 3 3-3'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 12px;
+	cursor: pointer;
+}
+
+[data-theme="dark"] :where(.markdown, article) select:not([class]) {
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='none' stroke='%23b5b5b5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M3 4.5l3 3 3-3'/></svg>");
+}
+
+/* Labels next to form controls */
+:where(.markdown, article) label:not([class]) {
+	display: inline-block;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	margin-bottom: 0.375rem;
+	color: var(--ifm-color-emphasis-800);
 }

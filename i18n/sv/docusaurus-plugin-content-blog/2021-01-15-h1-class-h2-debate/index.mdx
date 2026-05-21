@@ -1,0 +1,127 @@
+---
+slug: the-h1-class-h2-pattern-debate
+title: Debatten om h1 class="h2"-mönstret
+description: Argumenten för och emot att låta en h1 se ut som en h2 med en klass – och varför mönstret faktiskt kan vara vettigt.
+authors: [filip]
+tags: [css, html]
+---
+
+import {
+	Headings,
+	H1AsH2,
+} from "@site/blog/2021-01-15-h1-class-h2-debate/Headings"
+
+```html
+<h1 class="h2"></h1>
+```
+
+<br />
+
+Det är en kodrad (eller åtminstone en HTML-starttagg med en klass) som tydligen gör många arga eller förvirrade.
+
+{/* truncate */}
+
+Jag vill dock föreslå att mönstret faktiskt är ganska bra och även enkelt att förstå under vissa förutsättningar.
+
+Säg att den CSS som är specifik för rubriker i en kodbas ser ut så här:
+
+```css
+h1 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+Här är de tre rubrikerna (jag rör medvetet om i HTML-semantiken på sidan här):
+
+<Headings />
+<br />
+
+Vad händer om vi vill lägga till text som har stilarna för en `h2`, men semantiskt skulle vara en `h1`?
+
+En riktigt dålig lösning skulle vara att helt enkelt göra den till en `h2`. Valet av HTML-rubrikselement ska inte baseras på vilken stil du vill att den ska ha, utan på vad som är semantiskt korrekt. Kanske är detta en rubrik för en artikel som kan vara lång, och därför fungerar de mindre `h2`-stilarna bättre.
+
+En bättre lösning är att göra det möjligt att använda ett `h1`-element med stilarna för ett `h2`-element. Hur då? I min mening är att göra som kodraden i början av denna sida en helt giltig lösning – kanske till och med den bästa. För att få det att fungera läggs klasser till i stilarket:
+
+```css
+h1,
+.h1 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2,
+.h2 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3,
+.h3 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+Målet kan nu uppnås så här:
+
+```html
+<h1 class="h2">Jag är en h1-rubrik, men ser ut som en h2</h1>
+```
+
+<br />
+
+<H1AsH2 />
+
+<br />
+
+Superenkelt!
+
+Vissa verkar förstå användningsfallet, men föredrar ett annat klassnamn som "small-h1" eller liknande. Men då måste jag fråga – på vilket sätt är det bättre och enklare att förstå? För mig betyder det bara massor av nya klassnamn som jag måste komma ihåg eller slå upp varje gång jag behöver göra något sådant här.
+
+Och vad händer om du vill att en `h1` också ska kunna se ut som en `h3`? Och en `h2` kunna se ut som en `h1` eller en `h3` och så vidare. Är det här en ren lösning?
+
+```css
+h1,
+.big-h2,
+.super-big-h3 {
+	font-size: 5rem;
+	font-weight: 800;
+}
+
+h2,
+.small-h1,
+.big-h3 {
+	font-size: 3rem;
+	font-weight: 400;
+}
+
+h3,
+.super-small-h1,
+.small-h2 {
+	font-size: 1rem;
+	font-weight: 800;
+}
+```
+
+<br />
+
+Jag ser inte hur det skulle vara bättre.
+
+Man kan så klart argumentera för att en `h1` alltid ska se ut som en `h1` och inget annat. Men det är en begränsning som ofta är svår att hålla fast vid i längden – det finns så många fall där ett undantag behövs.
+
+Så är min syn på det!

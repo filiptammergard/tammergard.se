@@ -1,0 +1,22 @@
+---
+slug: ip-location
+title: "IP-baserad plats"
+description: Hämta besökarens ungefärliga plats utifrån IP-adressen med gratis-API:t Ipapi och visa svaret i en React-komponent.
+authors: [filip]
+tags: [javascript]
+---
+
+import { City } from "@site/blog/2021-04-01-ip-location/City"
+import { Json } from "@site/blog/2021-04-01-ip-location/Json"
+
+Du bor nära **<City />**, eller hur?
+
+Hur visste jag det? Jag använde [Ipapi](https://ipapi.co/)! Ett smidigt API för att hämta platsen för IP-adresser, med 30 000 gratis uppslagningar per månad.
+
+{/* truncate */}
+
+Här är det fullständiga JSON-svaret för `fetch`-anropet i ditt fall:
+
+<Json />
+
+Jag tycker det är roligt att testa den här typen av små och enkla gratis-API:er. Tack Ipapi!

@@ -1,0 +1,87 @@
+---
+slug: what-have-i-copied
+title: What have I copied?
+description: Read the current clipboard contents in React with the navigator.clipboard API, including error handling for denied permissions.
+authors: [filip]
+tags: [react, javascript]
+---
+
+import { WhatHaveICopied } from "./WhatHaveICopied"
+
+Click the button to see what's currently in your clipboard:
+
+<WhatHaveICopied />
+
+{/* truncate */}
+
+## How could it know?!
+
+Thanks to the _navigator_ API. I did it in React and TypeScript. We start by writing a function that checks what's currently in the clipboard:
+
+```tsx
+const read = async () => {
+	try {
+		const value = await navigator.clipboard.readText()
+		setClipboard(value.trim())
+	} catch {
+		setClipboard("Couldn't show what you copied...")
+	}
+}
+```
+
+<br />
+
+We use `trim()` to avoid showing for example a stray space, since it wouldn't be visible anyway. We save the result in _state_, which we of course also need to define:
+
+```tsx
+const [clipboard, setClipboard] = useState<string>()
+```
+
+<br />
+
+Reading the clipboard is tied to a user gesture (the button click). That's the recommended pattern — browsers want clipboard reads to be initiated by an explicit user action rather than running automatically.
+
+```tsx
+return (
+	<>
+		<button onClick={read}>Show what I copied</button>
+		<p>You have copied:</p>
+		<p>{clipboard || "You haven't copied anything..."}</p>
+	</>
+)
+```
+
+<br />
+
+The full React component looks like this:
+
+```tsx
+import { useState } from "react"
+
+const Clipboard = () => {
+	const [clipboard, setClipboard] = useState<string>()
+
+	const read = async () => {
+		try {
+			const value = await navigator.clipboard.readText()
+			setClipboard(value.trim())
+		} catch {
+			setClipboard("Couldn't show what you copied...")
+		}
+	}
+
+	return (
+		<>
+			<button onClick={read}>Show what I copied</button>
+			<p>You have copied:</p>
+			<p>{clipboard || "You haven't copied anything..."}</p>
+		</>
+	)
+}
+
+export default Clipboard
+```
+
+<br />
+
+So if you ever wonder what you've copied but refuse to test by pasting somewhere, you can use this page instead!

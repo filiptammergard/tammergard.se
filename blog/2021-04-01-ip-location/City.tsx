@@ -1,4 +1,3 @@
-import React from "react"
 import { useIpLocation } from "./useIpLocation"
 
 export function City() {

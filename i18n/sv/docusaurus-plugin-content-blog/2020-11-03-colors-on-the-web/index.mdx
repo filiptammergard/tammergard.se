@@ -1,0 +1,154 @@
+---
+slug: colors-on-the-web
+title: Färger på webben
+description: Förstå skillnaderna mellan HEX, RGB, RGBA och HSL – och generera slumpmässiga färger i varje format med React.
+authors: [filip]
+tags: [css]
+---
+
+import {
+	Hex,
+	Rgb,
+	Rgba,
+	Hsl,
+} from "@site/blog/2020-11-03-colors-on-the-web/RandomColors"
+
+Färger på webben kan definieras på många olika sätt. Det finns 140 färgnamn såsom till exempel <span style={{color:"green"}}>_green_</span>, <span style={{color:"goldenrod"}}>_goldenrod_</span> och <span style={{color:"navy"}}>_navy_</span>. Utöver det finns dessa fyra standarder för färgvärden: HEX, RGB, RGBA och HSL. Jag går igenom dessa en i taget i det här inlägget och visar också hur man kan generera slumpmässiga färgvärden för respektive standard med React.
+
+{/* truncate */}
+
+### HEX
+
+HEX-färger är hexadecimala värden på formen `#RRGGBB` där RR är ett tvåställigt hexadecimalt värde för rött, GG för grönt och BB för blått. Det hexadecimala talsystemet är ett talsystem med 16 som bas, men eftersom vi inte har mer än siffrorna 0–9 att röra oss med, inför vi bokstäver som utfyllnad. 0–15 representeras av dessa "siffror":
+
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F
+
+0 är 0 och F är 15. För att konvertera ett tvåställigt hexadecimalt tal till ett decimaltal multipliceras första siffran med 16 för att därefter addera den andra siffran. HEX-värdet 5D blir alltså 5•16 + 13 = 80 + 13 = 93. Det minsta värdet är 00 = 0 och det största är FF = 15•16 + 15 = 255. HEX-formatet är alltså ett annat sätt att skriva RGB-värden, som också är röd-grön-blå-värden mellan 0 och 255.
+
+Klicka på knappen nedan för att generera ett slumpmässigt HEX-värde:
+
+<Hex />
+
+### RGB
+
+RGB-färger anges på formen `rgb(r, g, b)`, där r, g och b är värden för rött, grönt och blått. Värdena är ett tal mellan 0 och 255. `rgb(255, 0, 0)` ger alltså en röd färg eftersom det högsta värdet för rött och lägsta för de andra har använts. `rgb(100, 100, 100)` ger en grå färg eftersom lika mycket av varje färg har använts.
+
+Klicka på knappen nedan för att generera ett slumpmässigt RGB-värde:
+
+<Rgb />
+
+### RGBA
+
+RGBA är egentligen ingen egen standard, utan är samma som RGB med tillägget av ett alfa-värde som är ett tal mellan 0 och 1 och definierar genomskinlighet i färgen (0 betyder helt genomskinlig och 1 betyder ingen genomskinlighet). Värdet följer alltså formen `rgba(r, g, b, a)` där r, g och b definieras på samma sätt som för `rgb(r, g, b)` och a är ett tal mellan 0 och 1.
+
+Klicka på knappen nedan för att generera ett slumpmässigt RGBA-värde:
+
+<Rgba />
+
+### HSL
+
+HSL är en populär färgstandard i modern webbutveckling, eftersom den uttrycker färg på ett sätt som är mycket lättare att resonera kring än HEX eller RGB. Akronymen står för _hue_, _saturation_, _lightness_, alltså ungefär färgton, mättnad, ljusstyrka. HSL anges på formen `hsl(h, s%, l%)` där h (färgtonen) är ett tal mellan 0 och 360, s (mättnaden) är mellan 0 och 100 % och l (ljusstyrkan) också mellan 0 och 100 %. På färgtonsskalan är 0 rött, 120 är grönt, 240 är blått och 360 är tillbaka på rött. Värden mellan dessa utgör olika kombinationer av nyanserna. På mättnadsskalan är 0 % en grå nyans medan 100 % blir den fulla färgen. På ljusstyrka-skalan är 0 % svart och 100 % vitt.
+
+Klicka på knappen nedan för att generera ett slumpmässigt HSL-värde:
+
+<Hsl />
+
+## Generera slumpmässiga färger – hur?
+
+Nu ska vi kolla lite på hur jag gjorde för att generera slumpmässiga färger med React.
+
+### HEX
+
+```jsx
+import { useState } from "react"
+
+export const Hex = () => {
+	const [color, setColor] = useState("")
+
+	const handleClick = () => {
+		const rr = getRandomHexadecimalPair()
+		const gg = getRandomHexadecimalPair()
+		const bb = getRandomHexadecimalPair()
+		setColor(`#${rr}${gg}${bb}`)
+	}
+
+	const getRandomHexadecimalPair = () => {
+		return getRandomHexadecimal() + getRandomHexadecimal()
+	}
+
+	const getRandomHexadecimal = () => {
+		const hexadecimalSymbols = "0123456789ABCDEF"
+		const randomIndex = Math.floor(Math.random() * hexadecimalSymbols.length)
+		return hexadecimalSymbols[randomIndex]
+	}
+
+	return (
+		<div>
+			<button onClick={handleClick}>Generera HEX-värde</button>
+			<div>{color}</div>
+			<div style={{ backgroundColor: color, height: "2rem" }} />
+		</div>
+	)
+}
+```
+
+Större delen av koden är densamma för alla färgstandarder. Det enda som skiljer är hur de slumpmässiga färgerna genereras. HEX består som sagt av tre tvåställigt hexadecimala värden efter ett `#`-tecken. Därför har jag dels en funktion `getRandomHexadecimal` som plockar fram en slumpmässig hexadecimal och dels en funktion `getRandomHexadecimalPair` som lägger ihop två slumpmässiga hexadecimaler. Detta görs en gång för rött, en gång för grönt och en gång för blått. Slutligen sparas HEX-värdet i state med ett `#`-tecken framför, som sedan används som bakgrundsfärg.
+
+Att ta fram en slumpmässig färg är betydligt enklare med andra färgstandarder än HEX. Nu ska vi kika på RGB. Som sagt är det bara funktionaliteten när man klickar på Generera-knappen som skiljer sig åt, så här tar jag bara med funktionen `handleClick`, resten är detsamma (förutom texten på knappen som så klart också får bytas ut).
+
+### RGB
+
+```js
+const handleClick = () => {
+	const r = Math.floor(Math.random() * 256)
+	const g = Math.floor(Math.random() * 256)
+	const b = Math.floor(Math.random() * 256)
+
+	setColor(`rgb(${r}, ${g}, ${b})`)
+}
+```
+
+Här är det supersmidigt att generera ett slumpmässigt tal mellan 0 och 255 tre gånger och sedan formatera färgvärdet så att det följer formen `rgb(r, g, b)`. Vi skulle kunna generera de slumpmässiga talen i en egen funktion i stället för att upprepa oss, men jag tycker det funkar bra så här också.
+
+### RGBA
+
+```js
+const handleClick = () => {
+	const r = Math.floor(Math.random() * 256)
+	const g = Math.floor(Math.random() * 256)
+	const b = Math.floor(Math.random() * 256)
+	const a = Math.random().toFixed(2)
+
+	setColor(`rgba(${r}, ${g}, ${b}, ${a})`)
+}
+```
+
+Samma princip som RGB, bara att vi lägger till ett slumpmässigt tal mellan 0 och 1 för att fixa genomskinligheten. Jag lade till `toFixed(2)` för att avrunda till två decimaler (vilket annars blir en massa decimaler).
+
+### HSL
+
+```js
+const handleClick = () => {
+	const h = Math.floor(Math.random() * 361)
+	const s = Math.floor(Math.random() * 101)
+	const l = Math.floor(Math.random() * 101)
+
+	setColor(`hsl(${h}, ${s}%, ${l}%)`)
+}
+```
+
+Inte heller med HSL är det några konstigheter. Observera att jag multiplicerar slumptalet med 361 respektive med 101 och kör `Math.floor` som avrundar talet nedåt för att värdet 0 ska kunna antas men inte värdet 361.
+
+## Moderna färgfunktioner
+
+CSS Color 4 har lagt till perceptuellt uniforma färgrymder som ovanstående format inte kan uttrycka. De mest användbara i vardagen är `oklch()` och `lab()` – de gör att man kan ändra ljusstyrka eller mättnad utan de färgskift man får om man gör samma sak i HSL. Det finns också `color()` för att arbeta i specifika färgrymder som `display-p3` eller `rec2020`.
+
+```css
+color: oklch(70% 0.15 200);
+color: lab(70% 20 -50);
+color: color(display-p3 1 0 0);
+```
+
+Om man väljer ett färgformat idag är `oklch()` det mest ergonomiska valet för tokens och paletter. HSL fungerar fortfarande bra för snabba justeringar.
+
+Nu kan vi verkligen generera slumpmässiga färger!

@@ -19,7 +19,7 @@ interface IpLocation {
 	version: string
 	city: string
 	region: string
-	region_core: string
+	region_code: string
 	country: string
 	country_name: string
 	country_code: string

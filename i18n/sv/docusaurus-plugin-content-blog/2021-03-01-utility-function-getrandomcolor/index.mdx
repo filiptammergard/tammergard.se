@@ -1,0 +1,70 @@
+---
+slug: utility-function-getrandomcolor
+title: "Hjälpfunktion: getRandomColor"
+description: En liten återanvändbar hjälpfunktion som returnerar en slumpmässig RGB-färg – perfekt för demos, lekar och experiment.
+authors: [filip]
+tags: [javascript]
+---
+
+import { RandomColor } from "@site/blog/2021-03-01-utility-function-getrandomcolor/RandomColor"
+
+Jag har haft kul med slumpmässiga färger på sistone! För att snabba upp utvecklingen gjorde jag en hjälpfunktion som returnerar en slumpmässig färg. Den är riktigt enkel:
+
+```ts
+export const getRandomColor = () => {
+	const red = Math.floor(Math.random() * 256)
+	const green = Math.floor(Math.random() * 256)
+	const blue = Math.floor(Math.random() * 256)
+
+	const color = `rgb(${red}, ${green}, ${blue})`
+
+	return color
+}
+```
+
+{/* truncate */}
+
+## Exempel på användning
+
+Testa! Tryck på knappen för att generera en ny slumpmässig färg i rutan nedanför.
+
+<RandomColor />
+
+<br />
+
+Så här använder jag `getRandomColor` tillsammans med React state och inline-stilar:
+
+```tsx
+import { useState } from "react"
+import { getRandomColor } from "utils/getRandomColor"
+
+const INITIAL_BACKGROUND_COLOR = "rgb(91, 197, 231)"
+
+const RandomColor = () => {
+	const [background, setBackground] = useState(INITIAL_BACKGROUND_COLOR)
+
+	function handleClick() {
+		setBackground(getRandomColor())
+	}
+
+	return (
+		<>
+			<button onClick={handleClick}>Generera slumpmässig färg</button>
+			<div
+				style={{
+					background,
+					border: "1px solid black",
+					borderRadius: "8px",
+					margin: "15px 0",
+					padding: "10px",
+					textAlign: "center",
+				}}
+			>
+				{background}
+			</div>
+		</>
+	)
+}
+
+export default RandomColor
+```

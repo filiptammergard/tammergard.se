@@ -1,0 +1,145 @@
+---
+slug: word-and-letter-counter
+title: Ord- och teckenräknare
+description: Räkna ord, tecken och teckensekvenser i en text med några rader JavaScript – split, length och regex i samspel.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TextCounter } from "@site/blog/2020-11-07-word-and-letter-counter/TextCounter"
+
+Använd den här räknaren om du vill räkna ord, tecken eller en sekvens av tecken i en text!
+
+<TextCounter />
+
+{/* truncate */}
+
+## Hur fungerar beräkningarna?
+
+Om du är nyfiken på hur jag implementerade beräkningarna kan du fortsätta läsa här!
+
+### Antal tecken
+
+Att räkna antalet tecken är lättast:
+
+```js
+const text = "Lorem ipsum dolor sit amet."
+
+const symbols = text.length
+
+// symbols = 27
+```
+
+<br />
+
+Klart!
+
+### Antal ord
+
+Det finns många sätt att räkna ord i en text. Det smidigaste alternativet i mina ögon är att dela upp texten så att varje ord blir ett element i en array och sedan kolla arrayens längd. Uppdelningen i ord kan åstadkommas genom att dela arrayen vid varje mellanslag.
+
+```js
+const text = "Lorem ipsum dolor sit amet."
+
+const words = text.split(" ").length
+
+// words = 5
+```
+
+<br />
+
+Det funkar! Det finns dock ett par problem. Jag visar med exempel:
+
+```js
+const threeSpaces = "   "
+const words = threeSpaces.split(" ")
+
+// words = ["", "", "", ""]
+```
+
+<br />
+
+Här räknar vi antalet ord i en sträng som bara innehåller tre mellanslag. När separatorn i `split` förekommer flera gånger i följd kommer strängen ändå delas på varje ställe, vilket betyder att det kommer bli tomma element i arrayen. Dessa element är inte ord, så de vill vi filtrera bort.
+
+```js
+const text = "Lorem ipsum dolor sit amet. "
+
+const wordsArray = text.split(" ")
+
+// wordsArray = ["Lorem", "ipsum", "dolor", "sit", "amet.", ""]
+
+const filteredWordsArray = wordsArray.filter((word) => word !== "")
+
+// filteredWordsArray = ["Lorem", "ipsum", "dolor", "sit", "amet."]
+
+const words = filteredWordsArray.length
+
+// words = 5
+```
+
+<br />
+
+Här filtrerade vi bort elementet som skapades av det avslutande mellanslaget, vilket resulterar i att antalet ord stämmer. Ser bra ut! Ett till problem:
+
+```js
+const text = `Text spanning
+over two lines.`
+
+const wordsArray = text.split(" ").filter((word) => word !== "")
+
+// wordsArray = ["Text", "spanning↵over", "two", "lines."]
+
+const words = wordsArray.length
+
+// words = 4
+```
+
+<br />
+
+Det där ser inte ut att stämma riktigt. Radbryt är inte samma sak som mellanslag och därför kommer uppdelning inte ske vid radbryt. Vi behöver designa om vår `split` för att se till att dela upp strängen vid varje ordseparator i stället för bara vid mellanslag.
+
+Detta är de ordseparatorer jag kan komma på:
+
+- mellanslag: " "
+- tabb: \t
+- ny rad: \n
+- vagnretur: \r
+
+Här kommer Regex väl till pass! `split(/ |\t|\n|\r/)` delar strängen vid varje förekomst av en ordseparator. Vi testar igen:
+
+```js
+const text = `Text spanning
+over two lines.`
+
+const wordsArray = text.split(/ |\t|\n|\r/).filter((word) => word !== "")
+
+// wordsArray = ["Text", "spanning", "over", "two", "lines."]
+
+const words = wordsArray.length
+
+// words = 5
+```
+
+<br />
+
+Så där ja!
+
+### Teckensekvenser
+
+Teckensekvenser är påfallande enkelt att räkna ut. Vi definierar en sekvens av tecken som vi vill veta antalet förekomster av i en text:
+
+```js
+const text = "Lorem ipsum dolor sit amet. Dolor lives matter."
+
+const sequence = "dolor"
+
+const occurrences = text.toLowerCase().split(sequence.toLowerCase()).length - 1
+
+// occurrences = 2
+```
+
+<br />
+
+Här görs allt till gemener för att hitta alla förekomster av sekvensen oavsett versalisering. `split` delar upp strängen vid varje förekomst av sekvensen. Om sekvensen aldrig förekommer blir alltså arrayens längd 1. Det leder till att summan måste subtraheras med 1 för att det ska stämma med vad vi vill åstadkomma.
+
+Glad räkning!

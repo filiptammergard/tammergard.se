@@ -1,0 +1,87 @@
+---
+slug: what-have-i-copied
+title: Vad har jag kopierat?
+description: Läs användarens klippbord i React med navigator.clipboard.readText och visa innehållet med ett enkelt knapptryck.
+authors: [filip]
+tags: [react, javascript]
+---
+
+import { WhatHaveICopied } from "@site/blog/2020-10-23-what-have-i-copied/WhatHaveICopied"
+
+Klicka på knappen för att se vad du har i klippbordet just nu:
+
+<WhatHaveICopied />
+
+{/* truncate */}
+
+## Hur kunde du veta?!
+
+Tack vare _navigator_-API:t. Jag gjorde det i React och TypeScript. Vi börjar med att skriva en funktion som kollar upp vad som finns i klippbordet just nu:
+
+```tsx
+const read = async () => {
+	try {
+		const value = await navigator.clipboard.readText()
+		setClipboard(value.trim())
+	} catch {
+		setClipboard("Kunde inte visa vad du har kopierat...")
+	}
+}
+```
+
+<br />
+
+Vi använder `trim()` för att undvika att till exempel ett ensamt mellanslag visas, eftersom det ändå inte skulle synas. Vi sparar utfallet i _state_ som vi så klart också måste definiera:
+
+```tsx
+const [clipboard, setClipboard] = useState<string>()
+```
+
+<br />
+
+Att läsa klippbordet sker via en användarinteraktion (knappklick). Det är det rekommenderade mönstret – webbläsare vill att klippbordsläsningar ska initieras av en explicit handling snarare än köras automatiskt.
+
+```tsx
+return (
+	<>
+		<button onClick={read}>Visa vad jag kopierat</button>
+		<p>Detta har du kopierat:</p>
+		<p>{clipboard || "Du har inte kopierat något..."}</p>
+	</>
+)
+```
+
+<br />
+
+Hela React-komponenten ser ut så här:
+
+```tsx
+import { useState } from "react"
+
+const Clipboard = () => {
+	const [clipboard, setClipboard] = useState<string>()
+
+	const read = async () => {
+		try {
+			const value = await navigator.clipboard.readText()
+			setClipboard(value.trim())
+		} catch {
+			setClipboard("Kunde inte visa vad du har kopierat...")
+		}
+	}
+
+	return (
+		<>
+			<button onClick={read}>Visa vad jag kopierat</button>
+			<p>Detta har du kopierat:</p>
+			<p>{clipboard || "Du har inte kopierat något..."}</p>
+		</>
+	)
+}
+
+export default Clipboard
+```
+
+<br />
+
+Så om du någon gång undrar vad du har kopierat men vägrar att testa att klistra in någonstans kan du använda den här sidan i stället!

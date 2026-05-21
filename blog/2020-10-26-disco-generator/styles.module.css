@@ -1,0 +1,30 @@
+.controls {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	margin-block-end: 1rem;
+	gap: 1rem;
+}
+
+@media (max-width: 768px) {
+	.controls {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.inputWrapper {
+	text-align: center;
+}
+
+.inputWrapper label {
+	display: block;
+}
+
+.inputWrapper input {
+	width: 100%;
+	box-sizing: border-box;
+	padding-block: 0.4rem;
+}
+
+.grid {
+	display: grid;
+}

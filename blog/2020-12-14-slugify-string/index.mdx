@@ -1,0 +1,34 @@
+---
+slug: slugify-string
+title: Slugify string
+description: A small JavaScript slugify function that normalizes diacritics, lowercases, trims and replaces spaces and special characters for clean URLs.
+authors: [filip]
+tags: [javascript]
+---
+
+import { Slugify } from "./Slugify"
+
+When you generate URLs from titles, the title typically can't be used directly — spaces, question marks and other special characters don't belong in URL slugs. That's where a `slugify` function comes in handy.
+
+{/* truncate */}
+
+This is the function I like to use:
+
+```js
+const slugify = (str) => {
+	return str
+		.normalize("NFD")
+		.replace(/[̀-ͯ]/g, "")
+		.toLowerCase()
+		.trim()
+		.replace(/\s+/g, "-")
+		.replace(/[^\w\-]+/g, "")
+		.replace(/\-\-+/g, "-")
+}
+```
+
+<br />
+
+It does some cool stuff. Go ahead and test it out here:
+
+<Slugify />

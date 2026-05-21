@@ -1,0 +1,200 @@
+---
+slug: flatten-array-and-count-occurrences
+title: Platta ut array och räkna förekomster
+description: Använd flat och reduce för att platta ut en array av kategorier och räkna hur ofta varje värde förekommer.
+authors: [filip]
+tags: [javascript]
+---
+
+Jag utvecklade nyligen stöd för att filtrera [blogginlägg](/blog) efter kategorier. (Sedan dess har jag i stället utvecklat stöd för kategori- och författarsidor så att man kan klicka på en kategori och se alla andra inlägg med den kategorin, så den här funktionaliteten används inte längre.) Vid varje kategori i filtreringsvyn fanns även specificerat hur många inlägg som finns med respektive kategori. I det här inlägget ska jag gå igenom vad jag försökte åstadkomma och hur jag löste det.
+
+{/* truncate */}
+
+Låt oss ta ett lite förenklat exempel med blogginläggen. Utgångspunkten var ungefär denna array med blogginlägg-objekt:
+
+```js
+const posts = [
+	{
+		title: "Kalendermatematik",
+		categories: ["triviabildning", "modellering", "javascript", "snygg kod"],
+	},
+	{
+		title: "Bokstavsspel",
+		categories: ["spel", "react", "styled components"],
+	},
+	{
+		title: "Rövarspråksgenerator",
+		categories: ["triviabildning", "modellering", "javascript", "snygg kod"],
+	},
+	{
+		title: "Summera tal i en array med JavaScript",
+		categories: ["javascript", "snygg kod"],
+	},
+]
+```
+
+<br />
+
+Mitt mål var att få till en array som beskriver hur många gånger varje kategori förekommer, så här:
+
+```js
+const categories = [
+	{ name: "triviabildning", amount: 2 },
+	{ name: "modellering", amount: 2 },
+	{ name: "javascript", amount: 3 },
+	{ name: "snygg kod", amount: 3 },
+	{ name: "spel", amount: 1 },
+	{ name: "react", amount: 1 },
+	{ name: "styled components", amount: 1 },
+]
+```
+
+<br />
+
+Hur når vi då det målet?
+
+Eftersom det bara är kategorierna som är intressanta kan vi börja med att göra en enkel `map` för att ta fram en array med kategori-arrayerna:
+
+```js
+// Utgår från variabeln posts som definierades tidigare
+
+const categoryArrays = posts.map((post) => post.categories)
+
+/*
+  categoryArrays = [
+    ["triviabildning", "modellering", "javascript", "snygg kod"],
+    ["spel", "react", "styled components"],
+    ["triviabildning", "modellering", "javascript", "snygg kod"],
+    ["javascript", "snygg kod"],
+  ]
+*/
+```
+
+<br />
+
+En array med arrayer är inte direkt vad vi vill ha. Som en start vore det nog vettigt att "platta ut" `categoryArrays` så att det blir en enkel array med alla kategorier. Det kan göras så här:
+
+```js
+// Utgår från variabeln categoryArrays som definierades tidigare
+
+const flatCategories = categoryArrays.reduce((flat, toFlatten) =>
+	flat.concat(toFlatten),
+)
+
+/*
+  flatCategories = [
+    "triviabildning", "modellering", "javascript", "snygg kod",
+    "spel", "react", "styled components",
+    "triviabildning", "modellering", "javascript", "snygg kod",
+    "javascript", "snygg kod",
+  ]
+*/
+```
+
+<br />
+
+Med `flatCategories` som utgångspunkt vill vi alltså räkna förekomsten av varje kategori och spara i en array lik målbildsvariabeln `categories`. Som vanligt går det att lösa det här på en massa olika sätt. Här är sättet jag löste det på:
+
+```js
+// Utgår från variabeln flatCategories som definierades tidigare
+
+const categories = flatCategories.reduce((acc, curr) => {
+	const updatedAcc = acc.some((category) => category.name === curr)
+		? acc
+		: [...acc, { name: curr, amount: 0 }]
+
+	return updatedAcc.map((category) =>
+		category.name === curr
+			? { ...category, amount: category.amount + 1 }
+			: category,
+	)
+}, [])
+```
+
+<br />
+
+Här börjar vi med att lägga till kategori-objektet i kategori-arrayen om den inte redan finns. Sen adderar vi 1 till `amount` på aktuell kategori när den förekommer igen. Det här var den bästa lösningen jag kom på. Tyvärr blir det många loopvarv – precis som det brukar när _higher order functions_ används i varandra. För att ta reda på exakt hur många varv det blir kan vi lägga till en räknare:
+
+```js
+// Utgår från variabeln flatCategories som definierades tidigare
+
+let counter = 0
+
+const categories = flatCategories.reduce((acc, curr) => {
+	const updatedAcc = acc.some((category) => {
+		counter++
+		return category.name === curr
+	})
+		? acc
+		: [...acc, { name: curr, amount: 0 }]
+
+	return updatedAcc.map((category) => {
+		counter++
+		return category.name === curr
+			? { ...category, amount: category.amount + 1 }
+			: category
+	})
+}, [])
+
+// counter = 108
+```
+
+<br />
+
+Hela 108 varv trots endast 13 kategorier i variabeln `flatCategories`. Drömmen hade ju varit om det gick att få till med endast 13 varv. Hör gärna av dig om du har en bättre lösning – jag tänker mig att jag inte är den första som har stött på den här utmaningen.
+
+Vi avslutar med att snygga till koden i funktioner:
+
+```js
+function flatten(arrayOfArrays) {
+	return arrayOfArrays.reduce((flat, toFlatten) => {
+		return flat.concat(toFlatten)
+	}, [])
+}
+
+function getCategories(array) {
+	return array.reduce((acc, curr) => {
+		const updatedAcc = acc.some((category) => category.name === curr)
+			? acc
+			: [...acc, { name: curr, amount: 0 }]
+
+		return updatedAcc.map((category) =>
+			category.name === curr
+				? { ...category, amount: category.amount + 1 }
+				: category,
+		)
+	}, [])
+}
+
+const flatCategories = flatten(categoryArrays)
+const categories = getCategories(flatCategories)
+```
+
+<br />
+
+## Moderna alternativ
+
+Sedan det här inlägget skrevs har språket fått betydligt bättre verktyg för båda stegen.
+
+För utplattning gör `Array.prototype.flat()` (ES2019) jobbet:
+
+```js
+const flatCategories = categoryArrays.flat()
+```
+
+För räkningen hanterar `Object.groupBy()` (ES2024) grupperingen direkt:
+
+```js
+const grouped = Object.groupBy(flatCategories, (category) => category)
+
+const categories = Object.entries(grouped).map(([name, items]) => ({
+	name,
+	amount: items.length,
+}))
+```
+
+Eller `Map.groupBy()` om man vill ha en `Map` i stället för ett vanligt objekt.
+
+När runtime stödjer dem är detta klart att föredra.
+
+Så där!

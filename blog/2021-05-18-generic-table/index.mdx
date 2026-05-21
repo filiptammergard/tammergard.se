@@ -1,0 +1,252 @@
+---
+slug: building-a-generic-table-in-react-and-typescript
+title: Building a generic table in React and TypeScript
+description: Iterate from a hard-coded table to a fully generic, statically typed Table component in React, comparing the pitfalls of each approach.
+authors: [filip]
+tags: [react, typescript]
+---
+
+import { Table } from "./Table"
+
+I want to take you with me on a journey of creating a table component that is generic and statically typed. Instead of just showing an end result, I want to try out different approaches that have different pitfalls, and find the solution that seems to be the best one.
+
+As a starting point, we want to render a table with some country data:
+
+<Table />
+
+{/* truncate */}
+
+I made this table hard coded:
+
+```html
+<table>
+	<thead>
+		<tr>
+			<th>Country</th>
+			<th>Capital</th>
+			<th>Date format</th>
+			<th>Internet TLD</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Sweden</td>
+			<td>Stockholm</td>
+			<td>YYYY-MM-DD</td>
+			<td>.se</td>
+		</tr>
+		<tr>
+			<td>Germany</td>
+			<td>Berlin</td>
+			<td>DD.MM.YYYY</td>
+			<td>.de</td>
+		</tr>
+		<tr>
+			<td>Brazil</td>
+			<td>Brasília</td>
+			<td>DD/MM/YYYY</td>
+			<td>.br</td>
+		</tr>
+	</tbody>
+</table>
+```
+
+<br />
+
+But what if the data is not static? Let's say you have a data source that gives you an array of objects:
+
+```ts
+const countryData = [
+	{
+		country: "Sweden",
+		capital: "Stockholm",
+		dateFormat: "YYYY-MM-DD",
+		internetTLD: ".se",
+	},
+	{
+		country: "Germany",
+		capital: "Berlin",
+		dateFormat: "DD.MM.YYYY",
+		internetTLD: ".de",
+	},
+	{
+		country: "Brazil",
+		capital: "Brasília",
+		dateFormat: "DD/MM/YYYY",
+		internetTLD: ".br",
+	},
+]
+```
+
+<br />
+
+In React, you could render the data like this if you have `countryData` available in the component:
+
+```tsx
+<table>
+	<thead>
+		<tr>
+			<th>Country</th>
+			<th>Capital</th>
+			<th>Date format</th>
+			<th>Internet TLD</th>
+		</tr>
+	</thead>
+	<tbody>
+		{countryData.map((row) => (
+			<tr key={row.country}>
+				<td>{row.country}</td>
+				<td>{row.capital}</td>
+				<td>{row.dateFormat}</td>
+				<td>{row.internetTLD}</td>
+			</tr>
+		))}
+	</tbody>
+</table>
+```
+
+<br />
+
+But since we're hard coding the headings and using the properties of `countryData`, it's not possible to make this into a reusable `Table` component.
+
+What to do?
+
+We could start by defining the headings in an array instead of hard coding them.
+
+```ts
+const countryDataHeadings = [
+	"Country",
+	"Capital",
+	"Date format",
+	"Internet TLD",
+]
+```
+
+<br />
+
+But we still have the problem with the specific property names. An idea could be to pass in the rows as `children` instead of handling it specifically in the component. Let's make a `Table` React component and try it out!
+
+```tsx
+interface TableProps {
+	children: ReactNode
+	headings: string[]
+}
+
+export const Table = ({ children, headings }: TableProps) => {
+	return (
+		<table>
+			<thead>
+				<tr>
+					{headings.map((heading) => (
+						<th key={heading}>{heading}</th>
+					))}
+				</tr>
+			</thead>
+			<tbody>{children}</tbody>
+		</table>
+	)
+}
+```
+
+<br />
+
+Now you can use `Table` like this:
+
+```tsx
+<Table headings={countryDataHeadings}>
+	{countryData.map((row) => (
+		<tr key={row.country}>
+			<td>{row.country}</td>
+			<td>{row.capital}</td>
+			<td>{row.dateFormat}</td>
+			<td>{row.internetTLD}</td>
+		</tr>
+	))}
+</Table>
+```
+
+<br />
+
+Now the table is actually generic. You can show whatever headings and rows you want. But it requires passing in all rows as `children`, which is kind of tedious — and if the rows had functionality attached to them, it would have to be defined together with the `children` every time the component is used.
+
+So we don't want to depend on passing in the rows as `children`. Another problem is that the headings and the rows are not coupled at all — we are not letting TypeScript make sure we're giving the right heading to the right column.
+
+It's time to go a bit deeper into the true power of TypeScript — generics!
+
+Here's how we could do it:
+
+```tsx
+interface TableProps<Row, Column> {
+	headings: {
+		displayText: string
+		key: Column
+	}[]
+	rows: Row[]
+}
+
+export const Table = <Row, Column extends keyof Row>({
+	headings,
+	rows,
+}: TableProps<Row, Column>) => {
+	return (
+		<table>
+			<thead>
+				<tr>
+					{headings.map((heading) => (
+						<th key={heading.displayText}>{heading.displayText}</th>
+					))}
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((row, index) => (
+					<tr key={index}>
+						{headings.map((heading, headingIndex) => (
+							<td key={`${heading.displayText}-${headingIndex}`}>
+								{row[heading.key]}
+							</td>
+						))}
+					</tr>
+				))}
+			</tbody>
+		</table>
+	)
+}
+```
+
+<br />
+
+Let me explain. `<Row, Column extends keyof Row>` defines two types `Row` and `Column`, where `Row` can be anything and `Column` must be set to a property name of `Row`. In our case, it will force the `key` property in the `headings` objects to be set to one of `country`, `capital` etc. That relationship can then be used to render row cells based on heading order.
+
+The headings array needs to be modified a bit when `Table` is used:
+
+```tsx
+<Table
+	headings={[
+		{
+			key: "country",
+			displayText: "Country",
+		},
+		{
+			key: "capital",
+			displayText: "Capital",
+		},
+		{
+			key: "dateFormat",
+			displayText: "Date format",
+		},
+		{
+			key: "internetTLD",
+			displayText: "Internet TLD",
+		},
+	]}
+	rows={countryData}
+/>
+```
+
+<br />
+
+Now, changing the order of the columns is as easy as changing the order of the `headings` array.
+
+One caveat is that the array index has to be used as the `key` two times with the current component design. I'm not sure how to solve that.
+
+Other than that, I really like this way of defining a reusable `Table` component.

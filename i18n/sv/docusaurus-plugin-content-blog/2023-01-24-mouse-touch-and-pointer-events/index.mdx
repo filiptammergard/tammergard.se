@@ -1,0 +1,84 @@
+---
+slug: mouse-touch-and-pointer-events
+title: Mouse-, touch- och pointer-events
+description: Skillnaderna mellan mouse-, touch- och pointer-events i webbläsaren – och varför compatibility mouse events kan ställa till med subtila buggar.
+authors: [filip]
+tags: [javascript]
+---
+
+import { Events } from "@site/blog/2023-01-24-mouse-touch-and-pointer-events/Events"
+
+Jag stötte nyligen på en bugg som hade med de subtila skillnaderna mellan mouse-, touch- och pointer-events att göra. Buggen gjorde mig förvirrad – och nyfiken. Vad är egentligen skillnaden mellan dessa events?
+
+Jag [öppnade ett issue för buggen](https://github.com/radix-ui/primitives/issues/1903) som du kan kika på om du också är nyfiken – men innan vi försöker förstå buggen behöver vi en grund med kunskap om olika typer av events.
+
+{/* truncate */}
+
+## Mouse-events
+
+Historiskt sett var musen den enda typen av indata-enhet. Därför var den enda typen av input-event [mouse-event](https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent). Det är utgångspunkten.
+
+Sedan kom touch-enheter. Att röra en skärm med ett finger kan delvis representeras med ett mouse-event, men när det gäller t.ex. multi-touch är det inte möjligt. Vi behövde touch-events!
+
+## Touch-events
+
+För kompatibilitet med den befintliga musbaserade webben konfigurerades [touch-events](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent) av user agents att avfyra efterföljande mouse-events, så kallade "[compatibility mouse events](https://www.w3.org/TR/pointerevents/#compatibility-mapping-with-mouse-events)". Compatibility mouse events medförde ett tvetydighetsproblem. Om du av någon anledning behöver lyssna på båda för att hantera mus-klick och touches separat avfyrar ett mus-klick bara mouse-eventet, medan ett touch avfyrar båda. Det blev svårt att veta om ett mouse-event utlöstes av ett faktiskt mus-klick eller en touch.
+
+User agents konfigurerades att använda `preventDefault` för att lösa tvetydighetsproblemet.
+
+Från [specen för touch-events](https://www.w3.org/TR/touch-events/):
+
+> Om preventDefault-metoden för touchstart eller touchmove anropas, bör user agent inte avfyra något mouse-event som skulle vara en konsekvens av det förhindrade touch-eventet.
+
+Sedan kom pennor – en enhet som ger ytterligare en typ av enhetsindata. Skulle pen-events introduceras? Det skulle leda till att man måste lyssna på ytterligare en event-typ och förmodligen kräva compatibility mouse events som återigen skulle leda till tvetydighetsproblem.
+
+I stället för att gå längre ner i den kaninhålan introducerades en ny, mer abstrakt event-typ. Den heter pointer-events.
+
+## Pointer-events
+
+Ett [pointer-event](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent) är inte knutet till en specifik indata-enhet utan representerar valfri typ av enhetsindata. Det innebär att du kan lyssna enbart på pointer-events och täcka alla typer av indata. Om du vill hantera olika typer av enhetsindata på olika sätt erbjuder pointer-eventet ett sätt att inspektera vilken typ av enhet som producerade det.
+
+Återigen avfyras compatibility mouse events för att stödja den befintliga webben. Och återigen används `preventDefault` för att kunna välja bort dessa compatibility mouse events.
+
+## Lekplats
+
+Vi leker lite med den här kunskapen! Använd checkboxarna för att anropa `preventDefault` på olika event-typer. Klicka sedan på knappen och se vad som händer med event-räknarna.
+
+<Events />
+
+Vi kan se några saker i praktiken:
+
+- När `preventDefault` inte anropas resulterar ett mus-klick på knappen i ett `mousedown`-event och ett `pointerdown`-event.
+- När `preventDefault` inte anropas resulterar ett finger-klick på en touch-enhet i ett `touchstart`-event, ett `mousedown`-event och ett `pointerdown`-event.
+- När `preventDefault` anropas på `touchstart`-eventet avfyras inget `mousedown`-event när knappen klickas med ett finger på en touch-enhet.
+- När `preventDefault` anropas på `pointerdown`-eventet avfyras inget `mousedown`-event vare sig vid mus-klick eller vid finger-klick på en touch-enhet.
+- Att anropa `preventDefault` på `mousedown`-eventet har ingen effekt på någon av event-räknarna jämfört med att inte anropa det.
+
+## Tillbaka till buggen
+
+En utförlig beskrivning av buggen finns i [GitHub-issuet](https://github.com/radix-ui/primitives/issues/1903). Här är en snabb sammanfattning.
+
+Jag hade en datumväljare som stängdes när jag klickade utanför. Men när jag klickade på en menyknapp öppnades menyn samtidigt som datumväljaren inte stängdes. Med andra ord – efter att ha klickat på datumväljaren och sedan menyknappen var båda öppna.
+
+Det visade sig att datumväljaren stängdes vid `mousedown`- och `touchstart`-events. Att ändra den till att stänga vid `pointerdown` löste problemet. Det är en enkel fix, men det är inte tillfredsställande att lösa en bugg utan att förstå vad som orsakade problemet och varför fixen löser det.
+
+[Menyknappen anropade `preventDefault` på `pointerdown`-eventet](https://github.com/radix-ui/primitives/blob/21a7c97dc8efa79fecca36428eec49f187294085/packages/react/dropdown-menu/src/DropdownMenu.tsx#L124), för att förhindra att menyknappen får fokus vid klick och därmed göra det möjligt att ge fokus till menyinnehållet utan konkurrens.
+
+Som vi lärt oss förhindrar `preventDefault` på ett `pointerdown`-event även att compatibility mouse events avfyras. Eftersom datumväljaren lyssnade på `mousedown` och `touchstart` för att stänga, och inget av dem avfyrades, stängdes den inte.
+
+Eftersom ett `pointerdown`-event avfyrades stängdes datumväljaren när den lyssnade på `pointerdown` i stället för `mousedown` och `touchstart`.
+
+Mouse- och touch-events används fortfarande på många ställen, förmodligen delvis på grund av att de har bättre historiskt webbläsarstöd. Men pointer-events har gediget stöd i moderna webbläsare och det mesta av webben skulle troligen tjäna på att enbart använda pointer-events.
+
+## Slutsats
+
+- Medan mouse- och touch-events är knutna till en specifik typ av enhet är pointer-events hårdvaruagnostiska.
+- Pointer-events kan användas i stället för andra typer av events för att undvika dubblerad event-logik och problem med compatibility mouse events.
+
+## Referenser
+
+- https://www.w3.org/TR/pointerevents/
+- https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent
+- https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent
+- https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent
+- https://javascript.info/pointer-events

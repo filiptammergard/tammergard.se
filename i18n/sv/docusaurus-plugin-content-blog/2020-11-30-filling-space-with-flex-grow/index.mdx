@@ -1,0 +1,74 @@
+---
+slug: filling-space-with-flex-grow
+title: Fyll utrymme med flex-grow
+description: Låt en textarea fylla allt tillgängligt utrymme i en kolumn på ett responsivt sätt med CSS-egenskapen flex-grow.
+authors: [filip]
+tags: [css]
+---
+
+import { FlexGrow } from "@site/blog/2020-11-30-filling-space-with-flex-grow/FlexGrow"
+
+Jag stötte nyligen på uppgiften att skapa ett kontaktformulär med input-rader i en kolumn och en textarea och submit-knapp i den andra kolumnen. Den lilla utmaningen var att få textarean att fylla det tillgängliga utrymmet ovanför submit-knappen på ett responsivt sätt, så att textarean fortsätter att fylla det tillgängliga utrymmet oavsett antalet input-rader i kolumnen till vänster.
+
+Här är designen, där du kan välja antalet input-rader:
+
+<FlexGrow />
+<br />
+
+{/* truncate */}
+
+Vi gör det i ren CSS den här gången! Det här är vår HTML-utgångspunkt:
+
+```html
+<div class="wrapper">
+	<div class="left">
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+	</div>
+	<div class="right">
+		<div class="item fill">Textarea</div>
+		<div class="item">Submit button</div>
+	</div>
+</div>
+```
+
+<br />
+
+CSS-egenskapen `flex-grow` gjorde den här designen enkel att implementera.
+
+```css
+.wrapper {
+	display: flex;
+}
+
+.left {
+	width: 50%;
+	margin-right: 1rem;
+}
+
+.right {
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+}
+
+.item {
+	background: goldenrod;
+	border-radius: 1rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+}
+
+.fill {
+	flex-grow: 1;
+}
+```
+
+<br />
+
+Det finns flera trevliga saker med hur `flex-grow` fungerar. Om vi väljer att ha två input-rader i vänsterkolumnen får textarean exakt samma storlek som en input-rad. En annan trevlig sak är att om vi till exempel vill att submit-knappen alltid ska få samma höjd som textarean kan vi lägga till `fill`-klassen på submit-knappen också. Då delar submit-knappen och textarean höjden lika, oavsett antalet input-rader i vänsterkolumnen.
+
+Det är kul att leka med de här designerna!

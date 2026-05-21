@@ -1,0 +1,83 @@
+---
+slug: logical-or-operator-vs-nullish-coalescing-operator
+title: "|| vs ??"
+description: Varför || och ?? ger olika resultat för värden som tom sträng och 0 – och när du ska välja vilken operator i JavaScript.
+authors: [filip]
+tags: [javascript]
+---
+
+import { CompareOperators } from "@site/blog/2021-04-22-logical-or-operator-vs-nullish-coalescing-operator/CompareOperators"
+
+`||` och `??` är lika varandra, men det finns en _väldigt_ viktig nyans. Titta på det här exemplet:
+
+```js
+const a = "" || "default value"
+// > "default value"
+
+const b = "" ?? "default value"
+// > ""
+```
+
+Låt mig förklara.
+
+{/* truncate */}
+
+## Logiska OR-operatorn
+
+Låt oss låtsas att du är den _logiska OR-operatorn_ (`||`). Du ser ett värde till vänster och ett värde till höger. Du börjar med att titta på värdet till vänster. Om det värdet är _truthy_ är det värdet du väljer. Om det vänstra värdet är _falsy_ väljer du det andra värdet.
+
+För att förstå din uppgift behöver du veta vad truthy och falsy värden är.
+
+### Truthy och falsy värden
+
+Här är alla falsy-värden i JavaScript:
+
+- siffran `0`
+- bigint `0n`
+- nyckelordet `null`
+- nyckelordet `undefined`
+- boolean `false`
+- siffran `NaN`
+- tom sträng `""`, `''` eller <code>{"``"}</code>
+
+Alla andra värden är truthy.
+
+## Nullish coalescing-operatorn
+
+Låt oss nu låtsas att du är _nullish coalescing-operatorn_ (`??`). Igen – du ser ett värde till vänster och ett till höger, och börjar med det vänstra. Den här gången gäller: om det vänstra värdet är _nullish_ väljer du det andra värdet. Om det vänstra värdet inte är nullish är det värdet du väljer.
+
+Det uppdraget kräver kunskap om nullish-värden.
+
+### Nullish-värden
+
+Här är alla nullish-värden i JavaScript:
+
+- nyckelordet `null`
+- nyckelordet `undefined`
+
+:::note
+
+Som du ser är alla nullish-värden falsy, men inte alla falsy-värden är nullish.
+
+:::
+
+## Testa själv!
+
+Ett bra sätt att förankra kunskapen om skillnaden är att experimentera med den. I koden nedan finns variablerna `leftValue` och `rightValue`. Du kan välja vilket värde `leftValue` ska anta. Sedan ser du vad de två operatorerna ger som resultat.
+
+<CompareOperators />
+
+Nu vet du när du ska använda `||` och när du ska använda `??`! 🎉
+
+## Slutsats
+
+- Var medveten när du väljer mellan `||` och `??` – fel operator kan orsaka buggar.
+- Använd `??` när du bara vill ha ett reservvärde för nullish-värden (`null` och `undefined`).
+- Använd `||` när du vill ha ett reservvärde för alla falsy-värden.
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator
+- https://developer.mozilla.org/en-US/docs/Glossary/Nullish
+- https://developer.mozilla.org/en-US/docs/Glossary/Falsy

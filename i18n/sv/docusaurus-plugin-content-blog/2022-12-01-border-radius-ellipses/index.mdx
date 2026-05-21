@@ -1,0 +1,263 @@
+---
+slug: border-radius-ellipses
+title: border-radius ellipses
+description: Varför border-radius 50% ger en ellips – och hur border-radius longhand egentligen bygger upp formerna via två radier per hörn.
+authors: [filip]
+tags: [css]
+---
+
+import { Shape } from "@site/blog/2022-12-01-border-radius-ellipses/Shape"
+
+När jag började lära mig CSS för många år sedan fick jag lära mig att `border-radius: 50%` gör en form till en ellips.
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50%;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50%",
+	}}
+/>
+
+<br />
+
+Jag ifrågasatte aldrig varför. Men som du kanske gissar är `50%` inget slags "ellips-hack". Allt är logiskt.
+
+{/* truncate */}
+
+## `border-radius` longhand
+
+`border-radius` är en shorthand-egenskap för följande fyra egenskaper:
+
+- `border-top-left-radius`
+- `border-top-right-radius`
+- `border-bottom-right-radius`
+- `border-bottom-left-radius`
+
+Med andra ord:
+
+```css
+border-radius: 50%;
+
+/* Är likvärdigt med: */
+border-top-left-radius: 50%;
+border-top-right-radius: 50%;
+border-bottom-right-radius: 50%;
+border-bottom-left-radius: 50%;
+```
+
+De individuella `border-radius`-egenskaperna tar antingen ett eller två värden. Att bara ange ett värde är likvärdigt med att ange samma värde två gånger:
+
+```css
+border-top-left-radius: 50%;
+
+/* Är likvärdigt med: */
+border-top-left-radius: 50% 50%;
+```
+
+Det första värdet syftar på cirkelradien i den horisontella axeln och det andra värdet syftar på cirkelradien i den vertikala axeln. I följande exempel anges `border-top-left-radius` till 50 % av bredden i den horisontella axeln och 25 % av höjden i den vertikala axeln.
+
+```css
+div {
+	width: 200px;
+	height: 100px;
+	background-color: hotpink;
+	border-top-left-radius: 50% 25%;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderTopLeftRadius: "50% 25%",
+	}}
+/>
+
+<br />
+
+Så vad betyder ett värde i procent egentligen när det gäller `border-radius`? I exemplet gör `50%` att cirkelradien i den horisontella axeln blir 50 % av bredden, och `25%` gör att cirkelradien blir 25 % av höjden.
+
+50 % av bredden är 100 px och 25 % av höjden är 25 px. Med andra ord är exemplet likvärdigt med:
+
+```css
+div {
+	width: 200px;
+	height: 100px;
+	background-color: hotpink;
+	border-top-left-radius: 100px 25px;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderTopLeftRadius: "100px 25px",
+	}}
+/>
+
+<br />
+
+## Ellips
+
+Med den här bakgrundskunskapen kan vi återvända till ursprungsfrågan – varför `border-radius: 50%` gör en form till en ellips:
+
+```css
+border-radius: 50%;
+
+/* Är likvärdigt med: */
+border-top-left-radius: 50%;
+border-top-right-radius: 50%;
+border-bottom-right-radius: 50%;
+border-bottom-left-radius: 50%;
+
+/* Vilket är likvärdigt med: */
+border-top-left-radius: 50% 50%;
+border-top-right-radius: 50% 50%;
+border-bottom-right-radius: 50% 50%;
+border-bottom-left-radius: 50% 50%;
+```
+
+Givet den här kvadraten:
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+	}}
+/>
+
+<br />
+
+Hur gör vi den till en cirkel? Vi definierar cirkelradien i den horisontella och vertikala axeln i alla hörn till 50 px, eftersom det är radien för en cirkel med en diameter på 100 px.
+
+```css
+div {
+	width: 100px;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50px;
+}
+```
+
+<div
+	style={{
+		width: "100px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50px",
+	}}
+/>
+
+<br />
+
+Men om vi ökar bredden och höjden till 200 px är 50 px inte längre cirkelns radie, och formen blir inte längre en cirkel:
+
+```css
+div {
+	width: 200px;
+	height: 200px;
+	background-color: hotpink;
+	border-radius: 50px;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "200px",
+		background: "hotpink",
+		borderRadius: "50px",
+	}}
+/>
+
+<br />
+
+Nu måste vi ändra `border-radius`-värdet till `100px` för att få en cirkel igen. I stället för att räkna själva när vi vill ha en cirkel kan vi låta CSS räkna med `border-radius: 50%`!
+
+Med andra ord – att sätta cirkelradien till halva bredden i den horisontella axeln och halva höjden i den vertikala axeln i alla hörn ger alltid en ellips. Och det är precis vad 50 % gör!
+
+När bredd och höjd är lika ger `border-radius: 50%` en cirkel. Om de inte är lika ger det en oval, som i exemplet nedan.
+
+```css
+div {
+	width: 200px;
+	height: 100px;
+	background-color: hotpink;
+	border-radius: 50%;
+}
+```
+
+<div
+	style={{
+		width: "200px",
+		height: "100px",
+		background: "hotpink",
+		borderRadius: "50%",
+	}}
+/>
+
+<br />
+
+Här är ett exempel där höjd och bredd animeras, för att synliggöra att formen alltid är en ellips när `border-radius: 50%`.
+
+```css
+@keyframes morph {
+	0% {
+		width: 50px;
+		height: 100px;
+	}
+	25% {
+		width: 150px;
+		height: 50px;
+	}
+	75% {
+		width: 100px;
+		height: 100px;
+	}
+	100% {
+		width: 200px;
+		height: 150px;
+	}
+}
+
+div {
+	background: hotpink;
+	border-radius: 50%;
+	animation: 5s ease-in-out infinite alternate morph;
+}
+```
+
+<Shape />
+
+## Slutsats
+
+- `border-radius: 50%` gör en form till en ellips, men inte med magi – det är ren matte.
+- De individuella `border-radius`-longhand-egenskaperna tillåter två värden, för att styra cirkelradien i de två axlarna var för sig.
+- När man använder procent relaterar cirkelradien till bredden i den horisontella axeln och höjden i den vertikala axeln, vilket gör det enkelt att skapa ellipser.
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
+- https://css-irl.info/logical-border-radius/

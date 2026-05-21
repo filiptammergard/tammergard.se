@@ -1,6 +1,7 @@
 ---
 slug: logical-or-operator-vs-nullish-coalescing-operator
 title: "|| vs ??"
+description: The crucial difference between JavaScript's logical OR and nullish coalescing operators, and when each one gives the wrong default.
 authors: [filip]
 tags: [javascript]
 ---
@@ -19,7 +20,7 @@ const b = "" ?? "default value"
 
 Let me explain.
 
-<!-- truncate -->
+{/* truncate */}
 
 ## Logical OR operator
 
@@ -39,7 +40,7 @@ Here are all falsy values in JavaScript:
 - keyword `undefined`
 - boolean `false`
 - number `NaN`
-- empty string `""`, `''`, or ` `` `
+- empty string `""`, `''` or <code>{"``"}</code>
 
 All other values are truthy.
 

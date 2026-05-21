@@ -1,6 +1,7 @@
 ---
 slug: uniquify-array
 title: Uniquify array
+description: Remove duplicate values from a JavaScript array in one line by converting it to a Set and back with Array.from.
 authors: [filip]
 tags: [javascript]
 ---
@@ -20,9 +21,9 @@ const names = [
 ]
 ```
 
-In this array, `Filip` occurs two times and `Anna` three times. What if we want filter out the duplicates and get an array with the unique names?
+In this array, `Filip` occurs two times and `Anna` three times. What if we want to filter out the duplicates and get an array with the unique names?
 
-<!-- truncate -->
+{/* truncate */}
 
 A perfect use case for the `Set` object! `Set` objects can by definition only hold unique values, so when converting an array to a `Set` object, duplicates are automatically filtered out.
 

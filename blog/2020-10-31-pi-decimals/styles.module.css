@@ -1,0 +1,27 @@
+.container {
+	text-align: center;
+	margin-block-end: 1rem;
+}
+
+.decimals {
+	font-family: var(--ifm-font-family-monospace);
+	word-break: break-all;
+}
+
+.correct {
+	background-color: lightgreen;
+}
+
+.incorrect {
+	background-color: red;
+	color: white;
+}
+
+.input {
+	margin-block-end: 1rem;
+}
+
+.button {
+	display: block;
+	margin: 0 auto 1rem auto;
+}

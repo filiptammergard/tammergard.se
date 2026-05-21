@@ -1,0 +1,363 @@
+---
+slug: physical-properties-to-logical-properties
+title: Från fysiska till logiska egenskaper
+description: Byt ut fysiska CSS-egenskaper som left och right mot logiska motsvarigheter – och få layouter som anpassar sig efter writing mode och skrivriktning.
+authors: [filip]
+tags: [css]
+---
+
+De senaste månaderna har jag dykt ner i logiska egenskapers vackra värld. [CSS-specifikationen](https://www.w3.org/TR/css-logical-1/) har en mening som jag tycker beskriver vad logiska egenskaper är på ett bra sätt:
+
+> [Logiska] egenskaper är writing-mode-relativa motsvarigheter till sina fysiska motsvarigheter.
+
+Fysiska egenskaper är enkla att resonera kring eftersom de representerar fysiska riktningar. Top, right, bottom och left är absoluta riktningar. Vänster är alltid vänster – så enkelt är det. Logiska egenskaper är däremot _relativa_ – den fysiska riktningen de motsvarar varierar.
+
+Som nämnts gör den absoluta naturen hos fysiska egenskaper att de är enkla att resonera kring. Men den absoluta naturen är också en begränsning.
+
+{/* truncate */}
+
+## Problemet med fysiska egenskaper
+
+Säg att vi vill visa ett citat med en röd ram till vänster och lite padding:
+
+```html
+<blockquote>Hello</blockquote>
+```
+
+```css
+blockquote {
+	border-left: 2px solid red;
+	padding-left: 1rem;
+}
+```
+
+Resultat:
+
+<blockquote style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}>
+	Hello
+</blockquote>
+
+Coolt!
+
+Men vad händer om vi översätter stycket till arabiska? Arabiska har textriktning från höger till vänster, så vi anger det med `dir="rtl"` och markerar att arabiska används i stycket med `lang="ar"`. Vi testar att ändra textriktning medan vi behåller samma CSS:
+
+```html
+<blockquote dir="rtl" lang="ar">أهلا</blockquote>
+```
+
+Resultat:
+
+<blockquote
+	dir="rtl"
+	lang="ar"
+	style={{ borderLeft: "2px solid red", paddingLeft: "1rem" }}
+>
+	أهلا
+</blockquote>
+
+Det är inte vad vi vill ha... 😕
+
+När textriktningen ändras vill vi att marginalen ska följa med. Men vänster är fortfarande vänster, även när textriktningen ändras.
+
+## In med logiska egenskaper
+
+Vi testar med logiska egenskaper i stället!
+
+```html
+<blockquote>Hello</blockquote>
+```
+
+```css
+blockquote {
+	border-inline-start: 2px solid red;
+	padding-inline-start: 1rem;
+}
+```
+
+Resultat:
+
+<blockquote
+	style={{ borderInlineStart: "2px solid red", paddingInlineStart: "1rem" }}
+>
+	Hello
+</blockquote>
+
+Vi tittar på vad som händer nu när vi översätter till arabiska.
+
+Vi byter textriktning igen och behåller samma CSS.
+
+```html
+<blockquote dir="rtl" lang="ar">أهلا</blockquote>
+```
+
+Resultat:
+
+<blockquote
+	dir="rtl"
+	lang="ar"
+	style={{
+		borderInlineStart: "2px solid red",
+		paddingInlineStart: "1rem",
+		borderLeft: "none",
+	}}
+>
+	أهلا
+</blockquote>
+
+Ja! 🎉
+
+Jag kliade mig mycket i huvudet när jag började konvertera fysiska egenskaper till deras logiska motsvarigheter. Under processen gjorde jag några konverteringstabeller för framtida referens.
+
+## Konvertera till logiska egenskaper
+
+I följande konverteringstabeller är basriktningen vänster-till-höger och uppifrån-och-ner, som vanlig engelska (eller svenska).
+
+### Padding
+
+Så här konverteras fysiska padding-egenskaper till logiska:
+
+| Fysisk egenskap  | Logisk egenskap        |
+| ---------------- | ---------------------- |
+| `padding-top`    | `padding-block-start`  |
+| `padding-right`  | `padding-inline-end`   |
+| `padding-bottom` | `padding-block-end`    |
+| `padding-left`   | `padding-inline-start` |
+
+#### Shorthands
+
+Egenskapen `padding` är en shorthand som låter dig sätta padding i flera riktningar i en deklaration. `padding: 1rem;` sätter `1rem` padding i alla fyra riktningar. Eftersom samma padding sätts åt alla håll behövs ingen konvertering till logisk – den skulle ge samma resultat.
+
+Men betrakta den här padding-deklarationen:
+
+```css
+p {
+	padding: 1rem 2rem;
+}
+```
+
+Det är en shorthand för de här deklarationerna:
+
+```css
+p {
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+	padding-left: 2rem;
+	padding-right: 2rem;
+}
+```
+
+I logisk-egenskaps-land är det här motsvarigheten:
+
+```css
+p {
+	padding-block: 1rem;
+	padding-inline: 2rem;
+}
+```
+
+:::note
+
+I fysisk-egenskaps-land sätter man ofta padding uppåt och nedåt med shorthand `padding: 1rem 0;`. Men det sätter samtidigt vänster- och högerpadding till default-värdet `0` som en "biverkan". Den logiska `padding-block: 1rem;` är inte exakt likvärdig, eftersom vänster- och högerpadding inte sätts i det fallet.
+
+Att sätta default-värden där det inte behövs, bara för att kunna använda shorthand-formen, kan ses som en dålig vana. Det är ett annat skäl till varför `padding-block` och `padding-inline` är bra ersättare för `padding`-shorthanden i många fall!
+
+:::
+
+### Margin
+
+Logiska margin-egenskaper fungerar exakt som logiska padding-egenskaper. Här är konverteringstabellen:
+
+| Fysisk egenskap | Logisk egenskap       |
+| --------------- | --------------------- |
+| `margin-top`    | `margin-block-start`  |
+| `margin-right`  | `margin-inline-end`   |
+| `margin-bottom` | `margin-block-end`    |
+| `margin-left`   | `margin-inline-start` |
+
+Margin-egenskapen har också shorthands som motsvarar padding-shorthanden.
+
+<details>
+	<summary>
+		Förslag på flow-relativ <code>margin</code>-shorthand
+	</summary>
+	I framtiden får vi kanske en <code>margin-logical</code> som logisk
+	shorthand-motsvarighet till den fysiska <code>margin</code>-shorthanden. Se
+	diskussionen här:{" "}
+	<a href="https://github.com/w3c/csswg-drafts/issues/1282">
+		https://github.com/w3c/csswg-drafts/issues/1282
+	</a>
+</details>
+
+### Borders
+
+Här är konverteringstabellen för border-egenskaper:
+
+| Fysisk egenskap | Logisk egenskap       |
+| --------------- | --------------------- |
+| `border-top`    | `border-block-start`  |
+| `border-right`  | `border-inline-end`   |
+| `border-bottom` | `border-block-end`    |
+| `border-left`   | `border-inline-start` |
+
+`border-top-{color|style|width}` kan också konverteras till `border-block-start-{color|style|width}`, precis som du gissar. Jag lägger inte till dem i tabellen för att inte göra den för rörig.
+
+#### Shorthands
+
+En shorthand-finess hos logiska egenskaper är att du kan sätta block- och inline-borders var för sig i en deklaration:
+
+| Fysisk deklaration                                                | Logisk deklaration              |
+| ----------------------------------------------------------------- | ------------------------------- |
+| `border-top: 1px solid red;`<br />`border-bottom: 1px solid red;` | `border-block: 1px solid red;`  |
+| `border-left: 1px solid red;`<br />`border-right: 1px solid red;` | `border-inline: 1px solid red;` |
+
+### Border radius
+
+Att konvertera border-radius till logisk kräver att man tänker noga på ordningen. Formatet är `border-{block-direction}-{inline-direction}-radius`:
+
+| Fysisk egenskap              | Logisk egenskap             |
+| ---------------------------- | --------------------------- |
+| `border-top-left-radius`     | `border-start-start-radius` |
+| `border-top-right-radius`    | `border-start-end-radius`   |
+| `border-bottom-right-radius` | `border-end-end-radius`     |
+| `border-bottom-left-radius`  | `border-end-start-radius`   |
+
+### Storlek
+
+Här är konverteringstabellen för storleksegenskaper:
+
+| Fysisk egenskap | Logisk egenskap   |
+| --------------- | ----------------- |
+| `height`        | `block-size`      |
+| `min-height`    | `min-block-size`  |
+| `max-height`    | `max-block-size`  |
+| `width`         | `inline-size`     |
+| `min-width`     | `min-inline-size` |
+| `max-width`     | `max-inline-size` |
+
+### Justering
+
+Som du kanske märkt finns fysiska riktningar som `left` och `right` inte alls i logisk-egenskaps-land. Det gäller inte bara egenskapsnamn utan också värden. `left` kan oftast konverteras till `start` och `right` till `end`.
+
+| Fysisk deklaration        | Logisk deklaration        |
+| ------------------------- | ------------------------- |
+| `text-align: left;`       | `text-align: start;`      |
+| `text-align: right;`      | `text-align: end;`        |
+| `justify-content: left;`  | `justify-content: start;` |
+| `justify-content: right;` | `justify-content: end;`   |
+
+:::note
+
+Egenskapen `justify-content` accepterar `start` och `end` som värden, men också `flex-start` och `flex-end`. Vad är skillnaden? Främst webbläsarstöd. `flex-{start|end}` har bättre stöd, men `start|end` kommer så småningom ersätta flex-värdena.
+
+:::
+
+### Positionering
+
+För positionering kommer vi jobba mycket med `inset` i olika former.
+
+| Fysisk egenskap | Logisk egenskap      |
+| --------------- | -------------------- |
+| `top`           | `inset-block-start`  |
+| `right`         | `inset-inline-end`   |
+| `bottom`        | `inset-block-end`    |
+| `left`          | `inset-inline-start` |
+
+#### Shorthands
+
+Det finns några bra shorthands också!
+
+| Fysisk deklaration                                           | Logisk deklaration |
+| ------------------------------------------------------------ | ------------------ |
+| `top: 0`;<br />`bottom: 0;`                                  | `inset-block: 0;`  |
+| `left: 0;`<br />`right: 0;`                                  | `inset-inline: 0;` |
+| `top: 0;`<br />`right: 0;`<br />`bottom: 0;`<br />`left: 0;` | `inset: 0;`        |
+
+:::note
+
+Det finns också en `inset`-shorthand som sätter offsets i alla riktningar. Den definierar dock fysiska offsets, inte logiska.
+
+:::
+
+### Scroll margin och scroll padding
+
+Här är konverteringstabellen för scroll margin och scroll padding:
+
+| Fysisk egenskap         | Logisk egenskap               |
+| ----------------------- | ----------------------------- |
+| `scroll-padding-top`    | `scroll-padding-block-start`  |
+| `scroll-padding-right`  | `scroll-padding-inline-end`   |
+| `scroll-padding-bottom` | `scroll-padding-block-end`    |
+| `scroll-padding-left`   | `scroll-padding-inline-start` |
+| `scroll-margin-top`     | `scroll-margin-block-start`   |
+| `scroll-margin-right`   | `scroll-margin-inline-end`    |
+| `scroll-margin-bottom`  | `scroll-margin-block-end`     |
+| `scroll-margin-left`    | `scroll-margin-inline-start`  |
+
+#### Shorthands
+
+Här är några shorthands:
+
+| Fysisk deklaration                                            | Logisk deklaration            |
+| ------------------------------------------------------------- | ----------------------------- |
+| `scroll-margin-top: 1px;`<br />`scroll-margin-bottom: 1px;`   | `scroll-margin-block: 1px;`   |
+| `scroll-margin-left: 1px;`<br />`scroll-margin-right: 1px;`   | `scroll-margin-inline: 1px;`  |
+| `scroll-padding-top: 1px;`<br />`scroll-padding-bottom: 1px;` | `scroll-padding-block: 1px;`  |
+| `scroll-padding-left: 1px;`<br />`scroll-padding-right: 1px;` | `scroll-padding-inline: 1px;` |
+
+## Webbläsarstöd
+
+Webbläsarstödet för logiska egenskaper är generellt utmärkt.
+
+Det finns dock ett par undantag.
+
+- Flow-relativa `resize`-värden: https://caniuse.com/mdn-css_properties_resize_flow_relative_support
+- Flow-relativa `overflow`-egenskaper `overflow-inline` och `overflow-block`: https://caniuse.com/?search=overflow-inline
+
+## Logiska vs fysiska egenskaper
+
+Det kan vara frestande att göra en fullständig migrering från fysiska till logiska egenskaper, och kanske till och med lägga till en lint-regel som förbjuder fysiska egenskaper. Men fysiska egenskaper är inte deprecated på något sätt. I vissa situationer är det inte vettigt att konvertera. Här är ett exempel från [CSS-specifikationen](https://www.w3.org/TR/css-logical-1/#intro):
+
+> Dokument kan behöva både logiska och fysiska egenskaper. Till exempel måste skuggorna under knappar på en sida vara konsekventa genomgående, så deras offset väljs utifrån visuella överväganden och fysiska riktningar, och varierar inte beroende på skriftsystem.
+
+Det är viktigt att minnas att vänster alltid är vänster. Om du säger att något är placerat på skärmens vänstra sida bör `left` användas snarare än `inset-inline-start`.
+
+Var pragmatisk!
+
+## Logiska enheter
+
+Vi har pratat mycket om logiska egenskaper här och lite om logiska värden. Men hur är det med enheter? Jag förklarar med ett exempel:
+
+```css
+inline-size: 70vw;
+```
+
+Känns det igen? Det borde det. I deklarationen används den logiska `inline-size`-egenskapen, men värdet `70vw` är fysiskt. Med andra ord: `inline-size` kan definiera horisontell eller vertikal storlek beroende på writing mode, medan `70vw` alltid beräknas utifrån den horisontella storleken oberoende av writing mode. I praktiken vill vi förmodligen att värdet också ska vara flow-relativt i det här fallet.
+
+Enheterna `vb` och `vi` kan lösa det! `vb` är procent av viewportens block-storlek, och `vi` är procent av viewportens inline-storlek. Så här kan du göra för att få ett flow-relativt värde:
+
+```css
+inline-size: 70vi;
+```
+
+Här i tabellform:
+
+| Fysisk enhet | Logisk enhet |
+| ------------ | ------------ |
+| `vh `        | `vb`         |
+| `vw `        | `vi`         |
+
+## Slutsats
+
+- Logiska egenskaper är fantastiska!
+- Både logiska och fysiska egenskaper kan behövas. Fundera på om något ska vara relativt till writing mode eller inte när du väljer mellan dem.
+- Tänk på webbläsarstöd innan du börjar använda logiska egenskaper.
+
+## Referenser
+
+- https://web.dev/learn/css/logical-properties/
+- https://www.w3.org/TR/css-logical-1/
+- https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Logical_Properties
+- https://adactio.com/journal/19457
+- https://adrianroselli.com/2019/11/css-logical-properties.html
+- https://github.com/w3c/csswg-drafts/issues/1282
+- https://www.smashingmagazine.com/2022/12/deploying-css-logical-properties-on-web-apps/

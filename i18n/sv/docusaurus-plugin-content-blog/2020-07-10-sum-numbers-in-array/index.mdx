@@ -1,0 +1,170 @@
+---
+slug: sum-numbers-in-array
+title: Summera tal i en array med JavaScript
+description: Jämför olika sätt att summera tal i en array – från for-loopar till reduce – och se hur man hanterar filtrering och nästlade objekt.
+authors: [filip]
+tags: [javascript]
+---
+
+Det finns flera sätt att räkna ut summan av tal i en array med JavaScript. Olika sätt har olika för- och nackdelar, men det finns också sätt som är bättre och sämre ur prestanda- och snygghetssynpunkt. Att skriva snygg kod är inte bara estetiskt mer tilltalande – lättläst kod är också lättare att underhålla och lättare för andra att förstå och bygga vidare på. Gemensamt för alla sätt att summera tal i en array är att man på något sätt måste loopa igenom arrayen.
+
+## TL;DR
+
+- Det finns många sätt att summera tal i en array, men flera sätt är svårlästa och onödigt krångliga.
+- Det bästa sättet är med hjälp av den inbyggda funktionen `reduce`.
+
+{/* truncate */}
+
+## Summera tal i en array
+
+I kommande exempel utgår jag från den här arrayen med slumpmässiga tal:
+
+```js
+const numbers = [20, 38, 23, 1, 39, 71]
+```
+
+### Alternativ 0: manuell summering (ett uselt alternativ)
+
+Det går att göra summeringen endast med hjälp av addition, på det här viset:
+
+```js
+const sum =
+	numbers[0] + numbers[1] + numbers[2] + numbers[3] + numbers[4] + numbers[5]
+
+// sum = 192
+```
+
+Det här alternativet är uselt eftersom det bygger på vetskap om hur många tal som finns i arrayen. Om ett tal skulle läggas till i arrayen skulle summan bli fel.
+
+### Alternativ 1: for-loop (ett dåligt alternativ)
+
+Historiskt har summeringar i JavaScript gjorts genom att göra en _for-loop_ på det här sättet:
+
+```js
+let sum = 0
+
+for (let i = 0; i < numbers.length; i++) {
+	sum += numbers[i]
+}
+
+// sum = 192
+```
+
+Det är fortfarande ett fult sätt att summera på, eftersom det kräver mycket kod. Variabler i stil med `i`, vars enda uppgift är att hålla koll på index, kan och bör oftast undvikas.
+
+### Alternativ 2: forEach-loop (ett okej alternativ)
+
+Nästa sätt – som är betydligt snyggare – ser ut så här:
+
+```js
+let sum = 0
+
+numbers.forEach((number) => (sum += number))
+
+// sum = 192
+```
+
+`forEach` är en _higher order function_ som kan utföra en specifik uppgift för varje element i en array.
+
+### Alternativ 3: reduce (det bästa alternativet)
+
+Ytterligare lite snyggare är den inbyggda funktionen `reduce`. Den kan användas så här:
+
+```js
+const sum = numbers.reduce((acc, number) => acc + number, 0)
+
+// sum = 192
+```
+
+Funktionen `reduce` tar in en funktion med parametrarna `acc` och `number`, som representerar det ackumulerade värdet respektive det nuvarande värdet i arrayen `numbers`. Till höger om pilen definieras vad som ska göras med värdena. I första loop-varvet är värdet av `acc` 0 (startvärdet som definieras i andra parametern) och `number` är 20. Därefter sparas resultatet av `acc + number` till `acc` i nästa loop-varv.
+
+## Summera tal i mer komplexa arrayer
+
+I många fall är arrayerna som innehåller tal som ska summeras lite mer komplexa än det tidigare exemplet. Låt oss utgå från den här arrayen som innehåller information om alla rum i en lägenhet:
+
+```js
+const rooms = [
+	{ name: "Living room", isRenovated: true, area: 31 },
+	{ name: "Kitchen", isRenovated: false, area: 15 },
+	{ name: "Bedroom", isRenovated: false, area: 21 },
+	{ name: "Bathroom", isRenovated: true, area: 13 },
+	{ name: "Hall", isRenovated: false, area: 9 },
+]
+```
+
+Låt säga att vi vill beräkna arean i hela lägenheten.
+
+### Alternativ 1: Omforma arrayen så att den blir enkel innan summering görs
+
+```js
+const totalArea = rooms
+	.map((room) => room.area)
+	.reduce((acc, area) => acc + area, 0)
+
+// totalArea = 89
+```
+
+### Alternativ 2: Plocka ut arean ur objekten direkt under summeringen
+
+Med den andra strategin används `reduce` för att plocka ut arean i objekten direkt:
+
+```js
+const totalArea = rooms.reduce((acc, room) => acc + room.area, 0)
+
+// totalArea = 89
+```
+
+Av dessa tycker jag att alternativ 2 är snyggast, eftersom den både är mest kompakt och mest lättläst.
+
+## Summera med filtrering
+
+För att göra det lite mer komplicerat kanske vi vill veta den totala arean av de rum som inte är renoverade.
+
+### Alternativ 1: Filtrera, map:a, summera
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms
+	.filter((room) => !room.isRenovated)
+	.map((room) => room.area)
+	.reduce((acc, area) => acc + area, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Alternativ 2: Filtrera, plocka ut arean direkt under summeringen
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms
+	.filter((room) => !room.isRenovated)
+	.reduce((acc, room) => acc + room.area, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Alternativ 3: Filtrera med if-sats inuti reduce
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms.reduce((acc, room) => {
+	if (!room.isRenovated) return acc + room.area
+	return acc
+}, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Alternativ 4: Filtrera med ternary operator i reduce
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms.reduce(
+	(acc, room) => (room.isRenovated ? acc : acc + room.area),
+	0,
+)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+Jag tycker att alternativ 2 är bäst i det här fallet. Det går nästan att läsa koden som vanlig text och förstå vad som händer:
+
+> Filtrera först fram rummen som inte är renoverade, summera sedan arean i varje rum.
+
+Så där, nu kan du allt om att summera tal i en array med JavaScript!

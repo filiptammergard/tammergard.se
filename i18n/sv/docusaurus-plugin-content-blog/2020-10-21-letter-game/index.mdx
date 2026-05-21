@@ -1,0 +1,68 @@
+---
+slug: letter-game
+title: Bokstavsspel
+description: Bygg ett litet snabbskrivningsspel i React med useState och useEffect där spelaren ska träffa rätt bokstav så snabbt som möjligt.
+authors: [filip]
+tags: [react]
+---
+
+import { LetterGame } from "@site/blog/2020-10-21-letter-game/LetterGame"
+
+Starta spelet genom att klicka på input-rutan och sedan på tangenten mellanslag. Då börjar tiden gå och du får se en slumpmässig bokstav som du ska skriva så snabbt som möjligt. Varje rätt följs av en ny slumpmässig bokstav och om du skriver fel tar spelet slut. Kör hårt!
+
+{/* truncate */}
+
+<LetterGame />
+
+## Koden bakom bokstavsspelet
+
+Det här spelet är byggt i React (med TypeScript). React är verkligen trevligt att jobba med och jag tycker att koden bakom det här enkla spelet kan ge en liten inblick i varför jag diggar React.
+
+### useState
+
+En sak med koden som är unikt för React är att hantera _state_ med `useState`-hooks.
+
+```tsx
+const [isRunning, setIsRunning] = useState<boolean>(false)
+const [time, setTime] = useState<number>(0)
+const [letter, setLetter] = useState<string>("")
+const [correct, setCorrect] = useState<number>(0)
+const [score, setScore] = useState<number>(0)
+const [highscore, setHighscore] = useState<number>(0)
+```
+
+Här hanteras all data som spelet måste hålla koll på – allt från om spelet är igång till vad rekordet är. Här anges startvärdena för varje _state_ och eftersom jag använder TypeScript har jag även angett vilken datatyp respektive _state_ har.
+
+### useEffect
+
+En annan trevlig sak med React är `useEffect`. Med hjälp av `useEffect` kan man se till att vissa saker endast utförs när de måste.
+
+```tsx
+useEffect(() => {
+	const savedHighscore = window.localStorage.getItem("letter_game_highscore")
+	if (savedHighscore != null) {
+		setHighscore(Number(savedHighscore))
+	}
+}, [])
+```
+
+Rekordet sparas i _Local Storage_ och därför vill jag varje gång sidan uppdateras börja med att kolla i _Local Storage_ om ett rekord finns lagrat. Om ett rekord finns sparar jag i det här fallet rekordet i _state_. Så länge sidan inte laddas om behöver inte _Local Storage_ kontrolleras igen. Men hur ser vi till att kontrollen bara sker en gång? Det är där `useEffect` kommer in. Den tomma arrayen säger till React att den här effekten bara ska köras en gång.
+
+### Egna hooks
+
+`useState` och `useEffect` är exempel på _hooks_ som är inbyggda i React. Det går också att skapa egna hooks beroende på vilka behov som finns. En funktionalitet som jag använder ganska ofta är någon form av tidtagning eller att någonting ska hända enligt ett visst tidsintervall. Detta går att åstadkomma med JavaScript-funktionen `setInterval`, men för att göra det lite smidigare har jag brutit ut hanteringen av `setInterval` i en egen hook som jag kallar `useInterval`. Mer detaljer finns i [Custom hook: useInterval](/blog/custom-hook-useinterval).
+
+Min egen `useInterval`-hook gör så att jag kan skapa tidtagning på ett mycket enkelt sätt:
+
+```tsx
+useInterval(
+	() => {
+		setTime(time + timerFrequency)
+	},
+	isRunning ? timerFrequency : null,
+)
+```
+
+På ren svenska fungerar implementationen av `useInterval` så här:
+
+> Om spelet är igång, addera till tiden så lång tid som har gått sedan senaste gången. Om spelet inte är igång, avsluta intervallet.

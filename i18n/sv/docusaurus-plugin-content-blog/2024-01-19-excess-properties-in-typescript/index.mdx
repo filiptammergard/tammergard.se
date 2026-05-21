@@ -1,0 +1,95 @@
+---
+slug: excess-properties-in-typescript
+title: Överskottsegenskaper i TypeScript
+description: Varför TypeScript klagar på extra egenskaper i object literals – men inte när du sprider in dem från en annan variabel.
+authors: [filip]
+tags: [typescript]
+---
+
+Egenskaper som definieras på ett objekt och som inte uttrycks av objektets typ kallas överskottsegenskaper.
+
+Här är ett exempel:
+
+```ts
+type Person = {
+	firstName: string
+}
+
+const person: Person = {
+	firstName: "Filip",
+	lastName: "Tammergård", // ⛔️ Object literal may only specify known properties, and 'lastName' does not exist in type 'Person'.
+}
+```
+
+I det här fallet gör TypeScript det tydligt att `lastName` inte är definierad i `Person`-typen och därför inte är tillåten.
+
+{/* truncate */}
+
+Men i andra fall kontrollerar TypeScript inte överskottsegenskaper:
+
+```ts
+type Person = {
+	firstName: string
+}
+
+const personDetails = {
+	lastName: "Tammergård",
+}
+
+const person: Person = {
+	firstName: "Filip",
+	...personDetails, // 👍 Det här går bra!
+}
+```
+
+Det här är, enligt mig, en ganska märklig sak med TypeScript – men det är [väl dokumenterat](https://www.typescriptlang.org/docs/handbook/interfaces.html).
+
+Observera att det inte specifikt handlar om spread-syntaxen, utan snarare att TypeScript inte kör överskottskontroller på objekt när de definieras separat.
+
+Här är ett annat exempel:
+
+```ts
+type Person = {
+	firstName: string
+}
+
+function printPerson(p: Person) {
+	console.log(p.firstName)
+}
+
+printPerson({
+	firstName: "Filip",
+	lastName: "Tammergård", // ⛔️ Object literal may only specify known properties, and 'lastName' does not exist in type 'Person'.
+})
+```
+
+I det här fallet ger TypeScript fel när `lastName` skickas in, eftersom det inte ingår i funktionsparametertyperna.
+
+Vi tilldelar objektet till en variabel och skickar in den till `printPerson` i stället:
+
+```ts
+type Person = {
+	firstName: string
+}
+
+function printPerson(p: Person) {
+	console.log(p.firstName)
+}
+
+const person = {
+	firstName: "Filip",
+	lastName: "Tammergård",
+}
+
+printPerson(person) // 👍 Det här går bra!
+```
+
+Att TypeScript har ett strukturellt typsystem innebär att det kontrollerar _minimi_-krav snarare än _exakta_ krav – åtminstone i vissa fall.
+
+Anledningen till att TypeScript gör överskottskontroller när man skickar in ett "inline"-objekt är förmodligen att det inte kommer användas någon annanstans och [TypeScript kan anta att överskottsegenskapen är ett misstag](https://x.com/AndaristRake/status/1748250533331136947).
+
+## Referenser
+
+- https://www.typescriptlang.org/docs/handbook/interfaces.html
+- https://github.com/microsoft/TypeScript/issues/12936#issuecomment-284590083
+- https://x.com/AndaristRake/status/1748250533331136947

@@ -1,5 +1,4 @@
 import CodeBlock from "@theme/CodeBlock"
-import React from "react"
 import { useIpLocation } from "./useIpLocation"
 
 export function Json() {

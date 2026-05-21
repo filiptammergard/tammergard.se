@@ -1,5 +1,4 @@
 import CodeBlock from "@theme/CodeBlock"
-import React from "react"
 import { useWeeksAgo } from "../hooks/useWeeksAgo"
 
 export function Presentation() {

@@ -1,6 +1,7 @@
-import { Input } from "@site/src/components/TextInput/TextInput"
+import Translate, { translate } from "@docusaurus/Translate"
+import { TextInput } from "@site/src/components/TextInput/TextInput"
 import { useInterval } from "@site/src/hooks/useInterval"
-import React, { KeyboardEvent, useReducer } from "react"
+import { type KeyboardEvent, useReducer } from "react"
 import styles from "./styles.module.css"
 
 type GameState = "idle" | "running" | "lost" | "won"
@@ -18,18 +19,9 @@ interface State {
 }
 
 type Action =
-	| {
-			type: "correct letter"
-			input: string
-	  }
-	| {
-			type: "incorrect letter"
-			correctLetter: string
-			incorrectLetter: string
-	  }
-	| {
-			type: "finished"
-	  }
+	| { type: "correct letter"; input: string }
+	| { type: "incorrect letter"; correctLetter: string; incorrectLetter: string }
+	| { type: "finished" }
 	| { type: "reset" }
 	| { type: "tick" }
 
@@ -37,7 +29,7 @@ const initialState: State = {
 	correctLetter: "",
 	incorrectLetter: "",
 	input: "",
-	instruction: ALPHABET[0],
+	instruction: ALPHABET[0]!,
 	state: "idle",
 	time: 0,
 }
@@ -49,18 +41,17 @@ function reducer(state: State, action: Action): State {
 				...state,
 				state: "running",
 				input: action.input,
-				instruction: getNextLetter(action.input),
+				instruction: getNextLetter(action.input)!,
 			}
 		case "incorrect letter":
 			return {
 				...state,
 				state: "lost",
-				instruction: `Too bad! You wrote ${
-					action.incorrectLetter
-				} when it should have been ${getNextLetter(action.correctLetter)}.`,
+				correctLetter: action.correctLetter,
+				incorrectLetter: action.incorrectLetter,
 			}
 		case "finished":
-			return { ...state, state: "won", instruction: "Success!" }
+			return { ...state, state: "won" }
 		case "tick":
 			return { ...state, time: state.time + INTERVAL_MS }
 		case "reset":
@@ -78,7 +69,6 @@ export function AlphabetGame() {
 
 	function handleInputChange(letterInput: string) {
 		const inputLength = letterInput.length
-		console.log({ letterInput, inputLength })
 		if (state.state === "idle" && letterInput !== ALPHABET[0]) {
 			return
 		} else if (state.state === "lost") {
@@ -92,7 +82,7 @@ export function AlphabetGame() {
 		} else {
 			dispatch({
 				type: "incorrect letter",
-				correctLetter: ALPHABET[inputLength - 2],
+				correctLetter: ALPHABET[inputLength - 2]!,
 				incorrectLetter: letterInput.slice(-1),
 			})
 		}
@@ -106,15 +96,38 @@ export function AlphabetGame() {
 
 	return (
 		<>
-			<p className={styles.instructions}>{state.instruction}</p>
+			<p className={styles.instructions}>
+				{state.state === "won" ? (
+					<Translate id="alphabetGame.success">Success!</Translate>
+				) : state.state === "lost" ? (
+					<Translate
+						id="alphabetGame.tooBad"
+						values={{
+							incorrect: state.incorrectLetter,
+							correct: getNextLetter(state.correctLetter) ?? "",
+						}}
+					>
+						{
+							"Too bad! You wrote {incorrect} when it should have been {correct}."
+						}
+					</Translate>
+				) : (
+					state.instruction
+				)}
+			</p>
 			<div className={styles.innerWrapper}>
-				<Input
+				<TextInput
 					onChange={(e) => handleInputChange(e.target.value.toUpperCase())}
 					onKeyDown={handleEnterClick}
 					value={state.input}
-					placeholder="Type alphabet (click enter to restart)"
+					placeholder={translate({
+						id: "alphabetGame.placeholder",
+						message: "Type alphabet (click enter to restart)",
+					})}
 				/>
-				<button onClick={() => dispatch({ type: "reset" })}>Reset</button>
+				<button onClick={() => dispatch({ type: "reset" })}>
+					<Translate id="alphabetGame.reset">Reset</Translate>
+				</button>
 			</div>
 			<p className={styles.time}>{formatTime(state.time)} s</p>
 		</>

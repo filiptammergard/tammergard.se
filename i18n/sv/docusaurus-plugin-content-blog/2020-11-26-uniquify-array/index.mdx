@@ -1,0 +1,79 @@
+---
+slug: uniquify-array
+title: Unika värden i en array
+description: Plocka ut unika värden ur en array genom att konvertera den till ett Set och tillbaka till en array med Array.from.
+authors: [filip]
+tags: [javascript]
+---
+
+Tänk dig den här arrayen med namn:
+
+```js
+const names = [
+	"Filip",
+	"Anna",
+	"Jennifer",
+	"Anna",
+	"Robert",
+	"Emma",
+	"Filip",
+	"Anna",
+]
+```
+
+I arrayen förekommer `Filip` två gånger och `Anna` tre gånger. Tänk om vi vill filtrera bort dubbletterna och få en array med bara unika namn?
+
+{/* truncate */}
+
+Det är ett perfekt användningsfall för `Set`-objektet! `Set`-objekt kan per definition bara innehålla unika värden, så när en array konverteras till ett `Set`-objekt filtreras dubbletterna bort automatiskt.
+
+```js
+const namesSet = new Set(names)
+// > Set(5) {'Filip', 'Anna', 'Jennifer', 'Robert', 'Emma'}
+```
+
+Här har vi ett `Set`-objekt med unika namn! Nu behöver vi bara konvertera tillbaka `Set`-objektet till en array så är vi klara.
+
+Att konvertera ett `Set`-objekt till en array kan göras med `Array.from()`:
+
+```js
+const uniqueNames = Array.from(namesSet)
+// > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
+```
+
+Ett annat alternativ är att använda spread-operatorn:
+
+```js
+const uniqueNames = [...namesSet]
+// > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
+```
+
+## Komplett exempel
+
+Här är det kompletta exemplet med båda stegen ihopslagna:
+
+```js
+const names = [
+	"Filip",
+	"Anna",
+	"Jennifer",
+	"Anna",
+	"Robert",
+	"Emma",
+	"Filip",
+	"Anna",
+]
+
+const uniqueNames = [...new Set(names)]
+// > (5) ['Filip', 'Anna', 'Jennifer', 'Robert', 'Emma']
+```
+
+## Slutsats
+
+- Att ta bort dubbletter ur en array kan göras genom att konvertera arrayen till ett `Set`-objekt och sedan tillbaka till en array.
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax

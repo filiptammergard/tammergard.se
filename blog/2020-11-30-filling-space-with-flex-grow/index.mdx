@@ -1,0 +1,74 @@
+---
+slug: filling-space-with-flex-grow
+title: Filling space with flex-grow
+description: Use the CSS flex-grow property to make a textarea stretch and fill the remaining vertical space next to a dynamic list of inputs.
+authors: [filip]
+tags: [css]
+---
+
+import { FlexGrow } from "./FlexGrow"
+
+I recently faced a task to create a contact form, with input rows in one column and a textarea and submit button in the other column. The fun little challenge was to make the textarea fill the available space above the submit button in a responsive way, so that the textarea will continue to fill the available space regardless of the number of input rows in the column to the left.
+
+Here is the design, where you can choose the number of input rows:
+
+<FlexGrow />
+<br />
+
+{/* truncate */}
+
+Let's do it in vanilla CSS this time! This is our HTML starting point:
+
+```html
+<div class="wrapper">
+	<div class="left">
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+		<div class="item">Input row</div>
+	</div>
+	<div class="right">
+		<div class="item fill">Textarea</div>
+		<div class="item">Submit button</div>
+	</div>
+</div>
+```
+
+<br />
+
+The CSS property `flex-grow` made this design easy to implement.
+
+```css
+.wrapper {
+	display: flex;
+}
+
+.left {
+	width: 50%;
+	margin-right: 1rem;
+}
+
+.right {
+	width: 50%;
+	display: flex;
+	flex-direction: column;
+}
+
+.item {
+	background: goldenrod;
+	border-radius: 1rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+}
+
+.fill {
+	flex-grow: 1;
+}
+```
+
+<br />
+
+There are many neat things about how `flex-grow` works. If we choose to have two input rows in the column to the left, the textarea will get the exact same size as an input row. Another nice thing is that if we wanted the submit button to always get the same height as the textarea, we could add the `fill` class to the submit button too. Then the submit button and the textarea would share the height equally, regardless of the amount of input rows in the column to the left.
+
+It's fun to play around with these designs!

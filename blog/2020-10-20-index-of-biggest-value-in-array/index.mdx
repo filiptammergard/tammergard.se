@@ -1,0 +1,87 @@
+---
+slug: index-of-biggest-value-in-array
+title: Index of the biggest value in an array
+description: Find the index of the largest number in a JavaScript array without reaching for a for-loop, using Math.max and indexOf instead.
+authors: [filip]
+tags: [javascript]
+---
+
+Let's say we have this array of years:
+
+```js
+const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
+```
+
+How do we get the index of the biggest value in the array?
+
+{/* truncate */}
+
+A common approach is to reach for a regular for-loop.
+
+```js
+const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
+
+let max = years[0]
+let maxIndex = 0
+
+for (let i = 1; i < years.length; i++) {
+	if (years[i] > max) {
+		maxIndex = i
+		max = years[i]
+	}
+}
+
+// maxIndex = 2
+```
+
+It works, but as usual I think for-loops are a bad solution for most things. The solution requires several mutable variables (`max`, `maxIndex`, `i`) and just having an index variable that keeps track of how many iterations to do feels outdated.
+
+Apart from the for-loop, the natural way is probably to first get the max value and then check where in the array that value is. Like this:
+
+```js
+const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
+
+const maxYear = Math.max(...years)
+
+// maxYear = 2005
+
+const maxYearIndex = years.indexOf(maxYear)
+
+// maxYearIndex = 2
+```
+
+This solution requires the `years` array to be looped through twice though — first when computing the max value, then when finding the index of the max value. Isn't there a nice solution without unnecessary computation?
+
+While thinking about a way to get the index without the intermediate step of computing the max value, I came across this solution:
+
+```js
+const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
+
+const maxYearIndex = years.reduce((maxIndex, curr, index, arr) => {
+	return curr > arr[maxIndex] ? index : maxIndex
+}, 0)
+
+// maxYearIndex = 2
+```
+
+You can't say the code got more readable, but it's probably one of the best solutions performance-wise. Clean code is always a trade-off between performance and readability — it's rarely justified to make a really slow and blunt solution just because it's faster to understand.
+
+You don't often get to use all four arguments to the `reduce` callback either. Extra nice!
+
+To make the code clearer, the complex part can be extracted into its own function:
+
+```js
+const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
+
+const maxYearIndex = getMaxYearIndex(years)
+
+// maxYearIndex = 2
+
+function getMaxYearIndex(array) {
+	return array.reduce((maxIndex, curr, index, arr) => {
+		return curr > arr[maxIndex] ? index : maxIndex
+	}, 0)
+}
+```
+
+There we go!

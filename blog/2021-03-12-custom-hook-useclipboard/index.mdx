@@ -1,0 +1,63 @@
+---
+slug: custom-hook-useclipboard
+title: "Custom hook: useClipboard"
+description: Wrap the navigator clipboard API in a custom React hook that returns the current clipboard value and a read function on demand.
+authors: [filip]
+tags: [react]
+---
+
+import { UseClipboardDemo } from "./UseClipboardDemo"
+
+Some time ago I wrote a [blog post](/blog/what-have-i-copied) on how to access the clipboard with the _navigator_ API. I decided to make it a custom hook to make it super easy to use. Before we go into code, let's try it out — click the button to read your clipboard:
+
+<UseClipboardDemo />
+
+{/* truncate */}
+
+The browser will ask you to allow clipboard access the first time. Once you've done that, you should see your clipboard content above.
+
+Here's the hook:
+
+```ts
+import { useState } from "react"
+
+export const useClipboard = () => {
+	const [clipboard, setClipboard] = useState<string>()
+
+	const read = async () => {
+		try {
+			const value = await navigator.clipboard.readText()
+			setClipboard(value.trim())
+		} catch {
+			setClipboard("Couldn't access clipboard...")
+		}
+	}
+
+	return [clipboard, read] as const
+}
+```
+
+<br />
+
+And this is how easy it is to use:
+
+```tsx
+import { useClipboard } from "hooks/useClipboard"
+
+const Clipboard = () => {
+	const [clipboard, read] = useClipboard()
+
+	return (
+		<>
+			<button onClick={read}>Show clipboard</button>
+			<p>{clipboard ?? "Nothing to show..."}</p>
+		</>
+	)
+}
+
+export default Clipboard
+```
+
+<br />
+
+Reading the clipboard happens on demand when the user clicks the button. That avoids permission prompts on page load, and it matches how browsers want this API to be used — clipboard reads are intended to be tied to a user gesture.

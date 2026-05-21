@@ -1,0 +1,149 @@
+---
+slug: colors-on-the-web
+title: Colors on the web
+description: Compare the HEX, RGB, RGBA and HSL color formats on the web and generate a random value for each one with React.
+authors: [filip]
+tags: [css]
+---
+
+import { Hex, Rgb, Rgba, Hsl } from "./RandomColors"
+
+Colors on the web can be defined in many different ways. There are 140 color names, such as <span style={{color:"green"}}>_green_</span>, <span style={{color:"goldenrod"}}>_goldenrod_</span> and <span style={{color:"navy"}}>_navy_</span>. On top of that, there are four standards for color values: HEX, RGB, RGBA and HSL. I'll go through them one by one in this post and also show how to generate random color values for each standard with React.
+
+{/* truncate */}
+
+### HEX
+
+HEX colors are hexadecimal values on the form `#RRGGBB` where RR is a two-character hexadecimal value for red, GG for green and BB for blue. The hexadecimal numeral system has 16 as its base, but since we only have digits 0–9, we introduce letters as fill. 0–15 are represented by these "digits":
+
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F
+
+0 is 0 and F is 15. To convert a two-character hexadecimal number to a decimal, the first digit is multiplied by 16 and then the second digit is added. So the HEX value 5D becomes 5•16 + 13 = 80 + 13 = 93. The smallest value is 00 = 0 and the largest is FF = 15•16 + 15 = 255. The HEX format is just another way of writing RGB values, which are also red-green-blue values between 0 and 255.
+
+Click the button below to generate a random HEX value:
+
+<Hex />
+
+### RGB
+
+RGB colors are specified on the form `rgb(r, g, b)`, where r, g and b are values for red, green and blue. The values are a number between 0 and 255. `rgb(255, 0, 0)` gives a red color, since the highest value for red and the lowest for the others have been used. `rgb(100, 100, 100)` gives a gray color since the same amount of each color is used.
+
+Click the button below to generate a random RGB value:
+
+<Rgb />
+
+### RGBA
+
+RGBA isn't really its own standard, but is the same as RGB with the addition of an alpha value that is a number between 0 and 1 and defines transparency in the color (0 means fully transparent and 1 means no transparency). The value follows the form `rgba(r, g, b, a)` where r, g and b are defined the same as for `rgb(r, g, b)` and a is a number between 0 and 1.
+
+Click the button below to generate a random RGBA value:
+
+<Rgba />
+
+### HSL
+
+HSL is a popular color standard in modern web development, since it expresses color in a way that's much easier to reason about than HEX or RGB. The acronym stands for _hue_, _saturation_, _lightness_. HSL is specified on the form `hsl(h, s%, l%)` where h (the hue) is a number between 0 and 360, s (the saturation) is between 0 and 100%, and l (the lightness) is also between 0 and 100%. On the hue scale, 0 is red, 120 is green, 240 is blue and 360 is back to red. Values between these are different combinations of hues. On the saturation scale, 0% is a gray shade while 100% is the full color. On the lightness scale, 0% is black and 100% is white.
+
+Click the button below to generate a random HSL value:
+
+<Hsl />
+
+## Generating random colors — how?
+
+Now let's look at how I generated random colors with React.
+
+### HEX
+
+```jsx
+import { useState } from "react"
+
+export const Hex = () => {
+	const [color, setColor] = useState("")
+
+	const handleClick = () => {
+		const rr = getRandomHexadecimalPair()
+		const gg = getRandomHexadecimalPair()
+		const bb = getRandomHexadecimalPair()
+		setColor(`#${rr}${gg}${bb}`)
+	}
+
+	const getRandomHexadecimalPair = () => {
+		return getRandomHexadecimal() + getRandomHexadecimal()
+	}
+
+	const getRandomHexadecimal = () => {
+		const hexadecimalSymbols = "0123456789ABCDEF"
+		const randomIndex = Math.floor(Math.random() * hexadecimalSymbols.length)
+		return hexadecimalSymbols[randomIndex]
+	}
+
+	return (
+		<div>
+			<button onClick={handleClick}>Generate HEX value</button>
+			<div>{color}</div>
+			<div style={{ backgroundColor: color, height: "2rem" }} />
+		</div>
+	)
+}
+```
+
+Most of the code is the same across all color standards. The only thing that differs is how the random colors are generated. HEX consists of three two-character hexadecimal values after a `#` sign. So I have one function `getRandomHexadecimal` that picks a random hexadecimal and one function `getRandomHexadecimalPair` that joins two random hexadecimals. This is done once for red, once for green and once for blue. Finally the HEX value is stored in state with a `#` in front, which is then used as a background color.
+
+Getting a random color is significantly easier with the other color standards than HEX. Let's look at RGB. As mentioned, only the `handleClick` function differs, the rest is the same (except for the button text, of course).
+
+### RGB
+
+```js
+const handleClick = () => {
+	const r = Math.floor(Math.random() * 256)
+	const g = Math.floor(Math.random() * 256)
+	const b = Math.floor(Math.random() * 256)
+
+	setColor(`rgb(${r}, ${g}, ${b})`)
+}
+```
+
+Here it's super easy to generate a random number between 0 and 255 three times and then format the color value to follow `rgb(r, g, b)`. We could generate the random numbers in their own function instead of repeating ourselves, but I think this works fine too.
+
+### RGBA
+
+```js
+const handleClick = () => {
+	const r = Math.floor(Math.random() * 256)
+	const g = Math.floor(Math.random() * 256)
+	const b = Math.floor(Math.random() * 256)
+	const a = Math.random().toFixed(2)
+
+	setColor(`rgba(${r}, ${g}, ${b}, ${a})`)
+}
+```
+
+Same principle as RGB, just with a random number between 0 and 1 added for transparency. I added `toFixed(2)` to round to two decimals (otherwise you get a lot of decimals).
+
+### HSL
+
+```js
+const handleClick = () => {
+	const h = Math.floor(Math.random() * 361)
+	const s = Math.floor(Math.random() * 101)
+	const l = Math.floor(Math.random() * 101)
+
+	setColor(`hsl(${h}, ${s}%, ${l}%)`)
+}
+```
+
+No surprises with HSL either. Note that I multiply the random number by 361 and 101 respectively and use `Math.floor` to round down so that 0 can occur but not the value 361.
+
+## Modern color functions
+
+CSS Color 4 has added perceptually uniform color spaces that the formats above can't express. The most useful ones in everyday work are `oklch()` and `lab()` — they let you change lightness or chroma without the hue shifts you get when you do the same in HSL. There's also `color()` for working in specific color spaces like `display-p3` or `rec2020`.
+
+```css
+color: oklch(70% 0.15 200);
+color: lab(70% 20 -50);
+color: color(display-p3 1 0 0);
+```
+
+If you're picking a color format today, `oklch()` is the most ergonomic choice for tokens and palettes. HSL is still fine for quick tweaks.
+
+Now we can really generate random colors!

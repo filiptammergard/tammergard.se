@@ -1,6 +1,7 @@
 ---
 slug: mouse-touch-and-pointer-events
 title: Mouse, Touch and Pointer events
+description: How mouse, touch and pointer events evolved on the web, why compatibility mouse events cause ambiguity, and when to listen to each type.
 authors: [filip]
 tags: [javascript]
 ---
@@ -11,7 +12,7 @@ I recently stumbled upon a bug related to the subtle differences between mouse, 
 
 I [opened an issue for the bug](https://github.com/radix-ui/primitives/issues/1903) that you can check out if you're also curious—but before trying to understand the bug, we need to set the stage with some knowledge around different types of events.
 
-<!-- truncate -->
+{/* truncate */}
 
 ## Mouse events
 
@@ -27,7 +28,7 @@ User agents were configured to make use of `preventDefault` to solve the ambigui
 
 From the [spec for touch events](https://www.w3.org/TR/touch-events/):
 
-> If the preventDefault method of touchstart or touchmove is called, the user agent should not dispatch any mouse event that would be a consequential result of the the prevented touch event.
+> If the preventDefault method of touchstart or touchmove is called, the user agent should not dispatch any mouse event that would be a consequential result of the prevented touch event.
 
 Then came pens—a device that provides yet another type of device input. Should pen events be introduced? That would lead to the need of having to listen to yet another event type, and it would probably also require firing compatibility mouse events that yet again would lead to ambiguity problems.
 
@@ -67,7 +68,7 @@ As we have learned, calling `preventDefault` on a `pointerdown` event also preve
 
 Since a `pointerdown` event was called, the date picker did close when listening to `pointerdown` instead of `mousedown` and `touchstart`.
 
-Mouse and touch events are still used in many places, probably partly due to the fact that they have better browser support. But support for pointer events is really good now and most of the web would probably benefit from using pointer events only.
+Mouse and touch events are still used in many places, probably partly due to the fact that they have better historical browser support. But pointer events are solidly supported across modern browsers and most of the web would probably benefit from using pointer events only.
 
 ## Conclusion
 

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
+import Translate from "@docusaurus/Translate"
+import { useEffect, useRef, useState } from "react"
 import styles from "./styles.module.css"
 
 export function Events() {
@@ -13,37 +14,37 @@ export function Events() {
 	const buttonRef = useRef<HTMLButtonElement | null>(null)
 
 	useEffect(() => {
+		const button = buttonRef.current
+		if (!button) return
 		const handleMouseDown = (e: MouseEvent) => {
 			if (preventMouseDown) e.preventDefault()
 			setMouseDownCount((count) => count + 1)
 		}
-		buttonRef?.current?.addEventListener("mousedown", handleMouseDown)
-		return () => {
-			buttonRef?.current?.removeEventListener("mousedown", handleMouseDown)
-		}
-	}, [buttonRef.current, preventMouseDown])
+		button.addEventListener("mousedown", handleMouseDown)
+		return () => button.removeEventListener("mousedown", handleMouseDown)
+	}, [preventMouseDown])
 
 	useEffect(() => {
+		const button = buttonRef.current
+		if (!button) return
 		const handleTouchStart = (e: TouchEvent) => {
 			if (preventTouchStart) e.preventDefault()
 			setTouchStartCount((count) => count + 1)
 		}
-		buttonRef?.current?.addEventListener("touchstart", handleTouchStart)
-		return () => {
-			buttonRef?.current?.removeEventListener("touchstart", handleTouchStart)
-		}
-	}, [buttonRef.current, preventTouchStart])
+		button.addEventListener("touchstart", handleTouchStart)
+		return () => button.removeEventListener("touchstart", handleTouchStart)
+	}, [preventTouchStart])
 
 	useEffect(() => {
+		const button = buttonRef.current
+		if (!button) return
 		const handlePointerDown = (e: PointerEvent) => {
 			if (preventPointerDown) e.preventDefault()
 			setPointerDownCount((count) => count + 1)
 		}
-		buttonRef?.current?.addEventListener("pointerdown", handlePointerDown)
-		return () => {
-			buttonRef?.current?.removeEventListener("pointerdown", handlePointerDown)
-		}
-	}, [buttonRef.current, preventPointerDown])
+		button.addEventListener("pointerdown", handlePointerDown)
+		return () => button.removeEventListener("pointerdown", handlePointerDown)
+	}, [preventPointerDown])
 
 	return (
 		<>
@@ -53,7 +54,8 @@ export function Events() {
 					checked={preventMouseDown}
 					onChange={(e) => setPreventMouseDown(e.target.checked)}
 				/>{" "}
-				Prevent default on <code>mousedown</code> event
+				<Translate id="events.preventOn">Prevent default on</Translate>{" "}
+				<code>mousedown</code> <Translate id="events.event">event</Translate>
 			</label>
 			<label className={styles.label}>
 				<input
@@ -61,7 +63,8 @@ export function Events() {
 					checked={preventTouchStart}
 					onChange={(e) => setPreventTouchStart(e.target.checked)}
 				/>{" "}
-				Prevent default on <code>touchstart</code> event
+				<Translate id="events.preventOn">Prevent default on</Translate>{" "}
+				<code>touchstart</code> <Translate id="events.event">event</Translate>
 			</label>
 			<label className={styles.label}>
 				<input
@@ -69,19 +72,37 @@ export function Events() {
 					checked={preventPointerDown}
 					onChange={(e) => setPreventPointerDown(e.target.checked)}
 				/>{" "}
-				Prevent default on <code>pointerdown</code> event
+				<Translate id="events.preventOn">Prevent default on</Translate>{" "}
+				<code>pointerdown</code> <Translate id="events.event">event</Translate>
 			</label>
-			<button ref={buttonRef} className={styles.button}>
-				Click me and see what's happening to the event counts!
+			<button ref={buttonRef} type="button" className={styles.button}>
+				<Translate id="events.button">
+					Click me and see what's happening to the event counts!
+				</Translate>
 			</button>
 			<p>
-				<code>mousedown</code> event count: {mouseDownCount}
+				<Translate
+					id="events.mouseDownCount"
+					values={{ count: mouseDownCount }}
+				>
+					{"mousedown event count: {count}"}
+				</Translate>
 			</p>
 			<p>
-				<code>touchstart</code> event count: {touchStartCount}
+				<Translate
+					id="events.touchStartCount"
+					values={{ count: touchStartCount }}
+				>
+					{"touchstart event count: {count}"}
+				</Translate>
 			</p>
 			<p>
-				<code>pointerdown</code> event count: {pointerDownCount}
+				<Translate
+					id="events.pointerDownCount"
+					values={{ count: pointerDownCount }}
+				>
+					{"pointerdown event count: {count}"}
+				</Translate>
 			</p>
 		</>
 	)

@@ -1,0 +1,86 @@
+---
+slug: disco-generator
+title: Disco generator
+description: Build a configurable disco-light grid in React with TypeScript using the useInterval custom hook to flash random colors on a timer.
+authors: [filip]
+tags: [react]
+---
+
+import { DiscoGenerator } from "./DiscoGenerator"
+
+It's Friday disco time! Try changing some of the values below and see what happens with the disco lights.
+
+{/* truncate */}
+
+<DiscoGenerator />
+
+You can have ridiculously much fun with this.
+
+## Building a disco generator
+
+This disco generator is built with React and TypeScript. To make the time intervals for the lights work, it uses the `useInterval` custom hook. A walkthrough of how `useInterval` works can be found [here](/blog/custom-hook-useinterval).
+
+Here's the full code:
+
+```tsx
+import { useInterval } from "hooks/useInterval"
+import { useState } from "react"
+
+function randomColor() {
+	const red = Math.floor(Math.random() * 256)
+	const green = Math.floor(Math.random() * 256)
+	const blue = Math.floor(Math.random() * 256)
+	return `rgb(${red}, ${green}, ${blue})`
+}
+
+function buildInitialColors(count: number) {
+	return Array.from({ length: count }, randomColor)
+}
+
+export const DiscoGenerator = () => {
+	const [columns, setColumns] = useState(3)
+	const [rows, setRows] = useState(3)
+	const [height, setHeight] = useState(100)
+	const [frequency, setFrequency] = useState(1)
+	const [colors, setColors] = useState(buildInitialColors(rows * columns))
+
+	const isRunning = frequency >= 1
+	const transitionDuration = 1 / frequency / 2
+
+	useInterval(
+		() => setColors(buildInitialColors(rows * columns)),
+		isRunning ? 1000 / frequency : null,
+	)
+
+	return (
+		<>
+			{/* inputs for rows, columns, frequency and height */}
+			<section
+				style={{
+					display: "grid",
+					gridTemplateColumns: `repeat(${columns}, 1fr)`,
+					gridTemplateRows: `repeat(${rows}, ${height}px)`,
+				}}
+			>
+				{Array.from({ length: rows * columns }).map((_, index) => (
+					<div
+						key={index}
+						style={{
+							backgroundColor: colors[index],
+							transition: `background-color ${transitionDuration}s linear`,
+						}}
+					/>
+				))}
+			</section>
+		</>
+	)
+}
+```
+
+<br />
+
+The grid and color updates are driven directly by inline styles tied to React state. The grid's columns, rows and row height are computed from state, and each cell's background color and transition is updated on every tick of `useInterval`.
+
+Inline styles are well suited for values that change frequently (like color) because they don't require recomputing CSS classes on every change.
+
+There are a lot of possibilities here. I'll explore more in upcoming posts!

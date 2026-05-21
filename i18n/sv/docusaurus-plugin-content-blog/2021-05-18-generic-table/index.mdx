@@ -1,0 +1,252 @@
+---
+slug: building-a-generic-table-in-react-and-typescript
+title: Bygga en generisk tabell i React och TypeScript
+description: Designa en återanvändbar och statiskt typad tabellkomponent i React, steg för steg, och se hur generics löser typade kolumner.
+authors: [filip]
+tags: [react, typescript]
+---
+
+import { Table } from "@site/blog/2021-05-18-generic-table/Table"
+
+Jag vill ta med dig på en resa där vi skapar en tabellkomponent som är generisk och statiskt typad. I stället för att bara visa ett slutresultat vill jag testa olika tillvägagångssätt som har olika fallgropar och hitta den lösning som verkar bäst.
+
+Som utgångspunkt vill vi rendera en tabell med några landdata:
+
+<Table />
+
+{/* truncate */}
+
+Jag gjorde den här tabellen hårdkodad:
+
+```html
+<table>
+	<thead>
+		<tr>
+			<th>Country</th>
+			<th>Capital</th>
+			<th>Date format</th>
+			<th>Internet TLD</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Sweden</td>
+			<td>Stockholm</td>
+			<td>YYYY-MM-DD</td>
+			<td>.se</td>
+		</tr>
+		<tr>
+			<td>Germany</td>
+			<td>Berlin</td>
+			<td>DD.MM.YYYY</td>
+			<td>.de</td>
+		</tr>
+		<tr>
+			<td>Brazil</td>
+			<td>Brasília</td>
+			<td>DD/MM/YYYY</td>
+			<td>.br</td>
+		</tr>
+	</tbody>
+</table>
+```
+
+<br />
+
+Men vad händer om datan inte är statisk? Säg att du har en datakälla som ger dig en array av objekt:
+
+```ts
+const countryData = [
+	{
+		country: "Sweden",
+		capital: "Stockholm",
+		dateFormat: "YYYY-MM-DD",
+		internetTLD: ".se",
+	},
+	{
+		country: "Germany",
+		capital: "Berlin",
+		dateFormat: "DD.MM.YYYY",
+		internetTLD: ".de",
+	},
+	{
+		country: "Brazil",
+		capital: "Brasília",
+		dateFormat: "DD/MM/YYYY",
+		internetTLD: ".br",
+	},
+]
+```
+
+<br />
+
+I React kan du rendera datan så här om du har `countryData` tillgänglig i komponenten:
+
+```tsx
+<table>
+	<thead>
+		<tr>
+			<th>Country</th>
+			<th>Capital</th>
+			<th>Date format</th>
+			<th>Internet TLD</th>
+		</tr>
+	</thead>
+	<tbody>
+		{countryData.map((row) => (
+			<tr key={row.country}>
+				<td>{row.country}</td>
+				<td>{row.capital}</td>
+				<td>{row.dateFormat}</td>
+				<td>{row.internetTLD}</td>
+			</tr>
+		))}
+	</tbody>
+</table>
+```
+
+<br />
+
+Men eftersom vi hårdkodar rubrikerna och använder egenskaperna i `countryData` går det inte att göra om detta till en återanvändbar `Table`-komponent.
+
+Vad kan vi göra?
+
+Vi kan börja med att definiera rubrikerna i en array i stället för att hårdkoda dem.
+
+```ts
+const countryDataHeadings = [
+	"Country",
+	"Capital",
+	"Date format",
+	"Internet TLD",
+]
+```
+
+<br />
+
+Men vi har fortfarande problemet med specifika egenskapsnamn. En idé är att skicka in raderna som `children` i stället för att hantera dem specifikt i komponenten. Vi skapar en `Table`-komponent och testar!
+
+```tsx
+interface TableProps {
+	children: ReactNode
+	headings: string[]
+}
+
+export const Table = ({ children, headings }: TableProps) => {
+	return (
+		<table>
+			<thead>
+				<tr>
+					{headings.map((heading) => (
+						<th key={heading}>{heading}</th>
+					))}
+				</tr>
+			</thead>
+			<tbody>{children}</tbody>
+		</table>
+	)
+}
+```
+
+<br />
+
+Nu kan du använda `Table` så här:
+
+```tsx
+<Table headings={countryDataHeadings}>
+	{countryData.map((row) => (
+		<tr key={row.country}>
+			<td>{row.country}</td>
+			<td>{row.capital}</td>
+			<td>{row.dateFormat}</td>
+			<td>{row.internetTLD}</td>
+		</tr>
+	))}
+</Table>
+```
+
+<br />
+
+Nu är tabellen faktiskt generisk. Du kan visa vilka rubriker och rader du vill. Men det kräver att alla rader skickas in som `children`, vilket är lite jobbigt – och om raderna hade funktionalitet kopplat till sig skulle den behöva definieras tillsammans med `children` varje gång komponenten används.
+
+Så vi vill inte vara beroende av att skicka in raderna som `children`. Ett annat problem är att rubrikerna och raderna inte är kopplade alls – vi låter inte TypeScript säkerställa att vi ger rätt rubrik till rätt kolumn.
+
+Dags att gå lite djupare in i TypeScripts verkliga kraft – generics!
+
+Så här kan vi göra:
+
+```tsx
+interface TableProps<Row, Column> {
+	headings: {
+		displayText: string
+		key: Column
+	}[]
+	rows: Row[]
+}
+
+export const Table = <Row, Column extends keyof Row>({
+	headings,
+	rows,
+}: TableProps<Row, Column>) => {
+	return (
+		<table>
+			<thead>
+				<tr>
+					{headings.map((heading) => (
+						<th key={heading.displayText}>{heading.displayText}</th>
+					))}
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((row, index) => (
+					<tr key={index}>
+						{headings.map((heading, headingIndex) => (
+							<td key={`${heading.displayText}-${headingIndex}`}>
+								{row[heading.key]}
+							</td>
+						))}
+					</tr>
+				))}
+			</tbody>
+		</table>
+	)
+}
+```
+
+<br />
+
+Låt mig förklara. `<Row, Column extends keyof Row>` definierar två typer `Row` och `Column`, där `Row` kan vara vad som helst och `Column` måste vara satt till ett egenskapsnamn på `Row`. I vårt fall tvingas `key`-egenskapen i `headings`-objekten att vara en av `country`, `capital` etc. Den relationen kan sedan användas för att rendera radceller utifrån rubrikordningen.
+
+Rubrik-arrayen behöver modifieras lite när `Table` används:
+
+```tsx
+<Table
+	headings={[
+		{
+			key: "country",
+			displayText: "Country",
+		},
+		{
+			key: "capital",
+			displayText: "Capital",
+		},
+		{
+			key: "dateFormat",
+			displayText: "Date format",
+		},
+		{
+			key: "internetTLD",
+			displayText: "Internet TLD",
+		},
+	]}
+	rows={countryData}
+/>
+```
+
+<br />
+
+Nu är det lika enkelt att ändra kolumnordningen som att ändra ordningen i `headings`-arrayen.
+
+En hake är att array-indexet måste användas som `key` två gånger med den nuvarande komponentdesignen. Jag är inte säker på hur det ska lösas.
+
+Bortsett från det gillar jag verkligen det här sättet att definiera en återanvändbar `Table`-komponent.

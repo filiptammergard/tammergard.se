@@ -1,0 +1,160 @@
+---
+slug: difference-between-number-and-parseint
+title: Skillnaden mellan Number() och parseInt()
+description: Varför Number() och parseInt() ger olika svar för vissa strängar – och när du ska välja vilken i JavaScript.
+authors: [filip]
+tags: [javascript]
+---
+
+`Number()` och `parseInt()` är lika varandra, men det finns viktiga skillnader. Vi utforskar dem!
+
+{/* truncate */}
+
+```ts
+Number(true) // 1
+Number(false) // 0
+
+Number(3) // 3
+Number(03) // 3
+
+Number("3") // 3
+
+Number(+3) // 3
+Number("+3") // 3
+
+Number(-3) // -3
+Number("-3") // -3
+
+Number("03") // 3
+
+Number(" 3") // 3
+Number("3 ") // 3
+
+Number(3_300) // 3300
+Number("3_300") // NaN
+
+Number("") // 0
+Number(null) // 0
+Number(undefined) // NaN
+Number([]) // 0
+Number([[]]) // 0
+Number([{}]) // NaN
+Number({}) // NaN
+Number(NaN) // NaN
+
+Number([3]) // 3
+Number([[3]]) // 3
+Number([[[3]]]) // 3
+
+Number(3n) // 3
+Number("3n") // NaN
+```
+
+`Number()` har definitivt sina egenheter. Vi leker lite med `parseInt()`:
+
+```ts
+parseInt(true) // NaN
+parseInt(false) // NaN
+
+parseInt(3) // 3
+parseInt(03) // 3
+
+parseInt("3") // 3
+
+parseInt(+3) // 3
+parseInt("+3") // 3
+
+parseInt(-3) // -3
+parseInt("-3") // -3
+
+parseInt("03") // 3
+
+parseInt(" 3") // 3
+parseInt("3 ") // 3
+
+parseInt(3_300) // 3300
+parseInt("3_300") // 3
+
+parseInt("3 hello") // 3
+parseInt("3rd") // 3
+
+parseInt("") // NaN
+parseInt(null) // NaN
+parseInt(undefined) // NaN
+parseInt([]) // NaN
+parseInt([[]]) // NaN
+parseInt([{}]) // NaN
+parseInt({}) // NaN
+parseInt(NaN) // NaN
+
+parseInt([3]) // 3
+parseInt([[3]]) // 3
+parseInt([[[3]]]) // 3
+
+parseInt(3n) // 3
+parseInt("3n") // 3
+
+parseInt(3.5) // 3
+parseInt("3.5") // 3
+```
+
+Det finns några uppenbara – och inte särskilt intressanta – skillnader:
+
+- `Number()` kan returnera vilken number-primitiv som helst, medan `parseInt()` returnerar heltal.
+- `parseInt()` kan konvertera en sträng till ett heltal av en angiven radix.
+
+De mer intressanta skillnaderna inkluderar:
+
+```ts
+Number("3 hello") // NaN
+parseInt("3 hello") // 3
+
+Number([]) // 0
+parseInt([]) // NaN
+
+Number("3_300") // NaN
+parseInt("3_300") // 3
+
+Number(null) // 0
+parseInt(null) // NaN
+```
+
+Det finns en fundamental skillnad mellan de två som är källan till många av dessa skillnader:
+
+`Number()` tar ett värde av valfri typ och försöker konvertera det till en number-primitiv. `parseInt()` däremot tar bara emot `string`. När ett värde av en annan typ skickas in till `parseInt()` konverteras värdet först till en sträng, och därefter försöker funktionen omvandla det till ett heltal. Om värdet inte går att konvertera till en sträng returneras `NaN`.
+
+Vi gör det konkret:
+
+```ts
+const emptyArray = []
+const emptyArrayConverted = emptyArray.toString() // ""
+parseInt(emptyArrayConverted) // NaN
+
+const nonEmptyArray = [3]
+const nonEmptyArrayConverted = nonEmptyArray.toString() // "3"
+parseInt(nonEmptyArrayConverted) // 3
+```
+
+`[].toString` blir en tom sträng, vilket gör att `parseInt([])` blir `NaN`. Däremot blir `[3].toString()` `"3"`, så att `parseInt([3])` blir `3`.
+
+En annan viktig skillnad är att `parseInt()` parsar från början till slut. Om den hittar något parsbart i början av strängen är den nöjd med det. `Number()` däremot tittar på värdet som en helhet och försöker konvertera det. Om värdet inte går att parsa som helhet blir den inte nöjd.
+
+Den här kunskapen förklarar de två skillnaderna:
+
+```ts
+Number("3 hello") // NaN
+parseInt("3 hello") // 3
+
+Number("3_300") // NaN
+parseInt("3_300") // 3
+```
+
+Eftersom `"3 hello"` och `"3_300"` börjar med något parsbart `"3"` använder `parseInt()` det, medan `Number()` returnerar `NaN`.
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/Number
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number#number_coercion
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
+- https://tammergard.se/blog/logical-or-operator-vs-nullish-coalescing-operator#truthy-and-falsy-values

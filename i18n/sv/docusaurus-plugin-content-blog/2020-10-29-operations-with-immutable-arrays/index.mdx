@@ -1,0 +1,149 @@
+---
+slug: operations-with-immutable-arrays
+title: Operationer i JavaScript med oföränderliga arrayer
+description: Lägg till, byt ut och ta bort element i arrayer utan att mutera originalet – med spread, map och filter i stället för push och splice.
+authors: [filip]
+tags: [javascript]
+---
+
+Som nämnt många gånger förut försöker jag alltid hålla mina variabler oföränderliga när jag utvecklar. Nu ska vi kika närmare på hur vi åstadkommer oföränderliga arrayer i JavaScript när vi lägger till element, byter ut element eller tar bort element. Vi utgår från en array med fåglar:
+
+```js
+const birds = ["Talgoxe", "Blåmes", "Tallbit", "Skogsduva"]
+```
+
+{/* truncate */}
+
+## Lägga till element
+
+Hur gör vi för att lägga till en fågel, säg knölsvan, till listan? Trots att arrayen är deklarerad med `const` och alltså är oföränderlig är det ändå inte riktigt det. Det går fortfarande att lägga till element i listan exempelvis med `push`.
+
+```js
+// Prova inte detta hemma
+
+birds.push("Knölsvan")
+
+/*
+  birds = [
+    'Talgoxe',
+    'Blåmes',
+    'Tallbit',
+    'Skogsduva',
+    'Knölsvan'
+  ]
+*/
+```
+
+Men sånt där håller vi ju inte på med – vi vill hålla oföränderliga variabler oförändrade (även om de faktiskt inte är helt oföränderliga). Det vi vill göra är att lägga till knölsvanen och spara den nya uppsättningen fåglar i en ny oföränderlig array. Nu kanske någon får en snilleblixt och försöker med samma sak igen och sparar resultatet i en ny array:
+
+```js
+// Prova inte detta hemma
+
+const newBirds = birds.push("Knölsvan")
+
+// newBirds = 5
+```
+
+Så här används inte `push`. Den nya variabeln `newBirds` får värdet `5` eftersom `push` returnerar arrayens nya längd. Ytterligare ett problem är att den tidigare arrayen `birds` nu har fått sällskap av knölsvanen, vilket ju inte var tanken.
+
+Här vill vi använda _spread_-operatorn. Får man kalla den pastej-operatorn på svenska?
+
+```js
+const newBirds = [...birds, "Knölsvan"]
+
+/*
+  newBirds = [
+    'Talgoxe',
+    'Blåmes',
+    'Tallbit',
+    'Skogsduva',
+    'Knölsvan'
+  ]
+*/
+```
+
+Här får `newBirds` knölsvanen men `birds` förblir som den var, precis som vi ville. Pastejen `...birds` stoppar in alla element från `birds` och sen lägger vi helt enkelt till knölsvanen efter dessa och sparar i den nya arrayen.
+
+## Byta ut element
+
+Vi kanske får för oss att tallbit var en lite onödigt ovanlig fågel i vår array och att vi därför vill byta ut den med en gråkråka. Hur? Pastej igen!
+
+```js
+const newBirds = [...birds.slice(0, 2), "Gråkråka", ...birds.slice(3)]
+
+/*
+  newBirds = [
+    'Talgoxe',
+    'Blåmes',
+    'Gråkråka',
+    'Skogsduva'
+  ]
+*/
+```
+
+Här lägger vi till alla fåglar före tallbit från `birds` i `newBirds`, stoppar in gråkråka och slutligen lägger vi till alla fåglar efter tallbit. Om vi inte på förhand vet var tallbiten finns i arrayen kan vi ta reda på det och använda den kunskapen när vi tillverkar `newBirds`.
+
+```js
+const tallbitIndex = birds.findIndex((bird) => bird === "Tallbit")
+
+const newBirds = [
+	...birds.slice(0, tallbitIndex),
+	"Gråkråka",
+	...birds.slice(tallbitIndex + 1),
+]
+
+/*
+  newBirds = [
+    'Talgoxe',
+    'Blåmes',
+    'Gråkråka',
+    'Skogsduva'
+  ]
+*/
+```
+
+Om det inte är viktigt att fåglarna hamnar i samma ordning som tidigare kan vi göra uppdateringen på ett lite smidigare sätt:
+
+```js
+const newBirds = [...birds.filter((bird) => bird !== "Tallbit"), "Gråkråka"]
+
+/*
+  newBirds = [
+    'Talgoxe',
+    'Blåmes',
+    'Skogsduva',
+    'Gråkråka'
+  ]
+*/
+```
+
+Pastej löser det mesta!
+
+## Ta bort element
+
+Att ta bort element är faktiskt det allra smidigaste av dessa operationer. Vi utgår återigen från den ursprungliga arrayen `birds` och tar bort blåmesen.
+
+```js
+const newBirds = birds.filter((bird) => bird !== "Blåmes")
+
+/*
+  newBirds = [
+    'Talgoxe',
+    'Tallbit',
+    'Skogsduva'
+  ]
+*/
+```
+
+## ES2023-uppdatering
+
+ES2023 lade till oföränderliga array-metoder som gör mycket av ovanstående mycket enklare: `Array.prototype.with(index, value)`, `toSpliced(start, deleteCount, ...items)`, `toSorted()` och `toReversed()`. Alla returnerar nya arrayer utan att mutera originalet.
+
+```js
+const newBirds = birds.toSpliced(2, 1, "Gråkråka")
+// > ['Talgoxe', 'Blåmes', 'Gråkråka', 'Skogsduva']
+```
+
+När runtime stödjer dem är de att föredra framför spread-baserade mönstren.
+
+Tack och hej, leverpastej!

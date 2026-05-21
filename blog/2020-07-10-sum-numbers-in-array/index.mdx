@@ -1,0 +1,170 @@
+---
+slug: sum-numbers-in-array
+title: Sum numbers in an array with JavaScript
+description: Walk through several ways to sum numbers in a JavaScript array, from manual addition and for-loops to the cleaner reduce approach.
+authors: [filip]
+tags: [javascript]
+---
+
+There are several ways to compute the sum of numbers in an array with JavaScript. Different approaches have different pros and cons, and there are also approaches that are better and worse from a performance and clean-code perspective. Writing clean code isn't only aesthetically more pleasing — readable code is also easier to maintain and easier for others to understand and build on. Common to all ways of summing numbers in an array is that you have to loop through the array somehow.
+
+## TL;DR
+
+- There are many ways to sum numbers in an array, but several of them are hard to read and unnecessarily complicated.
+- The best way is using the built-in `reduce` function.
+
+{/* truncate */}
+
+## Summing numbers in an array
+
+In the upcoming examples, I'll start from this array of random numbers:
+
+```js
+const numbers = [20, 38, 23, 1, 39, 71]
+```
+
+### Option 0: manual summation (a terrible option)
+
+You can do the summation using only addition, like this:
+
+```js
+const sum =
+	numbers[0] + numbers[1] + numbers[2] + numbers[3] + numbers[4] + numbers[5]
+
+// sum = 192
+```
+
+This option is terrible because it relies on knowing how many numbers are in the array. If a number is added to the array, the sum would be wrong.
+
+### Option 1: for-loop (a bad option)
+
+Historically, summations in JavaScript have been done with a _for-loop_:
+
+```js
+let sum = 0
+
+for (let i = 0; i < numbers.length; i++) {
+	sum += numbers[i]
+}
+
+// sum = 192
+```
+
+It's still an ugly way to sum because it requires a lot of code. Variables like `i`, whose only job is to keep track of an index, can and usually should be avoided.
+
+### Option 2: forEach-loop (an OK option)
+
+The next approach — which is significantly nicer — looks like this:
+
+```js
+let sum = 0
+
+numbers.forEach((number) => (sum += number))
+
+// sum = 192
+```
+
+`forEach` is a _higher-order function_ that can perform a specific task for each element in an array.
+
+### Option 3: reduce (the best option)
+
+Even nicer is the built-in `reduce` function:
+
+```js
+const sum = numbers.reduce((acc, number) => acc + number, 0)
+
+// sum = 192
+```
+
+`reduce` takes a function with parameters `acc` and `number`, representing the accumulated value and the current value in the `numbers` array. Right of the arrow defines what to do with the values. In the first iteration, `acc` is 0 (the initial value defined as the second argument) and `number` is 20. Then the result of `acc + number` is saved to `acc` in the next iteration.
+
+## Summing numbers in more complex arrays
+
+In many cases the arrays you want to sum are more complex than the previous example. Let's start from this array containing information about all rooms in an apartment:
+
+```js
+const rooms = [
+	{ name: "Living room", isRenovated: true, area: 31 },
+	{ name: "Kitchen", isRenovated: false, area: 15 },
+	{ name: "Bedroom", isRenovated: false, area: 21 },
+	{ name: "Bathroom", isRenovated: true, area: 13 },
+	{ name: "Hall", isRenovated: false, area: 9 },
+]
+```
+
+Let's say we want to compute the total area of the apartment.
+
+### Option 1: reshape the array, then sum
+
+```js
+const totalArea = rooms
+	.map((room) => room.area)
+	.reduce((acc, area) => acc + area, 0)
+
+// totalArea = 89
+```
+
+### Option 2: extract the area directly during summation
+
+With the second strategy, `reduce` is used to extract the area from the objects directly:
+
+```js
+const totalArea = rooms.reduce((acc, room) => acc + room.area, 0)
+
+// totalArea = 89
+```
+
+Of these, I think option 2 is the nicest because it's both the most compact and the most readable.
+
+## Summing with filtering
+
+To make it a bit more complicated, we might want to know the total area of the rooms that haven't been renovated.
+
+### Option 1: filter, map, sum
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms
+	.filter((room) => !room.isRenovated)
+	.map((room) => room.area)
+	.reduce((acc, area) => acc + area, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Option 2: filter, extract area directly during summation
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms
+	.filter((room) => !room.isRenovated)
+	.reduce((acc, room) => acc + room.area, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Option 3: filter with if-statement inside reduce
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms.reduce((acc, room) => {
+	if (!room.isRenovated) return acc + room.area
+	return acc
+}, 0)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+### Option 4: filter with ternary operator in reduce
+
+```js
+const totalAreaOfNotRenovatedRooms = rooms.reduce(
+	(acc, room) => (room.isRenovated ? acc : acc + room.area),
+	0,
+)
+
+// totalAreaOfNotRenovatedRooms = 45
+```
+
+I think option 2 is the best in this case. You can almost read the code as plain text and understand what's happening:
+
+> First filter out the rooms that aren't renovated, then sum the area of each room.
+
+There you go — now you know everything about summing numbers in an array with JavaScript!
