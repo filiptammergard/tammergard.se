@@ -13,17 +13,20 @@ function isLeapYear(year: number): boolean {
 }
 
 function getFirstWeekdayInYear(year: number) {
-	return new Date(year, 0, 1).getDay()
+	const date = new Date(year, 0, 1)
+	date.setFullYear(year)
+	return date.getDay()
 }
 
 function getWeeksInYear(year: number) {
-	if (getFirstWeekdayInYear(year + 1) === 5) return 53
-	if (getFirstWeekdayInYear(year + 1) === 6 && isLeapYear(year)) return 53
+	const firstWeekdayNextYear = getFirstWeekdayInYear(year + 1)
+	if (firstWeekdayNextYear === 5) return 53
+	if (firstWeekdayNextYear === 6 && isLeapYear(year)) return 53
 	return 52
 }
 
 export function CalendarMaths() {
-	const [year, setYear] = useState<number | null>(null)
+	const [year, setYear] = useState<number | null>(new Date().getFullYear())
 
 	function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
 		const value = e.target.value
@@ -35,17 +38,18 @@ export function CalendarMaths() {
 	}
 
 	return (
-		<div>
+		<div style={{ marginBottom: "1rem" }}>
 			<input
 				type="number"
 				placeholder={translate({
 					id: "calendarMaths.placeholder",
 					message: "Enter a year…",
 				})}
+				value={year ?? ""}
 				onChange={handleInputChange}
 			/>
 			{year !== null && (
-				<p>
+				<p style={{ marginTop: "1rem" }}>
 					{isLeapYear(year) ? (
 						<Translate
 							id="calendarMaths.resultLeap"

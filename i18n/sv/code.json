@@ -361,5 +361,17 @@
   "theme.tags.tagsPageTitle": {
     "message": "Taggar",
     "description": "The title of the tag list page"
+  },
+  "calendarMaths.placeholder": {
+    "message": "Ange ett år…",
+    "description": "Placeholder text for the year input in the CalendarMaths component"
+  },
+  "calendarMaths.resultLeap": {
+    "message": "År {year} har {weeks} veckor och är ett skottår.",
+    "description": "Result text for the CalendarMaths component when the year is a leap year"
+  },
+  "calendarMaths.resultNonLeap": {
+    "message": "År {year} har {weeks} veckor och är inte ett skottår.",
+    "description": "Result text for the CalendarMaths component when the year is not a leap year"
   }
 }

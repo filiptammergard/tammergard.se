@@ -10,10 +10,16 @@ import { CalendarMaths } from "@site/blog/2020-08-12-calendar-maths/CalendarMath
 
 Man skulle kunna tro att det här med veckonummer är busenkelt. _Det är väl bara att börja på vecka 1 och fortsätta till vecka 52 för att sedan börja om igen?_ Tyvärr är det inte så enkelt. Det visar sig tvärtom vara förvånansvärt komplicerat!
 
+:::note
+
+Den här artikeln beskriver veckonumreringen enligt [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), som Sverige och de flesta europeiska länder följer. Andra konventioner finns – i USA används till exempel söndag som första veckodag, och vecka 1 är veckan som innehåller 1 januari – så modellen ser annorlunda ut där.
+
+:::
+
 ## TL;DR
 
 - Oftast har ett år 52 veckor, men vissa år har 53 veckor.
-- Om den 53:e veckan ska finnas eller inte beror både på vilken veckodag den 1 januari nästa år är och om nuvarande år är ett skottår eller inte.
+- Om den 53:e veckan ska finnas eller inte beror både på vilken veckodag den 1 januari nästa år är och om nuvarande år är ett [skottår](https://sv.wikipedia.org/wiki/Skott%C3%A5r) eller inte.
 - Skottår förekommer i genomsnitt lite mindre än var fjärde år, vilket gör modellen för när 53 veckor ska förekomma klurig.
 
 Testa den färdiga veckonumrerings- och skottårsmodellen här:
@@ -47,7 +53,37 @@ Närvaron av skottår stökar till veckodagsförskjutningen ordentligt. Vid ett 
 
 Låt säga att år 1 är det första normalåret efter ett skottår och att 1 januari det året är en måndag. Då blir veckodagen den 1 januari åren efter enligt följande lista:
 
-1: Måndag (normalår)<br /> 2: Tisdag (normalår)<br /> 3: Onsdag (normalår)<br /> 4: **Torsdag (skottår)**<br /> 5: Lördag (normalår)<br /> 6: Söndag (normalår)<br /> 7: Måndag (normalår)<br /> 8: **Tisdag (skottår)**<br /> 9: Torsdag (normalår)<br /> 10: Fredag (normalår)<br /> 11: Lördag (normalår)<br /> 12: **Söndag (skottår)**<br /> 13: Tisdag (normalår)<br /> 14: Onsdag (normalår)<br /> 15: Torsdag (normalår)<br /> 16: **Fredag (skottår)**<br /> 17: Söndag (normalår)<br /> 18: Måndag (normalår)<br /> 19: Tisdag (normalår)<br /> 20: **Onsdag (skottår)**<br /> 21: Fredag (normalår)<br /> 22: Lördag (normalår)<br /> 23: Söndag (normalår)<br /> 24: **Måndag (skottår)**<br /> 25: Onsdag (normalår)<br /> 26: Torsdag (normalår)<br /> 27: Fredag (normalår)<br /> 28: **Lördag (skottår)**<br /> 29: Måndag (normalår)
+| År | Veckodag | Typ |
+| --- | --- | --- |
+| 1 | Måndag | Normalår |
+| 2 | Tisdag | Normalår |
+| 3 | Onsdag | Normalår |
+| **4** | **Torsdag** | **Skottår** |
+| 5 | Lördag | Normalår |
+| 6 | Söndag | Normalår |
+| 7 | Måndag | Normalår |
+| **8** | **Tisdag** | **Skottår** |
+| 9 | Torsdag | Normalår |
+| 10 | Fredag | Normalår |
+| 11 | Lördag | Normalår |
+| **12** | **Söndag** | **Skottår** |
+| 13 | Tisdag | Normalår |
+| 14 | Onsdag | Normalår |
+| 15 | Torsdag | Normalår |
+| **16** | **Fredag** | **Skottår** |
+| 17 | Söndag | Normalår |
+| 18 | Måndag | Normalår |
+| 19 | Tisdag | Normalår |
+| **20** | **Onsdag** | **Skottår** |
+| 21 | Fredag | Normalår |
+| 22 | Lördag | Normalår |
+| 23 | Söndag | Normalår |
+| **24** | **Måndag** | **Skottår** |
+| 25 | Onsdag | Normalår |
+| 26 | Torsdag | Normalår |
+| 27 | Fredag | Normalår |
+| **28** | **Lördag** | **Skottår** |
+| 29 | Måndag | Normalår |
 
 År 29 blir alltså återigen 1 januari en måndag på ett år som är första normalåret efter ett skottår. Därefter upprepas samma sekvens igen. År 1–28 är alltså en sekvens som vad gäller veckodagar ser likadan ut kommande 28 år (år 29–56). Det är egentligen inte så konstigt att sekvensen blir just 28 år. 28 är nämligen den minsta gemensamma multipeln mellan 4 (frekvensen för skottår) och 7 (antalet dagar i en vecka).
 
@@ -59,7 +95,16 @@ Multiplarna visualiseras i listan genom att 1 januari på skottåren (som förek
 
 Här är samma lista med bara skottåren, med tillägg för år 32:
 
-4: Fredag (skottår)<br /> 8: Onsdag (skottår)<br /> 12: Måndag (skottår)<br /> 16: Lördag (skottår)<br /> 20: Torsdag (skottår)<br /> 24: Tisdag (skottår)<br /> 28: Söndag (skottår)<br /> 32: Fredag (skottår)
+| År | Veckodag |
+| --- | --- |
+| 4 | Torsdag |
+| 8 | Tisdag |
+| 12 | Söndag |
+| 16 | Fredag |
+| 20 | Onsdag |
+| 24 | Måndag |
+| 28 | Lördag |
+| 32 | Torsdag |
 
 Här kan man se att alla sju veckodagar förekommer innan samma veckodag förekommer igen.
 
@@ -67,19 +112,25 @@ Påminn dig själv om veckonumreringsmodellen:
 
 > 1 januari tillhör vecka 53 om det är en fredag både vid normalår eller skottår, eller en lördag vid skottår.
 
-Nu kan man kolla i veckodagsförskjutningslistan och räkna hur många år i en veckodagssekvens på 28 år som kommer att få 53 veckor. Svaret är att dessa år kommer att få 53 veckor:
+Ett år har 53 veckor precis när nästa års 1 januari hör till vecka 53. Genom att kolla i veckodagsförskjutningslistan kan man räkna hur många år i en sekvens på 28 år som har 53 veckor. Dessa år har 53 veckor:
 
-4: Fredag (skottår)<br /> 10: Fredag (normalår)<br /> 16: Lördag (skottår)<br /> 21: Fredag (normalår)<br /> 27: Fredag (normalår)
+| År | Typ | 1 januari året efter |
+| --- | --- | --- |
+| 4 | Skottår | Lördag |
+| 9 | Normalår | Fredag |
+| 15 | Normalår | Fredag |
+| 20 | Skottår | Fredag |
+| 26 | Normalår | Fredag |
 
-Under år 1–28, som utgör en sekvens, förekommer alltså 5 år med 53 veckor, resten har 52. Fyra av dessa år får 53 veckor för att 1 januari är en fredag och ett av åren får 53 veckor för att 1 januari är en lördag och att året är ett skottår. Om inte skottår hade funnits hade 4 år per sekvens haft 53 veckor. Detta stämmer med mitt tidigare uttalande om att var sjunde år borde ha 53 veckor om inte skottår hade funnits, eftersom 28/4 = 7.
+Under år 1–28, som utgör en sekvens, förekommer alltså 5 år med 53 veckor, resten har 52. Fyra av dessa år får 53 veckor för att nästa års 1 januari är en fredag, och ett av åren får 53 veckor för att det är ett skottår och nästa års 1 januari är en lördag. Om inte skottår hade funnits hade 4 år per sekvens haft 53 veckor. Detta stämmer med mitt tidigare uttalande om att var sjunde år borde ha 53 veckor om inte skottår hade funnits, eftersom 28/4 = 7.
 
 Medräknat skottår förekommer som sagt 5 år med 53 veckor på en sekvens. 28/5 = 5,6, vilket betyder att 53 veckor förkommer var 5,6:e år. Detta betyder att det ibland är 5 år mellan år med 53 veckor och ibland är det 6 år mellan.
 
-### ...men hur funkar det egentligen med skottår?
+## Hur funkar det egentligen med skottår?
 
 Att år med 53 veckor förekommer var 5,6:e år var ju lite klurigare än vad man kanske hade kunnat tro. Men det är dessvärre mer komplext än så. Jag har nämligen bortsett från den verkliga frekvensen för skottår.
 
-Anledningen att skottår överhuvudtaget existerar är för att årstider inte ska förskjutas framåt eller bakåt i kalendern med tiden. Om varje år skulle ha 365 dagar skulle årstider, dagjämningar och solstånd förskjutas flera veckor under en period av 100 år. Ett verkligt årstidsår (även kallat tropiskt år eller naturligt år) är egentligen 365 dygn, 5 timmar, 48 minuter och 45 sekunder, vilket är lika med 365,2421875 dygn. Om ett årstidsår hade varit 365 + 1/4 = 365,25 dygn = 365 dygn och 6 timmar hade skottår var fjärde år fullkomligt kompenserat för förskjutningen. Men i verkligheten är ett årstidsår 11 minuter och 15 sekunder kortare än så, vilket betyder att en skottårsfrekvens på var fjärde år är lite för hög.
+Anledningen att skottår överhuvudtaget existerar är för att årstider inte ska förskjutas framåt eller bakåt i kalendern med tiden. Om varje år skulle ha 365 dagar skulle årstider, dagjämningar och solstånd förskjutas flera veckor under en period av 100 år. Ett verkligt årstidsår (även kallat [tropiskt år](https://sv.wikipedia.org/wiki/Tropiskt_%C3%A5r)) är egentligen 365 dygn, 5 timmar, 48 minuter och 45 sekunder, vilket är lika med 365,2421875 dygn. Om ett årstidsår hade varit 365 + 1/4 = 365,25 dygn = 365 dygn och 6 timmar hade skottår var fjärde år fullkomligt kompenserat för förskjutningen. Men i verkligheten är ett årstidsår 11 minuter och 15 sekunder kortare än så, vilket betyder att en skottårsfrekvens på var fjärde år är lite för hög.
 
 Den lite för höga skottårsfrekvensen kompenseras genom att sekelår inte är skottår. I vanliga fall är alla år som är delbara med 4 skottår (alltså exempelvis år 4, 16 eller 2020), men att sekelår inte är skottår betyder att exempelvis år 100, 1900 eller 2100 inte är skottår även om de är delbara med 4 (vilket de alltid är rent matematiskt).
 
@@ -89,17 +140,20 @@ Den lite för låga skottårsfrekvensen i det här fallet kompenseras genom att 
 
 Tilläggsregeln med sekelår som är delbara med 400 skulle vara perfekt om ett årstidsår hade varit 365 + 1/4 - 1/100 + 1/400 = 365,2425 = 365 dygn, 5 timmar, 49 minuter och 12 sekunder. Men ett årstidsår är 27 sekunder kortare än så. Nu kanske du tror att skillnaden skulle föranleda en ytterligare tilläggsregel, och därefter kanske ytterligare några flera tilläggsregler, men så är det inte. Med ett kalenderår som är 27 sekunder längre än årstidsåret blir förskjutningen av årstider och liknande 7,5 timmar på 1 000 år, vilket uppenbarligen inte var ett tillräckligt stort problem.
 
-Skottårsreglerna kan sammanfattas i listform så här:
+Översikt av hur reglerna förhåller sig till årstidsåret (365 d 5 h 48 min 45 s). Plus = kalenderåret är längre än årstidsåret, minus = kortare.
 
-- År som är jämnt delbara med 4 är skottår (med undantag nedan).
-- År som är jämnt delbara med 100 är inte skottår trots att de är jämnt delbara med 4 (med undantag nedan).
-- År som är jämnt delbara med 400 är skottår trots att de är jämnt delbara med 100.
+| Skottår om… | Kalenderårslängd | Avvikelse |
+| --- | --- | --- |
+| Aldrig | 365 d | −5 h 48 min 45 s |
+| Året är delbart med 4 | 365,25 d | +11 min 15 s |
+| Delbart med 4 men inte 100 | 365,24 d | −3 min 9 s |
+| Delbart med 4 men inte 100, eller delbart med 400 (gregorianska) | 365,2425 d | +27 s |
 
-Reglerna kan också sammanfattas i en mening så här:
+Reglerna kan sammanfattas i en mening så här:
 
 > De år som är jämnt delbara med 4, förutom de sekelår som inte är jämnt delbara med 400, är skottår.
 
-### Modellen som JavaScript-funktion
+## Modellen som JavaScript-funktion
 
 Med all denna kunskap borde vi kunna bygga en funktion där man skickar in ett år och får ut hur många veckor det året har. Typ så här:
 
@@ -109,8 +163,6 @@ function getWeeksInYear(year) {
 	return weeks
 }
 ```
-
-<br />
 
 För att kunna bestämma hur många veckor ett år har behöver vi dels veta vilken veckodag 1 januari året efter är och dels om aktuellt år är ett skottår eller inte. Perfekta uppgifter för två separata funktioner!
 
@@ -131,7 +183,7 @@ function isLeapYear(year) {
 }
 ```
 
-<br />
+### isLeapYear
 
 Vi kan börja underifrån med `isLeapYear`. Mitt första försök att implementera skottårsreglerna rakt av resulterade i någonting i den här stilen:
 
@@ -146,18 +198,13 @@ function isLeapYear(year) {
 }
 ```
 
-<br />
-
 Även om funktionen gör vad den ska är den oerhört svårläst. Dels används modulus på fem ställen och gör koden plottrig, dels är det svårt att läsa if-satser som befinner sig i if-satser i flera led. Med angreppssättet att börja med den snävaste regeln kan man få till en betydligt snyggare funktion. Vi passar också på att bryta ut modulus-beräkningarna i en egen funktion:
 
 ```js
 function isLeapYear(year) {
 	if (isDivisibleBy(year, 400)) return true
-
 	if (isDivisibleBy(year, 100)) return false
-
 	if (isDivisibleBy(year, 4)) return true
-
 	return false
 }
 
@@ -166,77 +213,111 @@ function isDivisibleBy(numerator, denominator) {
 }
 ```
 
-<br />
+Här utnyttjar vi att år som är delbara med 400 alltid är skottår, att övriga år som är delbara med 100 inte är skottår och slutligen att övriga år som är delbara med 4 är skottår (och att resten inte är skottår). Tydligt och bra!
 
-Här utnyttjar vi att år som är delbara med 400 alltid är skottår, att övriga år som är delbara med 100 inte är skottår och slutligen att övriga år som är delbara med 4 är skottår (och att resten inte är skottår). Tydligt och bra! Fördelen med att bryta ut funktionen `isDivisibleBy` är att den nu kan användas till övriga ställen där man kan ha nytta av att veta om ett tal är delbart med ett annat. I nästa funktion vill vi veta vilken första veckodagen nästa år är. En första tanke kanske säger att funktionen helt enkelt ska returnera första veckodagen nästa år. Men för att göra funktionen mer generellt användbar tycker jag att det är en bättre idé att funktionen returnerar första veckodagen för året som skickas in, så får man skicka in nästa år. Så här:
+### getFirstWeekdayInYear
+
+I nästa funktion vill vi veta vilken första veckodagen nästa år är. En första tanke kanske säger att funktionen helt enkelt ska returnera första veckodagen nästa år. Men för att göra funktionen mer generellt användbar tycker jag att det är en bättre idé att funktionen returnerar första veckodagen för året som skickas in, så får man skicka in nästa år. Så här:
 
 ```js
 function getFirstWeekdayInYear(year) {
-	const firstDateInYear = new Date(year, 0, 1) // 0 = januari, 1 = första dagen i månaden
-	const firstWeekdayInYear = firstDateInYear.getDay()
-	return firstWeekdayInYear
+	const date = new Date(year, 0, 1) // 0 = januari, 1 = första dagen i månaden
+	return date.getDay()
 }
 ```
 
-<br />
-
 Här används det inbyggda objektet `Date`, där `year`, månad 0 (januari) och datum 1 (första dagen i månaden) används för att få ett Date-objekt med första dagen på året som skickas in. Veckodagen beräknas med den inbyggda funktionen `getDay` som returnerar 0 för söndag, 1 för måndag och så vidare upp till 6 för lördag. När vi använder den här funktionen kommer vi alltså inte få tillbaka exempelvis "Tuesday", utan 2 som står för tisdag.
 
-Hur ska vi nu göra med funktionen `getWeeksInYear` för att den ska returnera antalet veckor för valfritt år?
+:::note
 
-<br />
+Det finns en lurig fallgrop i `Date`-konstruktorn: när `year` är mellan 0 och 99 tolkas värdet som 1900–1999. `new Date(50, 0, 1)` blir alltså 1 januari 1950, inte 1 januari år 50. Det är ett bakåtkompatibilitetsbeteende från JavaScripts tidiga år som finns kvar än i dag. För att hantera även små år (och år före vår tideräkning) bokstavligt kan man anropa `setFullYear` efteråt, som alltid tolkar heltalet som det år man skickar in:
+
+```js
+function getFirstWeekdayInYear(year) {
+	const date = new Date(year, 0, 1)
+	date.setFullYear(year) // tolka även år 0–99 bokstavligt
+	return date.getDay()
+}
+```
+
+:::
+
+### getWeeksInYear
+
+Hur ska vi nu göra med funktionen `getWeeksInYear` för att den ska returnera antalet veckor för valfritt år? Eftersom `getFirstWeekdayInYear(year + 1)` används två gånger cachar vi resultatet i en variabel – då slipper vi skapa två separata `Date`-objekt:
 
 ```js
 function getWeeksInYear(year) {
-	if (getFirstWeekdayInYear(year + 1) === 5) return 53
-
-	if (getFirstWeekdayInYear(year + 1) === 6 && isLeapYear(year)) return 53
-
+	const firstWeekdayNextYear = getFirstWeekdayInYear(year + 1)
+	if (firstWeekdayNextYear === 5) return 53
+	if (firstWeekdayNextYear === 6 && isLeapYear(year)) return 53
 	return 52
 }
 ```
 
-<br />
+### Allt tillsammans
 
 Funktionaliteten i sin helhet ser alltså ut så här:
 
 ```js
-function getWeeksInYear(year) {
-	if (getFirstWeekdayInYear(year + 1) === 5) return 53
-
-	if (getFirstWeekdayInYear(year + 1) === 6 && isLeapYear(year)) return 53
-
-	return 52
-}
-
-function getFirstWeekdayInYear(year) {
-	const firstDateInYear = new Date(year, 0, 1) // 0 = januari, 1 = första dagen i månaden
-	const firstWeekdayInYear = firstDateInYear.getDay()
-	return firstWeekdayInYear
+function isDivisibleBy(numerator, denominator) {
+	return numerator % denominator === 0
 }
 
 function isLeapYear(year) {
 	if (isDivisibleBy(year, 400)) return true
-
 	if (isDivisibleBy(year, 100)) return false
-
 	if (isDivisibleBy(year, 4)) return true
-
 	return false
 }
 
-function isDivisibleBy(numerator, denominator) {
-	return numerator % denominator === 0
+function getFirstWeekdayInYear(year) {
+	const date = new Date(year, 0, 1)
+	date.setFullYear(year) // tolka även år 0–99 bokstavligt
+	return date.getDay()
+}
+
+function getWeeksInYear(year) {
+	const firstWeekdayNextYear = getFirstWeekdayInYear(year + 1)
+	if (firstWeekdayNextYear === 5) return 53
+	if (firstWeekdayNextYear === 6 && isLeapYear(year)) return 53
+	return 52
 }
 ```
 
 <CalendarMaths />
-<br />
 
-Notera att alla negativa och positiva heltal ger ett resultat. År -3008 ger exempelvis resultatet "År -3008 har 52 veckor och är ett skottår". Naturligtvis har inte veckonumrerings- och skottårsmodellen alltid sett ut som den gör i dag, och den ser inte heller likadan ut i andra länder, så resultatet representerar endast den nuvarande modellen i Sverige.
+Funktionen ger ett resultat för alla negativa och positiva heltal. År -3008 ger exempelvis resultatet "År -3008 har 52 veckor och är ett skottår". Tänk dock på att veckonumrerings- och skottårsmodellen inte alltid har sett ut som den gör i dag.
 
-### Bättre alternativ än att göra veckoberäkningar själv
+### Bättre alternativ
 
-Jag tror att det är nyttigt att öva på att formulera korrekta och lättlästa funktioner när man programmerar. I fallet med beräkning av veckonummer skulle jag dock sällan rekommendera att göra uträkningar på det manuella sättet jag har gjort hittills. Det finns nämligen lysande bibliotek med sådan funktionalitet. Fördelen med sådana bibliotek är både att man helt kan undvika sådana komplicerade funktioner i sin kod, men kanske främst att risken för buggar som är stor med egenbyggda funktioner är betydligt mindre i vältestade bibliotek som många använder. Ett exempel på lysande bibliotek är [date-fns](https://date-fns.org/).
+Jag tror att det är nyttigt att öva på att formulera korrekta och lättlästa funktioner när man programmerar. I fallet med veckonummer och skottår skulle jag dock sällan rekommendera att göra uträkningar på det manuella sättet jag har gjort hittills. Risken för buggar är stor i egenbyggda funktioner – och numera behöver man knappt något tredjepartsbibliotek tack vare den inbyggda [Temporal-API:n](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal). `Temporal.PlainDate` har properties som täcker både skottår och veckonummer direkt:
+
+```js
+function isLeapYear(year) {
+	return Temporal.PlainDate.from({ year, month: 1, day: 1 }).inLeapYear
+}
+
+function getWeeksInYear(year) {
+	// 28 december ligger alltid i årets sista ISO-vecka
+	return Temporal.PlainDate.from({ year, month: 12, day: 28 }).weekOfYear
+}
+```
+
+Temporal följer [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), så skottårsresonemanget sköts åt en under huven.
+
+Temporal landade i Chrome 144 (januari 2026) och Firefox 139 (maj 2025), och finns i Safari Technical Preview. För miljöer som inte har det än fungerar polyfillen [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill), eller ett etablerat bibliotek som [date-fns](https://date-fns.org/).
+
+Den manuella implementationen i den här artikeln blir alltså i praktiken överflödig – men förhoppningsvis pedagogiskt nyttig för att förstå *varför* vissa år har 53 veckor.
 
 Så där, nu kan du allt om matematiken bakom veckonummer och skottår!
+
+## Referenser
+
+- https://en.wikipedia.org/wiki/ISO_week_date
+- https://en.wikipedia.org/wiki/Tropical_year
+- https://en.wikipedia.org/wiki/Leap_year
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setFullYear
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal
+- https://date-fns.org/
