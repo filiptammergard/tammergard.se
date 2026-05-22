@@ -1,0 +1,128 @@
+---
+slug: roman-api
+title: A JSON API for roman numerals
+description: A small free JSON API for converting between arabic and roman numerals.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TodayJson } from "./TodayJson"
+import { TodayLatin } from "./TodayLatin"
+
+Today is **<TodayLatin />**.
+
+I just added a small JSON API to [roman.tammergard.se](https://roman.tammergard.se) for converting between arabic and roman numerals.
+
+{/* truncate */}
+
+All endpoints live under `/api/v1/`, return JSON, and have CORS enabled for all origins. Static endpoints (`/to`, `/from`, `/validate`, `/convert`, `/all`) are CDN-cached for a week, while `/today` is cached until the next midnight in `Europe/Stockholm` so the day rollover doesn't serve yesterday's date. The valid range is `1`–`3999`, which is what classical roman numerals can express. Full docs at [roman.tammergard.se/api](https://roman.tammergard.se/api).
+
+## Today
+
+```ts
+const res = await fetch("https://roman.tammergard.se/api/v1/today")
+const data = await res.json()
+```
+
+Live response right now:
+
+<TodayJson />
+
+## Arabic to roman
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/2026")
+// {
+//   arabic: 2026,
+//   roman: "MMXXVI"
+// }
+```
+
+## Roman to arabic
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/from/MMXXVI")
+// {
+//   roman: "MMXXVI",
+//   arabic: 2026
+// }
+```
+
+## Convert in either direction
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/convert/MMXXVI")
+// {
+//   kind: "roman",
+//   input: "MMXXVI",
+//   roman: "MMXXVI",
+//   arabic: 2026
+// }
+```
+
+The `kind` field shows which direction the input was converted from. Pass an arabic number to flip it around:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/convert/2026")
+// {
+//   kind: "arabic",
+//   input: "2026",
+//   arabic: 2026,
+//   roman: "MMXXVI"
+// }
+```
+
+## Validate
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/validate/MMXXVI")
+// {
+//   input: "MMXXVI",
+//   normalized: "MMXXVI",
+//   valid: true
+// }
+```
+
+The input is normalized (trimmed and uppercased) before validation, so `mmxxvi` is just as valid as `MMXXVI`.
+
+## All numerals
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/all")
+// [
+//   { arabic: 1, roman: "I" },
+//   { arabic: 2, roman: "II" },
+//   ...
+//   { arabic: 3999, roman: "MMMCMXCIX" }
+// ]
+```
+
+The response is around 100 KB. Useful if you'd rather ship the whole table to the client and look things up locally.
+
+## Errors
+
+Errors follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) and distinguish malformed input from semantically invalid input. Malformed values — for example a non-integer where an integer is expected — return `400`:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/abc")
+// {
+//   error: {
+//     status: 400,
+//     message: 'Invalid number "abc". Must be a positive integer.'
+//   }
+// }
+```
+
+Values that are well-formed but out of range — like an arabic number above `3999` or a malformed roman numeral like `IIII` — return `422`:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/5000")
+// {
+//   error: {
+//     status: 422,
+//     message: 'Invalid number "5000". Must be between 1 and 3999.'
+//   }
+// }
+```
+
+That's the whole API. It's built on the [@tammergard/roman](https://www.npmjs.com/package/@tammergard/roman) package on npm.

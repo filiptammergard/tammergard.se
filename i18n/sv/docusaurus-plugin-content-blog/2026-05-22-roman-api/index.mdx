@@ -1,0 +1,128 @@
+---
+slug: roman-api
+title: Ett JSON-API för romerska siffror
+description: Ett litet gratis JSON-API för att konvertera mellan arabiska och romerska siffror.
+authors: [filip]
+tags: [javascript]
+---
+
+import { TodayJson } from "@site/blog/2026-05-22-roman-api/TodayJson"
+import { TodayLatin } from "@site/blog/2026-05-22-roman-api/TodayLatin"
+
+I dag är det **<TodayLatin />**.
+
+Jag har precis lagt till ett litet JSON-API på [roman.tammergard.se](https://roman.tammergard.se) för att konvertera mellan arabiska och romerska siffror.
+
+{/* truncate */}
+
+Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla ursprung. Statiska endpoints (`/to`, `/from`, `/validate`, `/convert`, `/all`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att dygnsskiftet inte serverar gårdagens datum. Det tillåtna intervallet är `1`–`3999`, vilket är vad klassiska romerska siffror kan uttrycka. Fullständig dokumentation på [roman.tammergard.se/api](https://roman.tammergard.se/api).
+
+## I dag
+
+```ts
+const res = await fetch("https://roman.tammergard.se/api/v1/today")
+const data = await res.json()
+```
+
+Live-svar just nu:
+
+<TodayJson />
+
+## Arabiska till romerska
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/2026")
+// {
+//   arabic: 2026,
+//   roman: "MMXXVI"
+// }
+```
+
+## Romerska till arabiska
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/from/MMXXVI")
+// {
+//   roman: "MMXXVI",
+//   arabic: 2026
+// }
+```
+
+## Konvertera åt valfritt håll
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/convert/MMXXVI")
+// {
+//   kind: "roman",
+//   input: "MMXXVI",
+//   roman: "MMXXVI",
+//   arabic: 2026
+// }
+```
+
+Fältet `kind` visar från vilket håll indata tolkades. Skicka in en arabisk siffra för att vända det:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/convert/2026")
+// {
+//   kind: "arabic",
+//   input: "2026",
+//   arabic: 2026,
+//   roman: "MMXXVI"
+// }
+```
+
+## Validera
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/validate/MMXXVI")
+// {
+//   input: "MMXXVI",
+//   normalized: "MMXXVI",
+//   valid: true
+// }
+```
+
+Indatan normaliseras (trimmas och versaliseras) före valideringen, så `mmxxvi` är lika giltig som `MMXXVI`.
+
+## Alla siffror
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/all")
+// [
+//   { arabic: 1, roman: "I" },
+//   { arabic: 2, roman: "II" },
+//   ...
+//   { arabic: 3999, roman: "MMMCMXCIX" }
+// ]
+```
+
+Svaret är runt 100 KB. Praktiskt om man hellre vill skicka hela tabellen till klienten och slå upp lokalt.
+
+## Fel
+
+Felsvaren följer [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) och skiljer på felformaterad indata och semantiskt ogiltig indata. Felformaterade värden – till exempel en sträng där ett heltal förväntas – returnerar `400`:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/abc")
+// {
+//   error: {
+//     status: 400,
+//     message: 'Invalid number "abc". Must be a positive integer.'
+//   }
+// }
+```
+
+Värden som har rätt form men är utanför tillåtet intervall – som ett arabiskt tal över `3999` eller en felformaterad romersk siffra som `IIII` – returnerar `422`:
+
+```ts
+await fetch("https://roman.tammergard.se/api/v1/to/5000")
+// {
+//   error: {
+//     status: 422,
+//     message: 'Invalid number "5000". Must be between 1 and 3999.'
+//   }
+// }
+```
+
+Det är hela API:et. Det är byggt på paketet [@tammergard/roman](https://www.npmjs.com/package/@tammergard/roman) på npm.
