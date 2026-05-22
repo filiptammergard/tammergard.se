@@ -23,8 +23,8 @@ export const featuredPosts: FeaturedPost[] = [
 		date: "2025-12-15",
 		tag: "javascript",
 		title: {
-			en: "A JSON API for namedays",
-			sv: "Ett JSON-API för namnsdagar",
+			en: "An API for namedays",
+			sv: "Ett API för namnsdagar",
 		},
 	},
 	{
@@ -32,8 +32,8 @@ export const featuredPosts: FeaturedPost[] = [
 		date: "2026-05-22",
 		tag: "javascript",
 		title: {
-			en: "A JSON API for roman numerals",
-			sv: "Ett JSON-API för romerska siffror",
+			en: "An API for roman numerals",
+			sv: "Ett API för romerska siffror",
 		},
 	},
 ]
