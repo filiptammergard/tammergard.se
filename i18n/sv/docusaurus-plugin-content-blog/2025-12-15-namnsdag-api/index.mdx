@@ -15,7 +15,7 @@ Jag har precis lagt till ett litet JSON-API på [namnsdag.tammergard.se](https:/
 
 {/* truncate */}
 
-Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla ursprung. Statiska endpoints (`/all`, `/on`, `/when`, `/where`, `/who`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att dygnsskiftet inte serverar gårdagens namn. Fullständig dokumentation på [namnsdag.tammergard.se/api](https://namnsdag.tammergard.se/api).
+Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla domäner. Statiska endpoints (`/all`, `/on`, `/when`, `/where`, `/who`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att gårdagens namn inte ligger kvar efter midnatt. Fullständig dokumentation på [namnsdag.tammergard.se/api](https://namnsdag.tammergard.se/api).
 
 ## I dag
 
@@ -30,7 +30,7 @@ Live-svar just nu:
 
 <TodayJson />
 
-Query-parametern `countryCode` är valfri och har `SE` som standard. Stödda koder är `SE`, `NO`, `DK`, `DE`, `CZ` och `PL`.
+Query-parametern `countryCode` är valfri och har `SE` som standard. Koder som stöds är `SE`, `NO`, `DK`, `DE`, `CZ` och `PL`.
 
 ## Ett specifikt datum
 
@@ -128,4 +128,4 @@ await fetch("https://namnsdag.tammergard.se/api/v1/on/13/1")
 // }
 ```
 
-Det är hela API:et. Utforska mer kring namnsdagar på [namnsdag.tammergard.se](https://namnsdag.tammergard.se).
+Det är hela API:et. Utforska fler namnsdagar på [namnsdag.tammergard.se](https://namnsdag.tammergard.se).
