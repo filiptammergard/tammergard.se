@@ -62,8 +62,7 @@ const config: Config = {
 						xslt: true,
 					},
 					blogTitle: "Tammergård — blog",
-					blogDescription:
-						"Notes on JavaScript, TypeScript, CSS and React.",
+					blogDescription: "Notes on JavaScript, TypeScript, CSS and React.",
 				},
 				sitemap: {
 					changefreq: "monthly",

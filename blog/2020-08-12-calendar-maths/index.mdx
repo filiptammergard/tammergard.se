@@ -53,37 +53,37 @@ The presence of leap years really messes up the weekday shift. In a leap year, t
 
 Let's say year 1 is the first normal year after a leap year, and January 1 that year is a Monday. Then the weekday on January 1 in the following years is:
 
-| Year | Weekday | Type |
-| --- | --- | --- |
-| 1 | Monday | Normal |
-| 2 | Tuesday | Normal |
-| 3 | Wednesday | Normal |
-| **4** | **Thursday** | **Leap** |
-| 5 | Saturday | Normal |
-| 6 | Sunday | Normal |
-| 7 | Monday | Normal |
-| **8** | **Tuesday** | **Leap** |
-| 9 | Thursday | Normal |
-| 10 | Friday | Normal |
-| 11 | Saturday | Normal |
-| **12** | **Sunday** | **Leap** |
-| 13 | Tuesday | Normal |
-| 14 | Wednesday | Normal |
-| 15 | Thursday | Normal |
-| **16** | **Friday** | **Leap** |
-| 17 | Sunday | Normal |
-| 18 | Monday | Normal |
-| 19 | Tuesday | Normal |
+| Year   | Weekday       | Type     |
+| ------ | ------------- | -------- |
+| 1      | Monday        | Normal   |
+| 2      | Tuesday       | Normal   |
+| 3      | Wednesday     | Normal   |
+| **4**  | **Thursday**  | **Leap** |
+| 5      | Saturday      | Normal   |
+| 6      | Sunday        | Normal   |
+| 7      | Monday        | Normal   |
+| **8**  | **Tuesday**   | **Leap** |
+| 9      | Thursday      | Normal   |
+| 10     | Friday        | Normal   |
+| 11     | Saturday      | Normal   |
+| **12** | **Sunday**    | **Leap** |
+| 13     | Tuesday       | Normal   |
+| 14     | Wednesday     | Normal   |
+| 15     | Thursday      | Normal   |
+| **16** | **Friday**    | **Leap** |
+| 17     | Sunday        | Normal   |
+| 18     | Monday        | Normal   |
+| 19     | Tuesday       | Normal   |
 | **20** | **Wednesday** | **Leap** |
-| 21 | Friday | Normal |
-| 22 | Saturday | Normal |
-| 23 | Sunday | Normal |
-| **24** | **Monday** | **Leap** |
-| 25 | Wednesday | Normal |
-| 26 | Thursday | Normal |
-| 27 | Friday | Normal |
-| **28** | **Saturday** | **Leap** |
-| 29 | Monday | Normal |
+| 21     | Friday        | Normal   |
+| 22     | Saturday      | Normal   |
+| 23     | Sunday        | Normal   |
+| **24** | **Monday**    | **Leap** |
+| 25     | Wednesday     | Normal   |
+| 26     | Thursday      | Normal   |
+| 27     | Friday        | Normal   |
+| **28** | **Saturday**  | **Leap** |
+| 29     | Monday        | Normal   |
 
 So year 29 is again January 1 on a Monday in a year that's the first normal year after a leap year. After that the same sequence repeats. Years 1–28 form a sequence whose weekdays look the same for the next 28 years (years 29–56). It's not that strange that the sequence is exactly 28 years. 28 is the lowest common multiple of 4 (leap year frequency) and 7 (days per week).
 
@@ -95,16 +95,16 @@ The multiples can be visualized in the list because January 1 in leap years (whi
 
 Here's the same list with only the leap years, plus year 32:
 
-| Year | Weekday |
-| --- | --- |
-| 4 | Thursday |
-| 8 | Tuesday |
-| 12 | Sunday |
-| 16 | Friday |
-| 20 | Wednesday |
-| 24 | Monday |
-| 28 | Saturday |
-| 32 | Thursday |
+| Year | Weekday   |
+| ---- | --------- |
+| 4    | Thursday  |
+| 8    | Tuesday   |
+| 12   | Sunday    |
+| 16   | Friday    |
+| 20   | Wednesday |
+| 24   | Monday    |
+| 28   | Saturday  |
+| 32   | Thursday  |
 
 You can see that all seven weekdays appear before the same weekday repeats.
 
@@ -114,13 +114,13 @@ Remind yourself of the week-numbering model:
 
 A year has 53 weeks precisely when the next year's January 1 belongs to week 53. By looking at the weekday-shift list, you can count how many years in a 28-year sequence have 53 weeks. These years have 53 weeks:
 
-| Year | Type | January 1 of next year |
-| --- | --- | --- |
-| 4 | Leap | Saturday |
-| 9 | Normal | Friday |
-| 15 | Normal | Friday |
-| 20 | Leap | Friday |
-| 26 | Normal | Friday |
+| Year | Type   | January 1 of next year |
+| ---- | ------ | ---------------------- |
+| 4    | Leap   | Saturday               |
+| 9    | Normal | Friday                 |
+| 15   | Normal | Friday                 |
+| 20   | Leap   | Friday                 |
+| 26   | Normal | Friday                 |
 
 So during years 1–28 (one sequence), there are 5 years with 53 weeks, the rest have 52. Four of these years get 53 weeks because the next year's January 1 is a Friday, and one of the years gets 53 weeks because it is a leap year and the next year's January 1 is a Saturday. If leap years didn't exist, 4 years per sequence would have 53 weeks. This matches my earlier statement that every seventh year should have 53 weeks without leap years, since 28/4 = 7.
 
@@ -142,12 +142,12 @@ The exception for century years divisible by 400 would be perfect if a tropical 
 
 Overview of how the rules compare to the tropical year (365 d 5 h 48 min 45 s). Plus = calendar year is longer than the tropical year, minus = shorter.
 
-| Leap year when… | Calendar year length | Deviation |
-| --- | --- | --- |
-| Never | 365 d | −5 h 48 min 45 s |
-| Year is divisible by 4 | 365.25 d | +11 min 15 s |
-| Divisible by 4 but not 100 | 365.24 d | −3 min 9 s |
-| Divisible by 4 but not 100, or divisible by 400 (Gregorian) | 365.2425 d | +27 s |
+| Leap year when…                                             | Calendar year length | Deviation        |
+| ----------------------------------------------------------- | -------------------- | ---------------- |
+| Never                                                       | 365 d                | −5 h 48 min 45 s |
+| Year is divisible by 4                                      | 365.25 d             | +11 min 15 s     |
+| Divisible by 4 but not 100                                  | 365.24 d             | −3 min 9 s       |
+| Divisible by 4 but not 100, or divisible by 400 (Gregorian) | 365.2425 d           | +27 s            |
 
 The rules can be summarized in one sentence:
 
@@ -308,7 +308,7 @@ Temporal follows [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), so the leap
 
 Temporal landed in Chrome 144 (January 2026) and Firefox 139 (May 2025), and is available in Safari Technical Preview. For environments that don't have it yet, the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill) polyfill works, or an established library like [date-fns](https://date-fns.org/).
 
-The manual implementation in this article is therefore essentially superfluous in practice — but hopefully pedagogically useful for understanding *why* some years have 53 weeks.
+The manual implementation in this article is therefore essentially superfluous in practice — but hopefully pedagogically useful for understanding _why_ some years have 53 weeks.
 
 There you go — now you know all about the math behind week numbers and leap years!
 

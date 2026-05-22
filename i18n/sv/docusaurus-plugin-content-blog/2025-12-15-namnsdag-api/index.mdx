@@ -20,7 +20,9 @@ Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat f
 ## I dag
 
 ```ts
-const res = await fetch("https://namnsdag.tammergard.se/api/v1/today?countryCode=SE")
+const res = await fetch(
+	"https://namnsdag.tammergard.se/api/v1/today?countryCode=SE",
+)
 const data = await res.json()
 ```
 
