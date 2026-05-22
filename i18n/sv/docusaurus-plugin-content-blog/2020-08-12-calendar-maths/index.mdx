@@ -53,37 +53,37 @@ Närvaron av skottår stökar till veckodagsförskjutningen ordentligt. Vid ett 
 
 Låt säga att år 1 är det första normalåret efter ett skottår och att 1 januari det året är en måndag. Då blir veckodagen den 1 januari åren efter enligt följande lista:
 
-| År | Veckodag | Typ |
-| --- | --- | --- |
-| 1 | Måndag | Normalår |
-| 2 | Tisdag | Normalår |
-| 3 | Onsdag | Normalår |
-| **4** | **Torsdag** | **Skottår** |
-| 5 | Lördag | Normalår |
-| 6 | Söndag | Normalår |
-| 7 | Måndag | Normalår |
-| **8** | **Tisdag** | **Skottår** |
-| 9 | Torsdag | Normalår |
-| 10 | Fredag | Normalår |
-| 11 | Lördag | Normalår |
-| **12** | **Söndag** | **Skottår** |
-| 13 | Tisdag | Normalår |
-| 14 | Onsdag | Normalår |
-| 15 | Torsdag | Normalår |
-| **16** | **Fredag** | **Skottår** |
-| 17 | Söndag | Normalår |
-| 18 | Måndag | Normalår |
-| 19 | Tisdag | Normalår |
-| **20** | **Onsdag** | **Skottår** |
-| 21 | Fredag | Normalår |
-| 22 | Lördag | Normalår |
-| 23 | Söndag | Normalår |
-| **24** | **Måndag** | **Skottår** |
-| 25 | Onsdag | Normalår |
-| 26 | Torsdag | Normalår |
-| 27 | Fredag | Normalår |
-| **28** | **Lördag** | **Skottår** |
-| 29 | Måndag | Normalår |
+| År     | Veckodag    | Typ         |
+| ------ | ----------- | ----------- |
+| 1      | Måndag      | Normalår    |
+| 2      | Tisdag      | Normalår    |
+| 3      | Onsdag      | Normalår    |
+| **4**  | **Torsdag** | **Skottår** |
+| 5      | Lördag      | Normalår    |
+| 6      | Söndag      | Normalår    |
+| 7      | Måndag      | Normalår    |
+| **8**  | **Tisdag**  | **Skottår** |
+| 9      | Torsdag     | Normalår    |
+| 10     | Fredag      | Normalår    |
+| 11     | Lördag      | Normalår    |
+| **12** | **Söndag**  | **Skottår** |
+| 13     | Tisdag      | Normalår    |
+| 14     | Onsdag      | Normalår    |
+| 15     | Torsdag     | Normalår    |
+| **16** | **Fredag**  | **Skottår** |
+| 17     | Söndag      | Normalår    |
+| 18     | Måndag      | Normalår    |
+| 19     | Tisdag      | Normalår    |
+| **20** | **Onsdag**  | **Skottår** |
+| 21     | Fredag      | Normalår    |
+| 22     | Lördag      | Normalår    |
+| 23     | Söndag      | Normalår    |
+| **24** | **Måndag**  | **Skottår** |
+| 25     | Onsdag      | Normalår    |
+| 26     | Torsdag     | Normalår    |
+| 27     | Fredag      | Normalår    |
+| **28** | **Lördag**  | **Skottår** |
+| 29     | Måndag      | Normalår    |
 
 År 29 blir alltså återigen 1 januari en måndag på ett år som är första normalåret efter ett skottår. Därefter upprepas samma sekvens igen. År 1–28 är alltså en sekvens som vad gäller veckodagar ser likadan ut kommande 28 år (år 29–56). Det är egentligen inte så konstigt att sekvensen blir just 28 år. 28 är nämligen den minsta gemensamma multipeln mellan 4 (frekvensen för skottår) och 7 (antalet dagar i en vecka).
 
@@ -95,16 +95,16 @@ Multiplarna visualiseras i listan genom att 1 januari på skottåren (som förek
 
 Här är samma lista med bara skottåren, med tillägg för år 32:
 
-| År | Veckodag |
-| --- | --- |
-| 4 | Torsdag |
-| 8 | Tisdag |
-| 12 | Söndag |
-| 16 | Fredag |
-| 20 | Onsdag |
-| 24 | Måndag |
-| 28 | Lördag |
-| 32 | Torsdag |
+| År  | Veckodag |
+| --- | -------- |
+| 4   | Torsdag  |
+| 8   | Tisdag   |
+| 12  | Söndag   |
+| 16  | Fredag   |
+| 20  | Onsdag   |
+| 24  | Måndag   |
+| 28  | Lördag   |
+| 32  | Torsdag  |
 
 Här kan man se att alla sju veckodagar förekommer innan samma veckodag förekommer igen.
 
@@ -114,13 +114,13 @@ Påminn dig själv om veckonumreringsmodellen:
 
 Ett år har 53 veckor precis när nästa års 1 januari hör till vecka 53. Genom att kolla i veckodagsförskjutningslistan kan man räkna hur många år i en sekvens på 28 år som har 53 veckor. Dessa år har 53 veckor:
 
-| År | Typ | 1 januari året efter |
-| --- | --- | --- |
-| 4 | Skottår | Lördag |
-| 9 | Normalår | Fredag |
-| 15 | Normalår | Fredag |
-| 20 | Skottår | Fredag |
-| 26 | Normalår | Fredag |
+| År  | Typ      | 1 januari året efter |
+| --- | -------- | -------------------- |
+| 4   | Skottår  | Lördag               |
+| 9   | Normalår | Fredag               |
+| 15  | Normalår | Fredag               |
+| 20  | Skottår  | Fredag               |
+| 26  | Normalår | Fredag               |
 
 Under år 1–28, som utgör en sekvens, förekommer alltså 5 år med 53 veckor, resten har 52. Fyra av dessa år får 53 veckor för att nästa års 1 januari är en fredag, och ett av åren får 53 veckor för att det är ett skottår och nästa års 1 januari är en lördag. Om inte skottår hade funnits hade 4 år per sekvens haft 53 veckor. Detta stämmer med mitt tidigare uttalande om att var sjunde år borde ha 53 veckor om inte skottår hade funnits, eftersom 28/4 = 7.
 
@@ -142,12 +142,12 @@ Tilläggsregeln med sekelår som är delbara med 400 skulle vara perfekt om ett 
 
 Översikt av hur reglerna förhåller sig till årstidsåret (365 d 5 h 48 min 45 s). Plus = kalenderåret är längre än årstidsåret, minus = kortare.
 
-| Skottår om… | Kalenderårslängd | Avvikelse |
-| --- | --- | --- |
-| Aldrig | 365 d | −5 h 48 min 45 s |
-| Året är delbart med 4 | 365,25 d | +11 min 15 s |
-| Delbart med 4 men inte 100 | 365,24 d | −3 min 9 s |
-| Delbart med 4 men inte 100, eller delbart med 400 (gregorianska) | 365,2425 d | +27 s |
+| Skottår om…                                                      | Kalenderårslängd | Avvikelse        |
+| ---------------------------------------------------------------- | ---------------- | ---------------- |
+| Aldrig                                                           | 365 d            | −5 h 48 min 45 s |
+| Året är delbart med 4                                            | 365,25 d         | +11 min 15 s     |
+| Delbart med 4 men inte 100                                       | 365,24 d         | −3 min 9 s       |
+| Delbart med 4 men inte 100, eller delbart med 400 (gregorianska) | 365,2425 d       | +27 s            |
 
 Reglerna kan sammanfattas i en mening så här:
 
@@ -308,7 +308,7 @@ Temporal följer [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), så skottå
 
 Temporal landade i Chrome 144 (januari 2026) och Firefox 139 (maj 2025), och finns i Safari Technical Preview. För miljöer som inte har det än fungerar polyfillen [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill), eller ett etablerat bibliotek som [date-fns](https://date-fns.org/).
 
-Den manuella implementationen i den här artikeln blir alltså i praktiken överflödig – men förhoppningsvis pedagogiskt nyttig för att förstå *varför* vissa år har 53 veckor.
+Den manuella implementationen i den här artikeln blir alltså i praktiken överflödig – men förhoppningsvis pedagogiskt nyttig för att förstå _varför_ vissa år har 53 veckor.
 
 Så där, nu kan du allt om matematiken bakom veckonummer och skottår!
 

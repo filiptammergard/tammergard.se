@@ -159,9 +159,20 @@ article {
 }
 
 :where(.markdown, article)
-	:where(input[type="text"], input[type="number"], input[type="search"], input[type="email"], input[type="url"], input[type="tel"], input[type="password"], input[type="date"], input[type="datetime-local"], input[type="time"], textarea, select):not(
-		[class]
-	) {
+	:where(
+		input[type="text"],
+		input[type="number"],
+		input[type="search"],
+		input[type="email"],
+		input[type="url"],
+		input[type="tel"],
+		input[type="password"],
+		input[type="date"],
+		input[type="datetime-local"],
+		input[type="time"],
+		textarea,
+		select
+	):not([class]) {
 	padding: 0.55rem 0.875rem;
 	font-family: inherit;
 	font-size: 0.9375rem;
