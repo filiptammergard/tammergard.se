@@ -15,7 +15,7 @@ Jag har precis lagt till ett litet JSON-API på [roman.tammergard.se](https://ro
 
 {/* truncate */}
 
-Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla ursprung. Statiska endpoints (`/to`, `/from`, `/validate`, `/convert`, `/all`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att dygnsskiftet inte serverar gårdagens datum. Det tillåtna intervallet är `1`–`3999`, vilket är vad klassiska romerska siffror kan uttrycka. Fullständig dokumentation på [roman.tammergard.se/api](https://roman.tammergard.se/api).
+Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla domäner. Statiska endpoints (`/to`, `/from`, `/validate`, `/convert`, `/all`) CDN-cachas i en vecka, medan `/today` cachas fram till nästa midnatt i `Europe/Stockholm` så att gårdagens datum inte ligger kvar efter midnatt. Det tillåtna intervallet är `1`–`3999`, vilket är intervallet klassiska romerska siffror täcker. Fullständig dokumentation på [roman.tammergard.se/api](https://roman.tammergard.se/api).
 
 ## I dag
 
@@ -48,7 +48,7 @@ await fetch("https://roman.tammergard.se/api/v1/from/MMXXVI")
 // }
 ```
 
-## Konvertera åt valfritt håll
+## Konvertera åt båda hållen
 
 ```ts
 await fetch("https://roman.tammergard.se/api/v1/convert/MMXXVI")
@@ -126,3 +126,7 @@ await fetch("https://roman.tammergard.se/api/v1/to/5000")
 ```
 
 Det är hela API:et. Det är byggt på paketet [@tammergard/roman](https://www.npmjs.com/package/@tammergard/roman) på npm.
+
+## roman.tammergard.se
+
+Bakom API:et ligger en liten sajt på [roman.tammergard.se](https://roman.tammergard.se). Där kan man konvertera mellan arabiska och romerska siffror, se dagens datum på latin, bläddra bland ettor, tiotal, hundratal och tusental, och öppna en egen sida för varje tal med grannar, dubblar och halvor.
