@@ -96,12 +96,22 @@ article {
 .navbar {
 	box-shadow: none;
 	border-bottom: 1px solid var(--ifm-color-emphasis-200);
-	backdrop-filter: saturate(180%) blur(10px);
 	background-color: color-mix(
 		in srgb,
 		var(--ifm-background-color) 85%,
 		transparent
 	);
+	position: relative;
+	isolation: isolate;
+}
+
+.navbar::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	backdrop-filter: saturate(180%) blur(10px);
+	z-index: -1;
+	pointer-events: none;
 }
 
 .navbar__title {

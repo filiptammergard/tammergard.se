@@ -12,7 +12,7 @@ Man skulle kunna tro att det här med veckonummer är busenkelt. _Det är väl b
 
 :::note
 
-Den här artikeln beskriver veckonumreringen enligt [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), som Sverige och de flesta europeiska länder följer. Andra konventioner finns – i USA används till exempel söndag som första veckodag, och vecka 1 är veckan som innehåller 1 januari – så modellen ser annorlunda ut där.
+Den här artikeln beskriver veckonumreringen enligt [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), som Sverige och de flesta europeiska länder följer. Andra konventioner finns – i USA används till exempel söndag som första veckodag, och vecka 1 är veckan som innehåller 1 januari – så modellen ser annorlunda ut där. Fenomenet med "53-veckorsår" som utforskas nedan är specifikt för ISO 8601: ISO kräver att alla veckor är fulla sjudagarsveckor, medan den amerikanska konventionen helt enkelt kortar ner årets första och sista vecka för att få det att gå ihop.
 
 :::
 
@@ -134,13 +134,15 @@ Anledningen att skottår överhuvudtaget existerar är för att årstider inte s
 
 Den lite för höga skottårsfrekvensen kompenseras genom att sekelår inte är skottår. I vanliga fall är alla år som är delbara med 4 skottår (alltså exempelvis år 4, 16 eller 2020), men att sekelår inte är skottår betyder att exempelvis år 100, 1900 eller 2100 inte är skottår även om de är delbara med 4 (vilket de alltid är rent matematiskt).
 
-Tilläggsregeln med sekelår skulle vara perfekt om ett årstidsår hade varit 365 + 1/4 - 1/100 = 365,24 dygn = 365 dygn, 5 timmar, 45 minuter och 36 sekunder. Men ett årstidsår är 3 minuter och 9 sekunder längre än så, vilket betyder att denna skottårsfrekvens skulle bli lite för låg.
+Tilläggsregeln med sekelår skulle vara perfekt om ett årstidsår hade varit 365 + 1/4 − 1/100 = 365,24 dygn = 365 dygn, 5 timmar, 45 minuter och 36 sekunder. Men ett årstidsår är 3 minuter och 9 sekunder längre än så, vilket betyder att denna skottårsfrekvens skulle bli lite för låg.
 
 Den lite för låga skottårsfrekvensen i det här fallet kompenseras genom att sekelår som är jämnt delbara med 400 utgör ett undantag från regeln om sekelår och alltså är skottår ändå. År 1900 och 2100 är inte delbara med 400 och är därför inte skottår medan år 2000 och 2400 är delbara med 400 och är skottår.
 
-Tilläggsregeln med sekelår som är delbara med 400 skulle vara perfekt om ett årstidsår hade varit 365 + 1/4 - 1/100 + 1/400 = 365,2425 = 365 dygn, 5 timmar, 49 minuter och 12 sekunder. Men ett årstidsår är 27 sekunder kortare än så. Nu kanske du tror att skillnaden skulle föranleda en ytterligare tilläggsregel, och därefter kanske ytterligare några flera tilläggsregler, men så är det inte. Med ett kalenderår som är 27 sekunder längre än årstidsåret blir förskjutningen av årstider och liknande 7,5 timmar på 1 000 år, vilket uppenbarligen inte var ett tillräckligt stort problem.
+Tilläggsregeln med sekelår som är delbara med 400 skulle vara perfekt om ett årstidsår hade varit 365 + 1/4 − 1/100 + 1/400 = 365,2425 = 365 dygn, 5 timmar, 49 minuter och 12 sekunder. Men ett årstidsår är 27 sekunder kortare än så. Nu kanske du tror att skillnaden skulle föranleda en ytterligare tilläggsregel, och därefter kanske ytterligare några flera tilläggsregler, men så är det inte. Med ett kalenderår som är 27 sekunder längre än årstidsåret blir förskjutningen av årstider och liknande 7,5 timmar på 1 000 år, vilket uppenbarligen inte var ett tillräckligt stort problem.
 
-Översikt av hur reglerna förhåller sig till årstidsåret (365 d 5 h 48 min 45 s). Plus = kalenderåret är längre än årstidsåret, minus = kortare.
+### Skottårsmodell
+
+Modellen kan tydliggöras och sammanfattas i en tabell som jämför varje regel med årstidsåret (365 dygn, 5 timmar, 48 minuter och 45 sekunder). Plus = kalenderåret är längre än årstidsåret, minus = kortare.
 
 | Skottår om…                                                      | Kalenderårslängd | Avvikelse        |
 | ---------------------------------------------------------------- | ---------------- | ---------------- |
@@ -167,9 +169,9 @@ function getWeeksInYear(year) {
 För att kunna bestämma hur många veckor ett år har behöver vi dels veta vilken veckodag 1 januari året efter är och dels om aktuellt år är ett skottår eller inte. Perfekta uppgifter för två separata funktioner!
 
 ```js
-function getWeeksInYear(year) {
+function isLeapYear(year) {
 	// logik
-	return weeks
+	return boolean
 }
 
 function getFirstWeekdayInYear(year) {
@@ -177,15 +179,15 @@ function getFirstWeekdayInYear(year) {
 	return weekday
 }
 
-function isLeapYear(year) {
+function getWeeksInYear(year) {
 	// logik
-	return boolean
+	return weeks
 }
 ```
 
 ### isLeapYear
 
-Vi kan börja underifrån med `isLeapYear`. Mitt första försök att implementera skottårsreglerna rakt av resulterade i någonting i den här stilen:
+Vi kan börja med `isLeapYear`. Mitt första försök att implementera skottårsreglerna rakt av resulterade i någonting i den här stilen:
 
 ```js
 function isLeapYear(year) {
@@ -287,7 +289,7 @@ function getWeeksInYear(year) {
 
 <CalendarMaths />
 
-Funktionen ger ett resultat för alla negativa och positiva heltal. År -3008 ger exempelvis resultatet "År -3008 har 52 veckor och är ett skottår". Tänk dock på att veckonumrerings- och skottårsmodellen inte alltid har sett ut som den gör i dag.
+Funktionen ger ett resultat för alla negativa och positiva heltal. År −3008 ger exempelvis resultatet "År −3008 har 52 veckor och är ett skottår". Tänk dock på att veckonumrerings- och skottårsmodellen inte alltid har sett ut som den gör i dag.
 
 ### Bättre alternativ
 

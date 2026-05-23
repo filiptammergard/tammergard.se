@@ -52,15 +52,8 @@
 		"prettier": "^3.8.3",
 		"typescript": "^6.0.3"
 	},
-	"packageManager": "pnpm@10.33.2",
+	"packageManager": "pnpm@11.2.2",
 	"engines": {
 		"node": ">=24"
-	},
-	"pnpm": {
-		"overrides": {
-			"serialize-javascript@<=7.0.2": ">=7.0.3",
-			"serialize-javascript@>=5.0.0 <7.0.5": ">=7.0.5",
-			"uuid@<11.1.1": ">=11.1.1"
-		}
 	}
 }
