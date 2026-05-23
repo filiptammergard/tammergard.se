@@ -12,7 +12,7 @@ You might think week numbers are dead simple. _Surely you just start at week 1 a
 
 :::note
 
-This article describes week numbering according to [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), which Sweden and most European countries follow. Other conventions exist — the United States, for example, uses Sunday as the first day of the week and treats week 1 as the week containing January 1 — so the model looks different there.
+This article describes week numbering according to [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), which Sweden and most European countries follow. Other conventions exist — the United States, for example, uses Sunday as the first day of the week and treats week 1 as the week containing January 1 — so the model looks different there. The "53-week year" phenomenon explored below is specific to ISO 8601: ISO requires full seven-day weeks, while the US convention simply truncates the first and last weeks of the year to fit.
 
 :::
 
@@ -134,13 +134,15 @@ The reason leap years exist at all is to prevent seasons from drifting forward o
 
 The slightly-too-high leap-year frequency is compensated for by century years not being leap years. Normally all years divisible by 4 are leap years (for example years 4, 16 or 2020), but century years not being leap years means years 100, 1900 or 2100 aren't leap years, even though they are divisible by 4 (which they always are mathematically).
 
-The century-year rule would be perfect if a tropical year had been 365 + 1/4 - 1/100 = 365.24 days = 365 days, 5 hours, 45 minutes and 36 seconds. But a tropical year is 3 minutes and 9 seconds longer than that, which means this leap-year frequency would be slightly too low.
+The century-year rule would be perfect if a tropical year had been 365 + 1/4 − 1/100 = 365.24 days = 365 days, 5 hours, 45 minutes and 36 seconds. But a tropical year is 3 minutes and 9 seconds longer than that, which means this leap-year frequency would be slightly too low.
 
 The slightly-too-low leap-year frequency in this case is compensated for by century years divisible by 400 being an exception to the rule about century years, so they are leap years anyway. Years 1900 and 2100 aren't divisible by 400 and are therefore not leap years, while years 2000 and 2400 are divisible by 400 and are leap years.
 
-The exception for century years divisible by 400 would be perfect if a tropical year had been 365 + 1/4 - 1/100 + 1/400 = 365.2425 = 365 days, 5 hours, 49 minutes and 12 seconds. But a tropical year is 27 seconds shorter than that. Now you might think the difference would warrant yet another rule, and maybe several more, but it doesn't. With a calendar year that's 27 seconds longer than the tropical year, the drift becomes 7.5 hours over 1,000 years, which apparently wasn't a big enough problem.
+The exception for century years divisible by 400 would be perfect if a tropical year had been 365 + 1/4 − 1/100 + 1/400 = 365.2425 = 365 days, 5 hours, 49 minutes and 12 seconds. But a tropical year is 27 seconds shorter than that. Now you might think the difference would warrant yet another rule, and maybe several more, but it doesn't. With a calendar year that's 27 seconds longer than the tropical year, the drift becomes 7.5 hours over 1,000 years, which apparently wasn't a big enough problem.
 
-Overview of how the rules compare to the tropical year (365 d 5 h 48 min 45 s). Plus = calendar year is longer than the tropical year, minus = shorter.
+### Leap year model
+
+The model can be clarified and summarized in a table that compares each rule to the tropical year (365 days, 5 hours, 48 minutes and 45 seconds). Plus = calendar year is longer than the tropical year, minus = shorter.
 
 | Leap year when…                                             | Calendar year length | Deviation        |
 | ----------------------------------------------------------- | -------------------- | ---------------- |
@@ -167,9 +169,9 @@ function getWeeksInYear(year) {
 To determine how many weeks a year has, we need to know what day of the week January 1 of the following year falls on, and whether the current year is a leap year. Perfect cases for two separate functions!
 
 ```js
-function getWeeksInYear(year) {
+function isLeapYear(year) {
 	// logic
-	return weeks
+	return boolean
 }
 
 function getFirstWeekdayInYear(year) {
@@ -177,15 +179,15 @@ function getFirstWeekdayInYear(year) {
 	return weekday
 }
 
-function isLeapYear(year) {
+function getWeeksInYear(year) {
 	// logic
-	return boolean
+	return weeks
 }
 ```
 
 ### isLeapYear
 
-We can start from the bottom with `isLeapYear`. My first attempt at implementing the leap-year rules straight off looked something like this:
+We can start with `isLeapYear`. My first attempt at implementing the leap-year rules straight off looked something like this:
 
 ```js
 function isLeapYear(year) {
@@ -287,7 +289,7 @@ function getWeeksInYear(year) {
 
 <CalendarMaths />
 
-The function produces a result for all negative and positive integers. Year -3008, for example, gives the result "Year -3008 has 52 weeks and is a leap year." Keep in mind that the week-numbering and leap-year model hasn't always looked the way it does today.
+The function produces a result for all negative and positive integers. Year −3008, for example, gives the result "Year −3008 has 52 weeks and is a leap year." Keep in mind that the week-numbering and leap-year model hasn't always looked the way it does today.
 
 ### Better alternatives
 
