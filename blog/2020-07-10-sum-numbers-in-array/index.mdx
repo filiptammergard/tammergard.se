@@ -6,7 +6,7 @@ authors: [filip]
 tags: [javascript]
 ---
 
-There are several ways to compute the sum of numbers in an array with JavaScript. Different approaches have different pros and cons, and there are also approaches that are better and worse from a performance and clean-code perspective. Writing clean code isn't only aesthetically more pleasing — readable code is also easier to maintain and easier for others to understand and build on. Common to all ways of summing numbers in an array is that you have to loop through the array somehow.
+There are several ways to compute the sum of numbers in an array with JavaScript. The approaches differ mainly in how readable they are — and readable code is easier to maintain and easier for others to understand and build on. Common to all ways of summing numbers in an array is that you have to loop through the array somehow.
 
 ## TL;DR
 
@@ -23,7 +23,7 @@ In the upcoming examples, I'll start from this array of random numbers:
 const numbers = [20, 38, 23, 1, 39, 71]
 ```
 
-### Option 0: manual summation (a terrible option)
+### Option 1: manual summation (a terrible option)
 
 You can do the summation using only addition, like this:
 
@@ -36,7 +36,7 @@ const sum =
 
 This option is terrible because it relies on knowing how many numbers are in the array. If a number is added to the array, the sum would be wrong.
 
-### Option 1: for-loop (a bad option)
+### Option 2: for-loop (a bad option)
 
 Historically, summations in JavaScript have been done with a _for-loop_:
 
@@ -52,9 +52,9 @@ for (let i = 0; i < numbers.length; i++) {
 
 It's still an ugly way to sum because it requires a lot of code. Variables like `i`, whose only job is to keep track of an index, can and usually should be avoided.
 
-### Option 2: forEach-loop (an OK option)
+### Option 3: forEach-loop (an OK option)
 
-The next approach — which is significantly nicer — looks like this:
+Using `forEach` reads more naturally than a for-loop, but it still requires declaring `let sum = 0` and mutating that variable on every iteration:
 
 ```js
 let sum = 0
@@ -64,9 +64,9 @@ numbers.forEach((number) => (sum += number))
 // sum = 192
 ```
 
-`forEach` is a _higher-order function_ that can perform a specific task for each element in an array.
+`forEach` is a _higher-order function_ that runs a callback for each element in the array. It removes the index variable but not the mutation.
 
-### Option 3: reduce (the best option)
+### Option 4: reduce (the best option)
 
 Even nicer is the built-in `reduce` function:
 
@@ -167,4 +167,33 @@ I think option 2 is the best in this case. You can almost read the code as plain
 
 > First filter out the rooms that aren't renovated, then sum the area of each room.
 
+## Better alternatives
+
+JavaScript now has a built-in static method for exactly this: [`Math.sumPrecise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise). It takes an iterable of numbers and returns the sum without floating-point precision issues:
+
+```js
+const sum = Math.sumPrecise([20, 38, 23, 1, 39, 71])
+
+// sum = 192
+```
+
+For the apartment example, combine it with `map`:
+
+```js
+const totalArea = Math.sumPrecise(rooms.map((room) => room.area))
+
+// totalArea = 89
+```
+
+`Math.sumPrecise` is available in modern Chrome and Firefox — check [Can I use](https://caniuse.com/mdn-javascript_builtins_math_sumprecise) for the latest support. For environments that don't have it yet, `reduce` is still a great choice.
+
 There you go — now you know everything about summing numbers in an array with JavaScript!
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise
+- https://github.com/tc39/proposal-math-sum
