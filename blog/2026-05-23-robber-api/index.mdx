@@ -1,0 +1,101 @@
+---
+slug: robber-api
+title: An API for robber language
+description: A small free API for translating to and from robber language (rövarspråket).
+authors: [filip]
+tags: [javascript]
+---
+
+I just added a small site and API at [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) for translating to and from robber language (Swedish: _rövarspråket_). The background — the rules, the edge cases, and eleven progressive JavaScript implementations — is in the older post [Robber language generator](/blog/robber-language-generator).
+
+{/* truncate */}
+
+All endpoints live under `/api/v1/`, return JSON, and have CORS enabled for all origins. Responses are CDN-cached for a week. Full docs at [rovarspraket.tammergard.se/api](https://rovarspraket.tammergard.se/api).
+
+## To robber
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/hej")
+// {
+//   text: "hej",
+//   robber: "hohejoj"
+// }
+```
+
+Any string works — consonants get the `+ "o" + consonant` treatment, vowels and other characters pass through unchanged, and `x` is expanded to `ks` first (since `x` is pronounced "ks" in Swedish):
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/yxa")
+// {
+//   text: "yxa",
+//   robber: "ykoksosa"
+// }
+```
+
+## From robber
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/hohejoj")
+// {
+//   robber: "hohejoj",
+//   text: "hej"
+// }
+```
+
+The reverse is lossy in one specific way: since `x` and `ks` both encode to the same robber output, decoding always gives back `ks`:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/ykoksosa")
+// {
+//   robber: "ykoksosa",
+//   text: "yksa"
+// }
+```
+
+This isn't a bug — it's a fundamental property of robber language. The encoding step throws away the distinction between `x` and `ks`.
+
+## Validate
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/validate/hohejoj")
+// {
+//   input: "hohejoj",
+//   valid: true
+// }
+```
+
+A string is valid robber language if every consonant is immediately followed by `"o"` + the same consonant (case-insensitive on the trailing one), and no standalone `x` or `X` appears.
+
+## Errors
+
+Errors follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) and distinguish malformed input from semantically invalid input. Missing parameters return `400`:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/")
+// {
+//   error: {
+//     status: 400,
+//     message: "Saknar text att översätta."
+//   }
+// }
+```
+
+Decoding a string that isn't valid robber language returns `422`:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/bod")
+// {
+//   error: {
+//     status: 422,
+//     message: '"bod" är inte en giltig rövarspråkssträng.'
+//   }
+// }
+```
+
+That's the whole API. It's built on the [@tammergard/robber](https://www.npmjs.com/package/@tammergard/robber) package on npm, which exposes the same `toRobber`, `fromRobber` and `pattern` you can use directly in any JavaScript project.
+
+## rovarspraket.tammergard.se
+
+Behind the API sits a small playful site at [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) where you can paste in any text and see it translated either way. It picks the direction automatically — if the input looks like robber language, it decodes; otherwise it encodes.
+
+The deeper write-up of how the encoding actually works lives in the original post: [Robber language generator](/blog/robber-language-generator). It walks through two strategies and eleven progressive examples before landing on a two-line regex.

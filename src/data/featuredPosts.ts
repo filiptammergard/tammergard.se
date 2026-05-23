@@ -36,4 +36,13 @@ export const featuredPosts: FeaturedPost[] = [
 			sv: "Ett API för romerska siffror",
 		},
 	},
+	{
+		slug: "robber-api",
+		date: "2026-05-23",
+		tag: "javascript",
+		title: {
+			en: "An API for robber language",
+			sv: "Ett API för rövarspråket",
+		},
+	},
 ]

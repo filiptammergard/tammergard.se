@@ -1,0 +1,101 @@
+---
+slug: robber-api
+title: Ett API för rövarspråket
+description: Ett litet gratis API för att översätta till och från rövarspråket.
+authors: [filip]
+tags: [javascript]
+---
+
+Jag har precis lagt till en liten sajt och ett API på [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) för att översätta till och från rövarspråket. Bakgrunden – reglerna, specialfallen och elva progressiva JavaScript-implementationer – finns i det äldre inlägget [Rövarspråksgenerator](/blog/robber-language-generator).
+
+{/* truncate */}
+
+Alla endpoints ligger under `/api/v1/`, returnerar JSON och har CORS aktiverat för alla domäner. Svaren CDN-cachas i en vecka. Fullständig dokumentation på [rovarspraket.tammergard.se/api](https://rovarspraket.tammergard.se/api).
+
+## Till rövarspråket
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/hej")
+// {
+//   text: "hej",
+//   robber: "hohejoj"
+// }
+```
+
+Vilken sträng som helst funkar – konsonanter får sin `+ "o" + konsonant`-behandling, vokaler och andra tecken passerar oförändrade, och x expanderas först till `ks` (eftersom x uttalas "ks" på svenska):
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/yxa")
+// {
+//   text: "yxa",
+//   robber: "ykoksosa"
+// }
+```
+
+## Från rövarspråket
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/hohejoj")
+// {
+//   robber: "hohejoj",
+//   text: "hej"
+// }
+```
+
+Bakvägen är förlustfylld i ett specifikt avseende: eftersom x och ks båda kodas till samma rövarspråk-utdata, ger avkodningen alltid tillbaka ks:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/ykoksosa")
+// {
+//   robber: "ykoksosa",
+//   text: "yksa"
+// }
+```
+
+Det är inte en bugg – det är en grundläggande egenskap hos rövarspråket. Kodningssteget kastar bort skillnaden mellan x och ks.
+
+## Validera
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/validate/hohejoj")
+// {
+//   input: "hohejoj",
+//   valid: true
+// }
+```
+
+En sträng är giltigt rövarspråk om varje konsonant följs direkt av `"o"` + samma konsonant (versal-okänsligt på den efterföljande), och inget ensamt x eller X förekommer.
+
+## Fel
+
+Felsvaren följer [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) och skiljer på felformaterad indata och semantiskt ogiltig indata. Saknade parametrar returnerar `400`:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/to/")
+// {
+//   error: {
+//     status: 400,
+//     message: "Saknar text att översätta."
+//   }
+// }
+```
+
+Att avkoda en sträng som inte är giltigt rövarspråk returnerar `422`:
+
+```ts
+await fetch("https://rovarspraket.tammergard.se/api/v1/from/bod")
+// {
+//   error: {
+//     status: 422,
+//     message: '"bod" är inte en giltig rövarspråkssträng.'
+//   }
+// }
+```
+
+Det är hela API:et. Det är byggt på paketet [@tammergard/robber](https://www.npmjs.com/package/@tammergard/robber) på npm, som exponerar samma `toRobber`, `fromRobber` och `pattern` som du kan använda direkt i vilket JavaScript-projekt som helst.
+
+## rovarspraket.tammergard.se
+
+Bakom API:et ligger en liten lekfull sajt på [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) där du kan klistra in vilken text som helst och se den översatt åt något håll. Den väljer riktningen automatiskt – om indatan ser ut som rövarspråk avkodas den, annars kodas den.
+
+Den djupare genomgången av hur kodningen faktiskt fungerar ligger i ursprungsinlägget: [Rövarspråksgenerator](/blog/robber-language-generator). Det går igenom två strategier och elva progressiva exempel innan det landar i en tvåradig regex.
