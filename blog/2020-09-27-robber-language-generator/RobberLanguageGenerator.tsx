@@ -6,16 +6,16 @@ const CONSONANTS = "bcdfghjklmnpqrstvwxz"
 function Demo({ transform }: { transform: (sentence: string) => string }) {
 	const [translation, setTranslation] = useState("")
 	return (
-		<div>
+		<div style={{ marginBottom: "1rem" }}>
 			<input
-				style={{ width: "100%" }}
+				type="text"
 				placeholder={translate({
 					id: "robberLang.placeholder",
 					message: "Type text to translate…",
 				})}
 				onChange={(e) => setTranslation(transform(e.target.value))}
 			/>
-			<p>{translation}</p>
+			{translation && <p style={{ marginTop: "1rem" }}>{translation}</p>}
 		</div>
 	)
 }
@@ -114,34 +114,49 @@ function a2v2Transform(sentence: string) {
 }
 
 function a2v3Transform(sentence: string) {
-	const replaceX = (s: string) => s.replaceAll("x", "ks").replaceAll("X", "Ks")
+	const expandX = (s: string) => s.replaceAll("x", "ks").replaceAll("X", "Ks")
 	const isConsonant = (letter: string) =>
 		CONSONANTS.split("").includes(letter.toLowerCase())
 	const handleConsonant = (letter: string) =>
 		`${letter}o${letter.toLowerCase()}`
 	const handleLetter = (letter: string) =>
 		isConsonant(letter) ? handleConsonant(letter) : letter
-	return replaceX(sentence).split("").map(handleLetter).join("")
+	return expandX(sentence).split("").map(handleLetter).join("")
 }
 
 function a2v4Transform(sentence: string) {
 	const isConsonant = (letter: string) =>
 		CONSONANTS.split("").includes(letter.toLowerCase())
-	const translateConsonant = (letter: string) =>
+	const consonantToRobber = (letter: string) =>
 		`${letter}o${letter.toLowerCase()}`
 	const isX = (letter: string) => letter.toLowerCase() === "x"
 	const isUpperCase = (letter: string) => letter === letter.toUpperCase()
-	const translateUpperCaseX = () =>
-		translateConsonant("K") + translateConsonant("s")
-	const translateLowerCaseX = () =>
-		translateConsonant("k") + translateConsonant("s")
 	const handleX = (letter: string) =>
-		isUpperCase(letter) ? translateUpperCaseX() : translateLowerCaseX()
+		isUpperCase(letter)
+			? consonantToRobber("K") + consonantToRobber("s")
+			: consonantToRobber("k") + consonantToRobber("s")
 	const handleConsonant = (letter: string) =>
-		isX(letter) ? handleX(letter) : translateConsonant(letter)
+		isX(letter) ? handleX(letter) : consonantToRobber(letter)
 	const handleLetter = (letter: string) =>
 		isConsonant(letter) ? handleConsonant(letter) : letter
 	return sentence.split("").map(handleLetter).join("")
+}
+
+function a2v5Transform(sentence: string) {
+	const isConsonant = (letter: string) =>
+		CONSONANTS.split("").includes(letter.toLowerCase())
+	const isUpperCase = (letter: string) => letter === letter.toUpperCase()
+	const consonantToRobber = (letter: string) => {
+		if (letter.toLowerCase() === "x") {
+			const k = isUpperCase(letter) ? "K" : "k"
+			return `${k}oksos`
+		}
+		return `${letter}o${letter.toLowerCase()}`
+	}
+	return sentence
+		.split("")
+		.map((letter) => (isConsonant(letter) ? consonantToRobber(letter) : letter))
+		.join("")
 }
 
 export function RobberLanguageGeneratorFinished() {
@@ -186,4 +201,8 @@ export function RobberLanguageGeneratorA2V3() {
 
 export function RobberLanguageGeneratorA2V4() {
 	return <Demo transform={a2v4Transform} />
+}
+
+export function RobberLanguageGeneratorA2V5() {
+	return <Demo transform={a2v5Transform} />
 }

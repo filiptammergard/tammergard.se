@@ -1,7 +1,7 @@
 ---
 slug: robber-language-generator
 title: Rövarspråksgenerator
-description: Bygg en översättare till rövarspråket i JavaScript och se hur skriftspråkets regler för konsonanter och versaler komplicerar en till synes enkel uppgift.
+description: Bygg en rövarskriftsgenerator i JavaScript genom elva progressiva exempel som jämför två strategier – och se sedan hur alltihop kan kokas ner till två rader regex.
 authors: [filip]
 tags: [javascript]
 ---
@@ -18,20 +18,24 @@ import {
 	RobberLanguageGeneratorA2V2,
 	RobberLanguageGeneratorA2V3,
 	RobberLanguageGeneratorA2V4,
+	RobberLanguageGeneratorA2V5,
 } from "@site/blog/2020-09-27-robber-language-generator/RobberLanguageGenerator"
 
-Rövarspråket sägs ha uppfunnits av Astrid Lindgrens make Sture Lindgren när han lekte med sina kompisar som liten. Astrid Lindgrens böcker om Kalle Blomkvist gjorde språket populärt i Sverige. Rövarspråket är ett talbaserat språk där varje konsonant ersätts med konsonanten + o + konsonanten igen. Utifrån den enkla regeln skulle det vara busenkelt att göra en rövarspråksgenerator. När det kommer till rövarspråket i skrift – hädanefter kallat rövarskrift – finns det dock några fler aspekter att beakta. I det här inlägget är det alltså egentligen inte en rövarspråksgenerator som byggs, utan snarare en rövarskriftsgenerator.
+Rövarspråket sägs ha uppfunnits av Astrid Lindgrens make Sture Lindgren när han lekte med sina kompisar som liten. Astrid Lindgrens böcker om Kalle Blomkvist gjorde språket populärt i Sverige.
+
+Rövarspråket är ett talbaserat språk där varje konsonant ersätts med konsonanten + o + konsonanten igen. Utifrån den enkla regeln skulle det vara busenkelt att göra en rövarspråksgenerator. När det kommer till rövarspråket i skrift – hädanefter kallat rövarskrift – finns det dock några fler aspekter att beakta. I det här inlägget är det alltså egentligen inte en rövarspråksgenerator som byggs, utan snarare en rövarskriftsgenerator.
 
 ## TL;DR
 
-- Rövarspråket har en enkel regel för talspråk, men ett par regler behöver läggas till för att skriftspråket ska spegla talspråkets regler och svenskans skriftregler i övrigt.
-- En rövarskriftsgenerator kan byggas i JavaScript på många sätt. Två huvudsakliga strategier som jag går igenom i det här inlägget är dels att utgå från alfabetets konsonanter och dels att utgå från meningen som ska översättas.
+- Den enkla talregeln (konsonant + o + konsonant) behöver några tillägg för att fungera i skrift – framförallt hantering av x och versaler.
+- Det här inlägget går igenom två strategier för att bygga en generator i JavaScript: att loopa över konsonanterna, och att loopa över texten som ska översättas.
+- En regex med en callback kan korta ner alltihop till två rader, som visas som det slutgiltiga alternativet.
 
 Testa den färdiga rövarskriftsgeneratorn här:
 
-{/* truncate */}
-
 <RobberLanguageGeneratorFinished />
+
+{/* truncate */}
 
 ## Rövarspråksmodellen
 
@@ -48,6 +52,8 @@ Reglerna kan nu sammanställas enligt följande:
 1. Bokstaven x byts ut till "ks".
 2. Efter varje konsonant läggs bokstaven o och samma konsonant igen till.
 3. Vid versala konsonanter är det bara konsonanten innan o som är versal, den andra är gemen.
+
+Ordningen spelar roll: att köra regel 1 först låter konsonantregeln behandla alla konsonanter likadant efteråt, istället för att huvudloopen ska behöva bära med sig ett specialfall. Den här förbehandlingsmodellen är vad de flesta funktionsbaserade exempel nedan utgår från – exempel 10 visar inline-alternativet.
 
 ## Bygga en rövarskriftsgenerator
 
@@ -137,7 +143,7 @@ allConsonants.split("").forEach((consonant) => {
 
 <RobberLanguageGeneratorA1V4 />
 
-Av exempel 3 och 4 tycker jag att 3 är snyggast eftersom det är lättare att förstå vad den gör vid en snabb anblick. Jag utgår därför från exempel 3 i nästa exempel.
+Av exempel 3 och 4 tycker jag att 3 är snyggast eftersom det är lättare att förstå vad den gör vid en snabb anblick – och exempel 4 är i praktiken samma lösning som exempel 2, fast krångligare. Jag utgår därför från exempel 3 i nästa exempel.
 
 Men hur ska vi hantera regel 1? Regeln säger att bokstaven x ska bytas ut till "ks". Enklast är att helt enkelt göra det bytet innan resten av översättningen görs:
 
@@ -164,25 +170,18 @@ consonants.split("").forEach((consonant) => {
 
 Observera att det inte räcker med att bara byta x mot "ks", versala X behöver också bytas ut, vilket blir till "Ks" för att reglerna ska stämma.
 
-Nu följs alla tre regler och generatorn funkar som den ska. Men det finns mycket kvar att önska av koden i sig. Eftersom den inte innehåller några egna funktioner med deskriptiva namn måste man själv lista ut vad koden åstadkommer rad för rad. Även om koden blir längre blir den samtidigt lättare att förstå om vi bryter ut några saker i egna funktioner.
+Nu följs alla tre regler och generatorn funkar som den ska. Men det finns mycket kvar att önska av koden i sig. Eftersom den inte innehåller några egna funktioner med deskriptiva namn måste man själv lista ut vad koden åstadkommer rad för rad. Att bryta ut saker i egna funktioner gör koden längre men lättare att förstå – och att lyfta ut x-förbehandlingen i en egen funktion låter huvudsteget fokusera på en sak i taget:
 
 <small>Exempel 6</small>
 
 ```js
 const consonants = "bcdfghjklmnpqrstvwxz"
 
-const sentence = "Xylofoner är fina"
-
-const sentenceWithoutX = replaceX(sentence)
-const translatedSentence = translate(sentenceWithoutX)
-
-function replaceX(sentence) {
-	sentence = sentence.replaceAll("x", "ks")
-	sentence = sentence.replaceAll("X", "Ks")
-	return sentence
+function expandX(sentence) {
+	return sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
 }
 
-function translate(sentence) {
+function toRobber(sentence) {
 	consonants.split("").forEach((consonant) => {
 		sentence = sentence.replaceAll(consonant, consonant + "o" + consonant)
 		sentence = sentence.replaceAll(
@@ -193,18 +192,22 @@ function translate(sentence) {
 	return sentence
 }
 
-// translatedSentence = "Koksosylolofofononeror äror fofinona"
+const sentence = "Xylofoner är fina"
+
+const robberSentence = toRobber(expandX(sentence))
+
+// robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA1V6 />
 
 Nu går det att följa vad koden gör genom att läsa den som en mening:
 
-> Vi tar en mening och byter ut x så att vi får en mening utan x. Därefter översätter vi den meningen.
+> Vi tar en mening, expanderar varje x och konverterar resultatet till rövarspråk.
 
 ### Utgå från meningen som ska översättas
 
-Även om exempel 6 funkar och har en ganska lättläst kod är det något med strategin att utgå från konsonanterna snarare än meningen som ska översättas som jag tycker är lite bakvänd. Därför ska vi testa att åstadkomma samma generator genom att börja från andra hållet.
+Även om exempel 6 funkar och har en ganska lättläst kod är strategin att utgå från konsonanterna bakvänd av två anledningar: loopen itererar över konsonanterna snarare än över texten vi faktiskt vill översätta, och `sentence` måste muteras i varje iteration eftersom `forEach` inte returnerar något. Vi testar därför att åstadkomma samma generator genom att börja från andra hållet.
 
 <small>Exempel 7</small>
 
@@ -213,26 +216,26 @@ const consonants = "bcdfghjklmnpqrstvwxz"
 
 const sentence = "Xylofoner är fina"
 
-const sentenceWithoutX = sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
+const sentenceWithExpandedX = sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
 
-let translatedSentence = ""
+let robberSentence = ""
 
-sentenceWithoutX.split("").forEach((letter, index) => {
+sentenceWithExpandedX.split("").forEach((letter) => {
 	if (consonants.split("").includes(letter)) {
-		translatedSentence += sentenceWithoutX[index] + "o" + letter
+		robberSentence += letter + "o" + letter
 	} else if (consonants.toUpperCase().split("").includes(letter)) {
-		translatedSentence += sentenceWithoutX[index] + "o" + letter.toLowerCase()
+		robberSentence += letter + "o" + letter.toLowerCase()
 	} else {
-		translatedSentence += sentenceWithoutX[index]
+		robberSentence += letter
 	}
 })
 
-// translatedSentence = "Koksosylolofofononeror äror fofinona"
+// robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA2V1 />
 
-Exempel 7 genererar rövarskrift enligt reglerna, men det finns återigen en massa problem med koden. Detta är ett perfekt användningsområde för den trevliga inbyggda funktionen `map`.
+Exempel 7 genererar rövarskrift enligt reglerna, men det finns ett par problem med koden: `robberSentence` muteras i varje iteration och det tar en stund att förstå vad koden faktiskt gör. Den inbyggda funktionen `map` löser båda: den returnerar en ny array istället för att mutera en, så vi kan släppa den tomma `robberSentence`-ackumulatorn och låta kedjan producera resultatet direkt:
 
 <small>Exempel 8</small>
 
@@ -241,9 +244,9 @@ const consonants = "bcdfghjklmnpqrstvwxz"
 
 const sentence = "Xylofoner är fina"
 
-const sentenceWithoutX = sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
-
-const translatedSentence = sentenceWithoutX
+const robberSentence = sentence
+	.replaceAll("x", "ks")
+	.replaceAll("X", "Ks")
 	.split("")
 	.map((letter) =>
 		consonants.split("").includes(letter.toLowerCase())
@@ -252,7 +255,7 @@ const translatedSentence = sentenceWithoutX
 	)
 	.join("")
 
-// translatedSentence = "Koksosylolofofononeror äror fofinona"
+// robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA2V2 />
@@ -264,28 +267,6 @@ Det här tycker jag är en snygg lösning. Men även den här koden skulle må b
 ```js
 const consonants = "bcdfghjklmnpqrstvwxz"
 
-const sentence = "Xylofoner är fina"
-
-const translatedSentence = translate(sentence)
-
-function translate(sentence) {
-	const sentenceWithoutX = replaceX(sentence)
-	return sentenceWithoutX
-		.split("")
-		.map((letter) => handleLetter(letter))
-		.join("")
-}
-
-function replaceX(sentence) {
-	sentence = sentence.replaceAll("x", "ks")
-	sentence = sentence.replaceAll("X", "Ks")
-	return sentence
-}
-
-function handleLetter(letter) {
-	return isConsonant(letter) ? handleConsonant(letter) : letter
-}
-
 function isConsonant(letter) {
 	return consonants.split("").includes(letter.toLowerCase())
 }
@@ -293,67 +274,149 @@ function isConsonant(letter) {
 function handleConsonant(letter) {
 	return letter + "o" + letter.toLowerCase()
 }
+
+function handleLetter(letter) {
+	return isConsonant(letter) ? handleConsonant(letter) : letter
+}
+
+function expandX(sentence) {
+	return sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
+}
+
+function toRobber(sentence) {
+	return expandX(sentence).split("").map(handleLetter).join("")
+}
+
+const sentence = "Xylofoner är fina"
+
+const robberSentence = toRobber(sentence)
+
+// robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA2V3 />
 
-Om man av någon anledning skulle vilja undvika att använda `replaceAll`, skulle man kunna angripa problemet med x så här i stället:
+Eller så hoppar vi över förbehandlingssteget helt. Istället för att byta ut x mot "ks" innan huvudloopen kan vi behålla x i konsonantlistan och låta loopen hantera det via en specialfunktion:
 
 <small>Exempel 10</small>
 
 ```js
 const consonants = "bcdfghjklmnpqrstvwxz"
 
-const sentence = "Xylofoner är fina"
-
-const translatedSentence = translate(sentence)
-
-function translate(sentence) {
-	return sentence
-		.split("")
-		.map((letter) => handleLetter(letter))
-		.join("")
-}
-
-function handleLetter(letter) {
-	return isConsonant(letter) ? handleConsonant(letter) : letter
-}
-
 function isConsonant(letter) {
 	return consonants.split("").includes(letter.toLowerCase())
-}
-
-function handleConsonant(letter) {
-	return isX(letter) ? handleX(letter) : translateConsonant(letter)
 }
 
 function isX(letter) {
 	return letter.toLowerCase() === "x"
 }
 
-function handleX(letter) {
-	return isUpperCase(letter) ? translateUpperCaseX() : translateLowerCaseX()
+function isUpperCase(letter) {
+	return letter === letter.toUpperCase()
 }
 
-function translateConsonant(letter) {
+function consonantToRobber(letter) {
 	return letter + "o" + letter.toLowerCase()
+}
+
+function handleX(letter) {
+	return isUpperCase(letter)
+		? consonantToRobber("K") + consonantToRobber("s")
+		: consonantToRobber("k") + consonantToRobber("s")
+}
+
+function handleConsonant(letter) {
+	return isX(letter) ? handleX(letter) : consonantToRobber(letter)
+}
+
+function handleLetter(letter) {
+	return isConsonant(letter) ? handleConsonant(letter) : letter
+}
+
+function toRobber(sentence) {
+	return sentence.split("").map(handleLetter).join("")
+}
+
+const sentence = "Xylofoner är fina"
+
+const robberSentence = toRobber(sentence)
+
+// robberSentence = "Koksosylolofofononeror äror fofinona"
+```
+
+<RobberLanguageGeneratorA2V4 />
+
+Vid en första anblick ser exempel 10 ut som mycket kod för en liten uppgift. Men eftersom varje funktion bara har en liten uppgift är det enkelt att ge funktionerna meningsfulla namn, vilket i sin tur leder till att det blir enklare att förstå vad som händer.
+
+Eller så kompakterar vi exempel 10 genom att fälla in x-fallet direkt i `consonantToRobber`:
+
+<small>Exempel 11</small>
+
+```js
+const consonants = "bcdfghjklmnpqrstvwxz"
+
+function isConsonant(letter) {
+	return consonants.split("").includes(letter.toLowerCase())
 }
 
 function isUpperCase(letter) {
 	return letter === letter.toUpperCase()
 }
 
-function translateUpperCaseX() {
-	return translateConsonant("K") + translateConsonant("s")
+function consonantToRobber(letter) {
+	if (letter.toLowerCase() === "x") {
+		const k = isUpperCase(letter) ? "K" : "k"
+		return `${k}oksos`
+	}
+	return letter + "o" + letter.toLowerCase()
 }
 
-function translateLowerCaseX() {
-	return translateConsonant("k") + translateConsonant("s")
+function toRobber(sentence) {
+	return sentence
+		.split("")
+		.map((letter) => (isConsonant(letter) ? consonantToRobber(letter) : letter))
+		.join("")
 }
+
+const sentence = "Xylofoner är fina"
+
+const robberSentence = toRobber(sentence)
+
+// robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
-<RobberLanguageGeneratorA2V4 />
+<RobberLanguageGeneratorA2V5 />
 
-Vid en första anblick kan exempel 10 se väldigt krångligt ut. Men eftersom varje funktion bara har en liten uppgift är det enkelt att ge funktionerna meningsfulla namn, vilket i sin tur leder till att det blir enklare att förstå vad som händer.
+Den största vinsten med exempel 11 är ärlig namngivning. I exempel 10 hanterar `consonantToRobber` faktiskt inte x – det dispatchas till `handleX` – så funktionen ljuger tyst om vad den gör. I exempel 11 hanterar `consonantToRobber` alla konsonanter inklusive x. Avvägningen med exempel 11 är att `consonantToRobber` nu har två grenar inuti, så den är inte lika strikt single-purpose – men i utbyte matchar abstraktionen sitt namn. Som följd har exempel 11 också färre funktioner.
 
-När det kommer till att skriva snygg kod handlar det till slut alltid om avvägningar.
+Sammantaget läser sentence-first-strategin (exempel 7–11) mer naturligt eftersom den itererar över texten vi faktiskt vill översätta, inte konsonanterna. Consonant-first-strategin (exempel 1–6) är snabbare att slänga ihop men tvingar in mutation i varje varv. När det kommer till att skriva snygg kod handlar det till slut alltid om avvägningar.
+
+## Bättre alternativ
+
+Alla elva exempel ovan kan kortas ner dramatiskt med regex. Med en enda teckenklass och en callback ryms samma översättning på två rader:
+
+```js
+const sentence = "Xylofoner är fina"
+
+const robberSentence = sentence
+	.replaceAll(/x/gi, (m) => (m === "X" ? "Ks" : "ks"))
+	.replaceAll(/[bcdfghjklmnpqrstvwz]/gi, (c) => `${c}o${c.toLowerCase()}`)
+
+// robberSentence = "Koksosylolofofononeror äror fofinona"
+```
+
+Teckenklassen med flaggan `i` matchar konsonanter i både versal och gemen form, och callback-funktionen hanterar versaler genom att göra den efterföljande konsonanten gemen. x hanteras separat (i det första `replaceAll`-anropet) eftersom versalt X ska expandera till blandad-case "Ks" – något en enkel teckenklass-ersättning inte kan producera i ett steg, vilket är varför förbehandlingssteget från tidigare i posten fortfarande behövs.
+
+Om du vill ha det här i produktionskod utan att skriva det själv så finns logiken paketerad som [@tammergard/robber](https://www.npmjs.com/package/@tammergard/robber) på npm, och det finns ett JSON-API på [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) – se uppföljningsinlägget [Ett API för rövarspråket](/blog/robber-api) för detaljerna.
+
+Där har du det – nu vet du allt om rövarspråket!
+
+## Referenser
+
+- https://sv.wikipedia.org/wiki/Rövarspråket
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replaceAll
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+- https://www.npmjs.com/package/@tammergard/robber
+- https://rovarspraket.tammergard.se
