@@ -37,12 +37,12 @@ export const featuredPosts: FeaturedPost[] = [
 		},
 	},
 	{
-		slug: "robber-api",
-		date: "2026-05-23",
+		slug: "robber-language-generator",
+		date: "2020-09-27",
 		tag: "javascript",
 		title: {
-			en: "An API for robber language",
-			sv: "Ett API för rövarspråket",
+			en: "Robber language generator",
+			sv: "Rövarspråksgenerator",
 		},
 	},
 ]
