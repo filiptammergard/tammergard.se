@@ -6,12 +6,12 @@ authors: [filip]
 tags: [javascript]
 ---
 
-Det finns flera sätt att räkna ut summan av tal i en array med JavaScript. De olika sätten skiljer sig framför allt i hur lättlästa de är – och lättläst kod är lättare att underhålla och lättare för andra att förstå och bygga vidare på. Gemensamt för alla sätt att summera tal i en array är att man på något sätt måste loopa igenom arrayen.
+Det finns flera sätt att räkna ut summan av tal i en array med JavaScript. De olika sätten skiljer sig framför allt i hur lättlästa de är – och lättläst kod är lättare att underhålla och lättare för andra att förstå och bygga vidare på.
 
 ## TL;DR
 
 - Det finns många sätt att summera tal i en array, men flera sätt är svårlästa och onödigt krångliga.
-- Det bästa sättet är med hjälp av den inbyggda funktionen `reduce`.
+- Det bästa sättet är med hjälp av den inbyggda funktionen [`reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) – eller den nyare [`Math.sumPrecise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise) om du kan förlita dig på att den finns tillgänglig.
 
 {/* truncate */}
 
@@ -34,7 +34,7 @@ const sum =
 // sum = 192
 ```
 
-Det här alternativet är uselt eftersom det bygger på vetskap om hur många tal som finns i arrayen. Om ett tal skulle läggas till i arrayen skulle summan bli fel.
+Det här alternativet är uselt eftersom det förutsätter vetskap om hur många tal som finns i arrayen. Om ett tal skulle läggas till i arrayen skulle summan bli fel.
 
 ### Alternativ 2: for-loop (ett dåligt alternativ)
 
@@ -50,11 +50,11 @@ for (let i = 0; i < numbers.length; i++) {
 // sum = 192
 ```
 
-Det är fortfarande ett fult sätt att summera på, eftersom det kräver mycket kod. Variabler i stil med `i`, vars enda uppgift är att hålla koll på index, kan och bör oftast undvikas.
+Det är fortfarande ett otympligt sätt att summera på. Stilen är imperativ – du måste själv styra hur loopen körs – och det krävs en indexvariabel som `i` vars enda uppgift är att hålla koll på position. Sådana variabler kan och bör oftast undvikas.
 
 ### Alternativ 3: forEach-loop (ett okej alternativ)
 
-`forEach` läser mer naturligt än en for-loop, men kräver fortfarande att man deklarerar `let sum = 0` och muterar den variabeln vid varje iteration:
+[`forEach`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach) läser mer naturligt än en for-loop, men kräver fortfarande att man deklarerar `let sum = 0` och muterar den variabeln vid varje iteration:
 
 ```js
 let sum = 0
@@ -68,7 +68,7 @@ numbers.forEach((number) => (sum += number))
 
 ### Alternativ 4: reduce (det bästa alternativet)
 
-Ytterligare lite snyggare är den inbyggda funktionen `reduce`. Den kan användas så här:
+Ytterligare lite snyggare är den inbyggda funktionen [`reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce). Den kan användas så här:
 
 ```js
 const sum = numbers.reduce((acc, number) => acc + number, 0)
@@ -96,6 +96,8 @@ Låt säga att vi vill beräkna arean i hela lägenheten.
 
 ### Alternativ 1: Omforma arrayen så att den blir enkel innan summering görs
 
+Använd [`map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) för att förvandla varje rum till bara dess area, och summera sedan den resulterande arrayen av tal.
+
 ```js
 const totalArea = rooms
 	.map((room) => room.area)
@@ -122,6 +124,8 @@ För att göra det lite mer komplicerat kanske vi vill veta den totala arean av 
 
 ### Alternativ 1: Filtrera, map:a, summera
 
+Använd [`filter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter) för att behålla bara de rum som inte är renoverade, och omforma och summera sedan som tidigare.
+
 ```js
 const totalAreaOfNotRenovatedRooms = rooms
 	.filter((room) => !room.isRenovated)
@@ -133,6 +137,8 @@ const totalAreaOfNotRenovatedRooms = rooms
 
 ### Alternativ 2: Filtrera, plocka ut arean direkt under summeringen
 
+Slipp mellansteget med `map` och plocka ut arean direkt inuti `reduce`.
+
 ```js
 const totalAreaOfNotRenovatedRooms = rooms
 	.filter((room) => !room.isRenovated)
@@ -142,6 +148,8 @@ const totalAreaOfNotRenovatedRooms = rooms
 ```
 
 ### Alternativ 3: Filtrera med if-sats inuti reduce
+
+Hoppa över det separata `filter`-anropet och grena inuti reduceraren med en `if`-sats för att avgöra om ett rums area ska adderas.
 
 ```js
 const totalAreaOfNotRenovatedRooms = rooms.reduce((acc, room) => {
@@ -153,6 +161,8 @@ const totalAreaOfNotRenovatedRooms = rooms.reduce((acc, room) => {
 ```
 
 ### Alternativ 4: Filtrera med ternary operator i reduce
+
+Samma logik kan uttryckas mer kompakt med en ternary operator.
 
 ```js
 const totalAreaOfNotRenovatedRooms = rooms.reduce(
@@ -185,15 +195,15 @@ const totalArea = Math.sumPrecise(rooms.map((room) => room.area))
 // totalArea = 89
 ```
 
-`Math.sumPrecise` finns i moderna versioner av Chrome och Firefox – kolla [Can I use](https://caniuse.com/mdn-javascript_builtins_math_sumprecise) för aktuellt stöd. För miljöer som inte har det än är `reduce` fortfarande ett bra val.
+`Math.sumPrecise` är ett relativt nytt tillägg, så stödet varierar fortfarande mellan miljöer – kolla [Can I use](https://caniuse.com/mdn-javascript_builtins_math_sumprecise) för aktuellt status. Där den inte finns är `reduce` fortfarande ett bra val.
 
 Så där, nu kan du allt om att summera tal i en array med JavaScript!
 
 ## Referenser
 
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sumPrecise
 - https://github.com/tc39/proposal-math-sum

@@ -21,6 +21,7 @@
 		"clear": "docusaurus clear",
 		"deploy": "docusaurus deploy",
 		"dev": "docusaurus start",
+		"dev:sv": "docusaurus start --locale sv",
 		"docusaurus": "docusaurus",
 		"format": "prettier --write .",
 		"format-check": "prettier --check .",
