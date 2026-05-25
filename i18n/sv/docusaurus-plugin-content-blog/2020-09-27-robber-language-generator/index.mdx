@@ -213,7 +213,9 @@ const consonants = "bcdfghjklmnpqrstvwxz"
 
 const sentence = "Xylofoner är fina"
 
-const sentenceWithExpandedX = sentence.replaceAll("x", "ks").replaceAll("X", "Ks")
+const sentenceWithExpandedX = sentence
+	.replaceAll("x", "ks")
+	.replaceAll("X", "Ks")
 
 let robberSentence = ""
 

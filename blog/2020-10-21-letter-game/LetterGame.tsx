@@ -134,10 +134,7 @@ export function LetterGame() {
 	}
 
 	return (
-		<div
-			className={styles.container}
-			onClick={() => inputRef.current?.focus()}
-		>
+		<div className={styles.container} onClick={() => inputRef.current?.focus()}>
 			<div className={styles.display}>
 				<span className={styles.letter}>{state.letter}</span>
 			</div>

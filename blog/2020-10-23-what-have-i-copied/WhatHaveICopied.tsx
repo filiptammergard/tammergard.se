@@ -20,11 +20,7 @@ export function WhatHaveICopied() {
 
 	return (
 		<div>
-			<button
-				type="button"
-				onClick={read}
-				style={{ marginBottom: "1rem" }}
-			>
+			<button type="button" onClick={read} style={{ marginBottom: "1rem" }}>
 				<Translate id="whatCopied.button">Show what I copied</Translate>
 			</button>
 			{clipboard !== undefined && (

@@ -22,7 +22,11 @@ interface State {
 
 type Action =
 	| { type: "correct letter" }
-	| { type: "incorrect letter"; incorrectLetter: string; expectedLetter: string }
+	| {
+			type: "incorrect letter"
+			incorrectLetter: string
+			expectedLetter: string
+	  }
 	| { type: "finished" }
 	| { type: "tick" }
 
@@ -77,8 +81,7 @@ export function AlphabetGame() {
 	const {
 		i18n: { currentLocale },
 	} = useDocusaurusContext()
-	const alphabet =
-		currentLocale === "sv" ? SWEDISH_ALPHABET : ENGLISH_ALPHABET
+	const alphabet = currentLocale === "sv" ? SWEDISH_ALPHABET : ENGLISH_ALPHABET
 
 	useInterval(
 		() => dispatch({ type: "tick" }),
@@ -107,10 +110,7 @@ export function AlphabetGame() {
 	}
 
 	return (
-		<div
-			className={styles.container}
-			onClick={() => inputRef.current?.focus()}
-		>
+		<div className={styles.container} onClick={() => inputRef.current?.focus()}>
 			<div className={styles.display}>
 				<span className={styles.letter}>{alphabet[state.index]}</span>
 			</div>
