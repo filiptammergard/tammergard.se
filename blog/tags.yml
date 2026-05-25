@@ -1,0 +1,34 @@
+css:
+  label: css
+  permalink: /css
+  description: Posts about CSS
+
+html:
+  label: html
+  permalink: /html
+  description: Posts about HTML
+
+javascript:
+  label: javascript
+  permalink: /javascript
+  description: Posts about JavaScript
+
+typescript:
+  label: typescript
+  permalink: /typescript
+  description: Posts about TypeScript
+
+react:
+  label: react
+  permalink: /react
+  description: Posts about React
+
+game:
+  label: game
+  permalink: /game
+  description: Posts about games
+
+general:
+  label: general
+  permalink: /general
+  description: General posts

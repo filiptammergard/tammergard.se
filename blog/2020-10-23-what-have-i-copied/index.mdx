@@ -8,17 +8,19 @@ tags: [react, javascript]
 
 import { WhatHaveICopied } from "./WhatHaveICopied"
 
-Have you ever copied something and immediately forgotten what it was? Click the button to see what's currently on your clipboard:
-
-<WhatHaveICopied />
-
-{/* truncate */}
+Have you ever copied something and immediately forgotten what it was?
 
 ## TL;DR
 
 - [`navigator.clipboard.readText()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText) returns a `Promise<string>` with the current clipboard text.
 - It is only available in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (HTTPS or `localhost`), and the read has to happen during a [user activation](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) — that's why it's wired up to a button click rather than running on mount.
 - The call can reject (permission denied, document not focused, no clipboard support, …), so it always belongs in a `try/catch`.
+
+{/* truncate */}
+
+Click the button to see what's currently on your clipboard:
+
+<WhatHaveICopied />
 
 ## The Clipboard API
 

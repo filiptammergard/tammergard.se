@@ -1,37 +1,46 @@
 ---
 slug: custom-hook-useinterval
 title: "Custom hook: useInterval"
-description: Wrap setInterval in a custom React hook that handles cleanup automatically and supports pausing by passing a null delay.
+description: Wrap setInterval in a custom React hook that cleans up automatically and pauses when the delay is null — no extra state required.
 authors: [filip]
 tags: [react]
 ---
 
 import { Counter } from "./Counter"
 
-`setInterval` is a JavaScript function that can be used to do things in an interval. I have used `setInterval` multiple times on this blog, for example in the posts [Birthday maths](/blog/birthday-maths) and [Letter game](/blog/letter-game).
+`setInterval` runs a callback at a fixed cadence. Using it in React means remembering to call `clearInterval` on unmount, and reaching for extra state any time the interval should pause or restart. This post wraps both concerns in a small custom hook called `useInterval`.
 
-Using `setInterval` in React can sometimes feel a bit wonky, since you have to remember to run `clearInterval` to avoid memory leaks, and pausing the interval isn't trivial.
+## TL;DR
 
-I decided to make a _custom hook_ that simplifies the usage. Here's the result:
+- [`useEffect`](https://react.dev/reference/react/useEffect) starts the interval and returns a cleanup that calls [`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval) — no manual unmount handling.
+- Passing `null` as the delay pauses the interval, so you can derive "running" straight from props or state instead of tracking it separately.
+- Changing the delay restarts the interval automatically, so a dynamic value "just works".
+
+{/* truncate */}
+
+Try changing the delay below — under 50 ms the counter pauses, and raising it again continues from where it left off:
+
+<Counter />
+
+## The hook
 
 ```ts
 import { useEffect } from "react"
 
 export const useInterval = (callback: () => void, delay: number | null) => {
 	useEffect(() => {
-		if (delay !== null) {
-			const id = setInterval(callback, delay)
-			return () => clearInterval(id)
-		}
+		if (delay === null) return
+		const id = setInterval(callback, delay)
+		return () => clearInterval(id)
 	}, [callback, delay])
 }
 ```
 
-<br />
+The whole thing is one effect. While `delay` is a number, an interval is running; when it becomes `null`, the early return skips the setup and the previous cleanup tears the timer down. Whenever `callback` or `delay` change, React runs the cleanup from the previous render and starts a fresh interval — that's why a dynamic delay needs no special handling.
 
-{/* truncate */}
+## Using the hook
 
-This is how easy the hook is to use:
+The simplest call site has the same API as `setInterval`, but without any cleanup boilerplate:
 
 ```tsx
 useInterval(() => {
@@ -39,77 +48,51 @@ useInterval(() => {
 }, 1000)
 ```
 
-<br />
-
-The syntax is identical to `setInterval`, which makes it intuitive and easy to use. But it lets you skip worrying about cleanup.
-
-The hook comes even more in handy when you need to be able to set the interval time dynamically and when you need the possibility to pause the interval.
-
-```tsx
-const [isRunning, setIsRunning] = useState(false)
-const [delay, setDelay] = useState(500)
-const [count, setCount] = useState(0)
-
-useInterval(
-	() => {
-		setCount((prev) => prev + 1)
-	},
-	isRunning ? delay : null,
-)
-```
-
-<br />
-
-Here, `isRunning` is a state variable that's initially set to `false`, but can be toggled to `true` to start the interval. And the interval time, `delay`, can be changed when needed.
-
-Let's say we want to have a counter that increments at a custom pace but is automatically paused when the pace gets too high (in this case 50 ms). Like this:
-
-<Counter />
-
-Try changing `delay` to 50 ms and then to 49 ms and you'll see the counter pauses. It doesn't reset, so changing back to 50 ms will make the counter continue from where it was. Here's how it's done:
+The hook really shines when the delay should change at runtime, or when the interval should pause based on some other state. Here's the full component behind the counter above:
 
 ```tsx
 import { useInterval } from "hooks/useInterval"
-import { useEffect, useState } from "react"
+import { type ChangeEvent, useState } from "react"
 
-const Counter = () => {
-	const [isRunning, setIsRunning] = useState(false)
+function Counter() {
 	const [delay, setDelay] = useState(500)
 	const [count, setCount] = useState(0)
 
 	useInterval(
-		() => {
-			setCount((prev) => prev + 1)
-		},
-		isRunning ? delay : null,
+		() => setCount((prev) => prev + 1),
+		delay >= 50 ? delay : null,
 	)
 
-	useEffect(() => {
-		if (delay < 50) {
-			setIsRunning(false)
-		} else {
-			setIsRunning(true)
-		}
-	}, [delay])
-
-	const handleDelayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const input = parseInt(e.target.value, 10)
-		setDelay(input)
+	function handleDelayChange(e: ChangeEvent<HTMLInputElement>) {
+		setDelay(parseInt(e.target.value, 10))
 	}
 
 	return (
 		<div>
-			<span>Choose delay [ms]...</span>
-			<br />
-			<input type="number" onChange={handleDelayChange} value={delay} />
+			<label>
+				Choose delay [ms]
+				<br />
+				<input type="number" onChange={handleDelayChange} value={delay} />
+			</label>
 			<p>{count}</p>
 		</div>
 	)
 }
-
-export default Counter
 ```
 
-<br />
+Conditionally passing `null` is what makes the pause work — `useInterval` sees the delay change, tears down the old timer, and doesn't start a new one until the value is a number again. No `isRunning` flag, no extra `useEffect`, just one expression.
 
-Very easy to use compared to doing it with the plain `setInterval` function in every implementation.
+## Where it's used on this blog
+
+`useInterval` powers a handful of other posts here:
+
+- [Birthday maths](/blog/birthday-maths) — keeps the "time since" counters ticking.
+- [Letter game](/blog/letter-game) — drives the in-game clock.
+- [Alphabet game](/blog/alphabet-game) — drives the per-letter timer.
+- [Disco generator](/blog/disco-generator) — flashes new random colors on every beat.
+
+## References
+
+- https://react.dev/reference/react/useEffect
+- https://developer.mozilla.org/en-US/docs/Web/API/setInterval
+- https://overreacted.io/making-setinterval-declarative-with-react-hooks/

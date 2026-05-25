@@ -2,13 +2,7 @@ import Translate, { translate } from "@docusaurus/Translate"
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext"
 import { useDecimalFormat } from "@site/src/hooks/useDecimalFormat"
 import { useInterval } from "@site/src/hooks/useInterval"
-import {
-	type ChangeEvent,
-	type KeyboardEvent,
-	useEffect,
-	useReducer,
-	useRef,
-} from "react"
+import { type ChangeEvent, useEffect, useReducer, useRef } from "react"
 import styles from "./styles.module.css"
 
 const TIMER_FREQUENCY = 50
@@ -17,7 +11,7 @@ const SWEDISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
 const STORAGE_KEY = "letter_game_highscore"
 const SECONDS_PER_MINUTE = 60
 
-type GameState = "idle" | "running" | "ended"
+type GameState = "idle" | "running"
 
 interface State {
 	state: GameState
@@ -29,12 +23,11 @@ interface State {
 }
 
 type Action =
-	| { type: "start"; letter: string }
+	| { type: "loadLetter"; letter: string }
 	| { type: "correct"; letter: string }
-	| { type: "wrong"; score: number; newHighscore?: number }
+	| { type: "wrong"; letter: string; score: number; newHighscore?: number }
 	| { type: "tick" }
 	| { type: "loadHighscore"; highscore: number }
-	| { type: "reset" }
 
 const initialState: State = {
 	state: "idle",
@@ -47,16 +40,19 @@ const initialState: State = {
 
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
-		case "start":
-			return {
-				...state,
-				state: "running",
-				letter: action.letter,
-				time: 0,
-				correct: 0,
-				score: 0,
-			}
+		case "loadLetter":
+			return { ...state, letter: action.letter }
 		case "correct":
+			if (state.state === "idle") {
+				return {
+					...state,
+					state: "running",
+					letter: action.letter,
+					time: 0,
+					correct: 1,
+					score: 0,
+				}
+			}
 			return {
 				...state,
 				letter: action.letter,
@@ -65,7 +61,8 @@ function reducer(state: State, action: Action): State {
 		case "wrong":
 			return {
 				...state,
-				state: "ended",
+				state: "idle",
+				letter: action.letter,
 				score: action.score,
 				highscore: action.newHighscore ?? state.highscore,
 			}
@@ -73,8 +70,6 @@ function reducer(state: State, action: Action): State {
 			return { ...state, time: state.time + TIMER_FREQUENCY }
 		case "loadHighscore":
 			return { ...state, highscore: action.highscore }
-		case "reset":
-			return { ...initialState, highscore: state.highscore }
 	}
 }
 
@@ -103,17 +98,12 @@ export function LetterGame() {
 		if (Number.isFinite(parsed) && parsed > 0) {
 			dispatch({ type: "loadHighscore", highscore: parsed })
 		}
+		dispatch({ type: "loadLetter", letter: getRandomLetter(alphabet) })
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
 		const input = e.target.value.toUpperCase()
-
-		if (state.state !== "running") {
-			if (input === " ") {
-				dispatch({ type: "start", letter: getRandomLetter(alphabet) })
-			}
-			return
-		}
 
 		if (input === state.letter) {
 			dispatch({
@@ -122,6 +112,8 @@ export function LetterGame() {
 			})
 			return
 		}
+
+		if (state.state === "idle") return
 
 		const seconds = state.time / 1000
 		const newScore =
@@ -135,15 +127,10 @@ export function LetterGame() {
 
 		dispatch({
 			type: "wrong",
+			letter: getRandomLetter(alphabet, state.letter),
 			score: newScore,
 			...(isNewHighscore && { newHighscore: newScore }),
 		})
-	}
-
-	function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-		if (e.key === "Escape") {
-			dispatch({ type: "reset" })
-		}
 	}
 
 	return (
@@ -152,22 +139,13 @@ export function LetterGame() {
 			onClick={() => inputRef.current?.focus()}
 		>
 			<div className={styles.display}>
-				{state.state === "running" ? (
-					<span className={styles.letter}>{state.letter}</span>
-				) : (
-					<span className={styles.instruction}>
-						<Translate id="letterGame.pressSpaceToStart">
-							Press space to start
-						</Translate>
-					</span>
-				)}
+				<span className={styles.letter}>{state.letter}</span>
 			</div>
 			<input
 				ref={inputRef}
 				className={styles.input}
 				type="text"
 				onChange={handleInputChange}
-				onKeyDown={handleKeyDown}
 				value=""
 				aria-label={translate({
 					id: "letterGame.inputLabel",

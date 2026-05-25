@@ -1,142 +1,151 @@
 import Translate, { translate } from "@docusaurus/Translate"
-import { TextInput } from "@site/src/components/TextInput/TextInput"
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext"
 import { useDecimalFormat } from "@site/src/hooks/useDecimalFormat"
 import { useInterval } from "@site/src/hooks/useInterval"
-import { type KeyboardEvent, useReducer } from "react"
+import { type ChangeEvent, useReducer, useRef } from "react"
 import styles from "./styles.module.css"
 
-type GameState = "idle" | "running" | "lost" | "won"
+type GameState = "idle" | "running"
 
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const ENGLISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const SWEDISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
 const INTERVAL_MS = 100
 
 interface State {
-	correctLetter: string
-	incorrectLetter: string
-	input: string
-	instruction: string
+	index: number
 	state: GameState
+	incorrectLetter: string
+	expectedLetter: string
+	isWon: boolean
 	time: number
 }
 
 type Action =
-	| { type: "correct letter"; input: string }
-	| { type: "incorrect letter"; correctLetter: string; incorrectLetter: string }
+	| { type: "correct letter" }
+	| { type: "incorrect letter"; incorrectLetter: string; expectedLetter: string }
 	| { type: "finished" }
-	| { type: "reset" }
 	| { type: "tick" }
 
 const initialState: State = {
-	correctLetter: "",
-	incorrectLetter: "",
-	input: "",
-	instruction: ALPHABET[0]!,
+	index: 0,
 	state: "idle",
+	incorrectLetter: "",
+	expectedLetter: "",
+	isWon: false,
 	time: 0,
 }
 
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
 		case "correct letter":
-			return {
-				...state,
-				state: "running",
-				input: action.input,
-				instruction: getNextLetter(action.input)!,
+			if (state.state === "idle") {
+				return {
+					...state,
+					state: "running",
+					index: 1,
+					incorrectLetter: "",
+					expectedLetter: "",
+					isWon: false,
+					time: 0,
+				}
 			}
+			return { ...state, index: state.index + 1 }
 		case "incorrect letter":
 			return {
 				...state,
-				state: "lost",
-				correctLetter: action.correctLetter,
+				state: "idle",
+				index: 0,
 				incorrectLetter: action.incorrectLetter,
+				expectedLetter: action.expectedLetter,
 			}
 		case "finished":
-			return { ...state, state: "won" }
+			return {
+				...state,
+				state: "idle",
+				index: 0,
+				isWon: true,
+			}
 		case "tick":
 			return { ...state, time: state.time + INTERVAL_MS }
-		case "reset":
-			return initialState
 	}
 }
 
 export function AlphabetGame() {
 	const [state, dispatch] = useReducer(reducer, initialState)
 	const formatDecimal = useDecimalFormat()
+	const inputRef = useRef<HTMLInputElement>(null)
+	const {
+		i18n: { currentLocale },
+	} = useDocusaurusContext()
+	const alphabet =
+		currentLocale === "sv" ? SWEDISH_ALPHABET : ENGLISH_ALPHABET
 
 	useInterval(
 		() => dispatch({ type: "tick" }),
 		state.state === "running" ? INTERVAL_MS : null,
 	)
 
-	function handleInputChange(letterInput: string) {
-		const inputLength = letterInput.length
-		if (state.state === "idle" && letterInput !== ALPHABET[0]) {
-			return
-		} else if (state.state === "lost") {
-			return
-		} else if (state.state === "won") {
-			return
-		} else if (letterInput === ALPHABET) {
-			dispatch({ type: "finished" })
-		} else if (letterInput === ALPHABET.slice(0, inputLength)) {
-			dispatch({ type: "correct letter", input: letterInput })
-		} else {
+	function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+		const letter = e.target.value.toUpperCase()
+		const expected = alphabet[state.index]
+
+		if (letter !== expected) {
+			if (state.state === "idle") return
 			dispatch({
 				type: "incorrect letter",
-				correctLetter: ALPHABET[inputLength - 2]!,
-				incorrectLetter: letterInput.slice(-1),
+				incorrectLetter: letter,
+				expectedLetter: expected ?? "",
 			})
+			return
 		}
-	}
 
-	function handleEnterClick(e: KeyboardEvent<HTMLInputElement>) {
-		if (e.key === "Enter") {
-			dispatch({ type: "reset" })
+		if (state.index === alphabet.length - 1) {
+			dispatch({ type: "finished" })
+		} else {
+			dispatch({ type: "correct letter" })
 		}
 	}
 
 	return (
-		<>
-			<p className={styles.instructions}>
-				{state.state === "won" ? (
+		<div
+			className={styles.container}
+			onClick={() => inputRef.current?.focus()}
+		>
+			<div className={styles.display}>
+				<span className={styles.letter}>{alphabet[state.index]}</span>
+			</div>
+			<input
+				ref={inputRef}
+				className={styles.input}
+				type="text"
+				onChange={handleInputChange}
+				value=""
+				aria-label={translate({
+					id: "alphabetGame.inputLabel",
+					message: "Alphabet game input",
+				})}
+			/>
+			<p className={styles.time}>{formatDecimal(state.time / 1000, 2)} s</p>
+			{state.isWon ? (
+				<p>
 					<Translate id="alphabetGame.success">Success!</Translate>
-				) : state.state === "lost" ? (
+				</p>
+			) : null}
+			{state.incorrectLetter ? (
+				<p>
 					<Translate
 						id="alphabetGame.tooBad"
 						values={{
 							incorrect: state.incorrectLetter,
-							correct: getNextLetter(state.correctLetter) ?? "",
+							correct: state.expectedLetter,
 						}}
 					>
 						{
 							"Too bad! You wrote {incorrect} when it should have been {correct}."
 						}
 					</Translate>
-				) : (
-					state.instruction
-				)}
-			</p>
-			<div className={styles.innerWrapper}>
-				<TextInput
-					onChange={(e) => handleInputChange(e.target.value.toUpperCase())}
-					onKeyDown={handleEnterClick}
-					value={state.input}
-					placeholder={translate({
-						id: "alphabetGame.placeholder",
-						message: "Type alphabet (click enter to restart)",
-					})}
-				/>
-				<button onClick={() => dispatch({ type: "reset" })}>
-					<Translate id="alphabetGame.reset">Reset</Translate>
-				</button>
-			</div>
-			<p className={styles.time}>{formatDecimal(state.time / 1000, 2)} s</p>
-		</>
+				</p>
+			) : null}
+		</div>
 	)
-}
-
-function getNextLetter(letter: string) {
-	const letterIndex = ALPHABET.indexOf(letter.toUpperCase())
-	return ALPHABET[letterIndex + 1]
 }

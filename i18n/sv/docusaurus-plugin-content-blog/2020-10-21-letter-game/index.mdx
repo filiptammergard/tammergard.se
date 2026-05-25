@@ -3,25 +3,25 @@ slug: letter-game
 title: Bokstavsspel
 description: Bygg ett litet snabbskrivningsspel i React med TypeScript – useReducer, useEffect och en egen useInterval-hook hanterar spelets state, tid och rekord.
 authors: [filip]
-tags: [react]
+tags: [react, game]
 ---
 
 import { LetterGame } from "@site/blog/2020-10-21-letter-game/LetterGame"
 
-Starta spelet genom att klicka på rutan och sedan på tangenten mellanslag. Då börjar tiden gå och du får se en slumpmässig bokstav som du ska skriva så snabbt som möjligt. Varje rätt följs av en ny slumpmässig bokstav och om du skriver fel tar spelet slut. Kör hårt!
+Starta spelet genom att klicka på rutan och skriva bokstaven som visas. Då börjar tiden gå och du får en ny slumpmässig bokstav att skriva så snabbt som möjligt. Varje rätt följs av en ny slumpmässig bokstav och om du skriver fel tar spelet slut. Kör hårt!
 
 ## TL;DR
 
 - Ett litet snabbskrivningsspel byggt i React med TypeScript.
-- [`useReducer`](https://react.dev/reference/react/useReducer) håller spelets state i en discriminated union – "idle", "running" eller "ended".
-- [`useEffect`](https://react.dev/reference/react/useEffect) läser in sparat rekord från local storage en gång vid mount.
+- [`useReducer`](https://react.dev/reference/react/useReducer) håller spelets state samlat, med läget som `idle` eller `running`.
+- [`useEffect`](https://react.dev/reference/react/useEffect) läser in sparat rekord från local storage och slumpar fram första bokstaven vid mount.
 - En egen `useInterval`-hook driver klockan.
+
+{/* truncate */}
 
 Testa det färdiga spelet här:
 
 <LetterGame />
-
-{/* truncate */}
 
 ## Koden bakom bokstavsspelet
 
@@ -29,12 +29,12 @@ Det här spelet är byggt i React med TypeScript. Koden är liten men berör fle
 
 ### useReducer
 
-Spelet har några tydligt olika lägen – _idle_ innan du startar, _running_ medan du spelar, och _ended_ när du missar en bokstav. Med flera relaterade fält som ändras tillsammans (tid, aktuell bokstav, antal rätt, poäng) passar [`useReducer`](https://react.dev/reference/react/useReducer) bättre än att sprida ut staten över flera `useState`-anrop.
+Spelet har två lägen – _idle_ innan du startar (eller direkt efter att du missat och en ny bokstav väntar) och _running_ medan du spelar. Med flera relaterade fält som ändras tillsammans (tid, aktuell bokstav, antal rätt, poäng) passar [`useReducer`](https://react.dev/reference/react/useReducer) bättre än att sprida ut staten över flera `useState`-anrop.
 
 Statens form beskrivs med TypeScript:
 
 ```tsx
-type GameState = "idle" | "running" | "ended"
+type GameState = "idle" | "running"
 
 interface State {
 	state: GameState
@@ -46,12 +46,11 @@ interface State {
 }
 
 type Action =
-	| { type: "start"; letter: string }
+	| { type: "loadLetter"; letter: string }
 	| { type: "correct"; letter: string }
-	| { type: "wrong"; score: number; newHighscore?: number }
+	| { type: "wrong"; letter: string; score: number; newHighscore?: number }
 	| { type: "tick" }
 	| { type: "loadHighscore"; highscore: number }
-	| { type: "reset" }
 ```
 
 `Action`-typen är en [discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions), så varje action bär exakt den data som behövs för just den övergången – och TypeScript smalnar av typen inuti reducern baserat på `action.type`.
@@ -59,21 +58,29 @@ type Action =
 ```tsx
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
-		case "start":
+		case "loadLetter":
+			return { ...state, letter: action.letter }
+		case "correct":
+			if (state.state === "idle") {
+				return {
+					...state,
+					state: "running",
+					letter: action.letter,
+					time: 0,
+					correct: 1,
+					score: 0,
+				}
+			}
 			return {
 				...state,
-				state: "running",
 				letter: action.letter,
-				time: 0,
-				correct: 0,
-				score: 0,
+				correct: state.correct + 1,
 			}
-		case "correct":
-			return { ...state, letter: action.letter, correct: state.correct + 1 }
 		case "wrong":
 			return {
 				...state,
-				state: "ended",
+				state: "idle",
+				letter: action.letter,
 				score: action.score,
 				highscore: action.newHighscore ?? state.highscore,
 			}
@@ -81,11 +88,11 @@ function reducer(state: State, action: Action): State {
 			return { ...state, time: state.time + TIMER_FREQUENCY }
 		case "loadHighscore":
 			return { ...state, highscore: action.highscore }
-		case "reset":
-			return { ...initialState, highscore: state.highscore }
 	}
 }
 ```
+
+`correct`-actionen hanterar två fall: om du fortfarande är i `idle` fungerar den första rätta bokstaven som startsignal – tiden nollställs och spelet flippar över till `running`. Om du redan är `running` räknar den bara upp poängen och plockar fram nästa bokstav. `wrong`-actionen släpper tillbaka till `idle` och bär med sig en ny slumpbokstav, så displayen är direkt redo för nästa försök.
 
 I komponenten kommer hela spelets state från ett enda anrop:
 
@@ -97,7 +104,7 @@ const [state, dispatch] = useReducer(reducer, initialState)
 
 ### useEffect
 
-En annan trevlig sak med React är [`useEffect`](https://react.dev/reference/react/useEffect). Den låter oss köra sidoeffekter bara när det behövs – i det här fallet att läsa sparat rekord från local storage vid mount.
+En annan trevlig sak med React är [`useEffect`](https://react.dev/reference/react/useEffect). Den låter oss köra sidoeffekter bara när det behövs – i det här fallet att läsa sparat rekord från local storage och plocka första slumpbokstaven vid mount.
 
 ```tsx
 useEffect(() => {
@@ -106,10 +113,11 @@ useEffect(() => {
 	if (Number.isFinite(parsed) && parsed > 0) {
 		dispatch({ type: "loadHighscore", highscore: parsed })
 	}
+	dispatch({ type: "loadLetter", letter: getRandomLetter(alphabet) })
 }, [])
 ```
 
-Den tomma dependency-arrayen säger till React att den här effekten bara ska köras en gång – när komponenten mountas. `Number.isFinite`-kontrollen gör inläsningen robust mot korrupta local-storage-värden.
+Den tomma dependency-arrayen säger till React att den här effekten bara ska köras en gång – när komponenten mountas. `Number.isFinite`-kontrollen gör inläsningen robust mot korrupta local-storage-värden. Att plocka slumpbokstaven inuti `useEffect` (i stället för i `initialState`) håller den serverrenderade HTML:en deterministisk och undviker hydration mismatch mot klienten.
 
 ### Egna hooks
 

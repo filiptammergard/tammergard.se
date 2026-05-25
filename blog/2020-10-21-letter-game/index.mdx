@@ -3,25 +3,25 @@ slug: letter-game
 title: Letter game
 description: Build a small typing game in React with TypeScript — using useReducer, useEffect and a custom useInterval hook to handle game state, timers and high scores.
 authors: [filip]
-tags: [react]
+tags: [react, game]
 ---
 
 import { LetterGame } from "./LetterGame"
 
-Start the game by clicking the input and then pressing space. The clock starts and you get a random letter to type as fast as you can. Each correct letter is followed by a new random letter, and if you type the wrong letter, the game ends. Go for it!
+Start the game by clicking the box and typing the letter shown. The clock starts and you get a new random letter to type as fast as you can. Each correct letter is followed by a new random letter, and if you type the wrong letter, the game ends. Go for it!
 
 ## TL;DR
 
 - A small typing game built in React with TypeScript.
-- [`useReducer`](https://react.dev/reference/react/useReducer) keeps the game state in a single discriminated union — "idle", "running" or "ended".
-- [`useEffect`](https://react.dev/reference/react/useEffect) reads the saved high score from local storage once on mount.
+- [`useReducer`](https://react.dev/reference/react/useReducer) keeps the game state in one place, with the current mode as `idle` or `running`.
+- [`useEffect`](https://react.dev/reference/react/useEffect) reads the saved high score from local storage and picks the first random letter on mount.
 - A custom `useInterval` hook drives the running clock.
+
+{/* truncate */}
 
 Try the finished game here:
 
 <LetterGame />
-
-{/* truncate */}
 
 ## The code behind the letter game
 
@@ -29,12 +29,12 @@ This game is built in React with TypeScript. The code is small but touches on se
 
 ### useReducer
 
-The game has a few clearly distinct modes — _idle_ before you start, _running_ while you're typing, and _ended_ once you miss a letter. With several related fields that change together (time, current letter, correct count, score), [`useReducer`](https://react.dev/reference/react/useReducer) is a better fit than scattering the state across multiple `useState` calls.
+The game has two modes — _idle_ before you start (or right after you've missed and a fresh letter is waiting) and _running_ while you're typing. With several related fields that change together (time, current letter, correct count, score), [`useReducer`](https://react.dev/reference/react/useReducer) is a better fit than scattering the state across multiple `useState` calls.
 
 The shape of the state is described with TypeScript:
 
 ```tsx
-type GameState = "idle" | "running" | "ended"
+type GameState = "idle" | "running"
 
 interface State {
 	state: GameState
@@ -46,12 +46,11 @@ interface State {
 }
 
 type Action =
-	| { type: "start"; letter: string }
+	| { type: "loadLetter"; letter: string }
 	| { type: "correct"; letter: string }
-	| { type: "wrong"; score: number; newHighscore?: number }
+	| { type: "wrong"; letter: string; score: number; newHighscore?: number }
 	| { type: "tick" }
 	| { type: "loadHighscore"; highscore: number }
-	| { type: "reset" }
 ```
 
 The `Action` type is a [discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions), so each action carries exactly the data needed for that transition — and TypeScript narrows the type inside the reducer based on `action.type`.
@@ -59,21 +58,29 @@ The `Action` type is a [discriminated union](https://www.typescriptlang.org/docs
 ```tsx
 function reducer(state: State, action: Action): State {
 	switch (action.type) {
-		case "start":
+		case "loadLetter":
+			return { ...state, letter: action.letter }
+		case "correct":
+			if (state.state === "idle") {
+				return {
+					...state,
+					state: "running",
+					letter: action.letter,
+					time: 0,
+					correct: 1,
+					score: 0,
+				}
+			}
 			return {
 				...state,
-				state: "running",
 				letter: action.letter,
-				time: 0,
-				correct: 0,
-				score: 0,
+				correct: state.correct + 1,
 			}
-		case "correct":
-			return { ...state, letter: action.letter, correct: state.correct + 1 }
 		case "wrong":
 			return {
 				...state,
-				state: "ended",
+				state: "idle",
+				letter: action.letter,
 				score: action.score,
 				highscore: action.newHighscore ?? state.highscore,
 			}
@@ -81,11 +88,11 @@ function reducer(state: State, action: Action): State {
 			return { ...state, time: state.time + TIMER_FREQUENCY }
 		case "loadHighscore":
 			return { ...state, highscore: action.highscore }
-		case "reset":
-			return { ...initialState, highscore: state.highscore }
 	}
 }
 ```
+
+The `correct` action handles two cases: if you're still in `idle`, the typed letter doubles as the start signal — the timer resets and the game flips to `running`. If you're already `running`, it just bumps the counter and shows the next letter. The `wrong` action drops back to `idle` and carries a fresh random letter, so the display is immediately ready for the next attempt.
 
 In the component, the whole game state comes from one call:
 
@@ -97,7 +104,7 @@ State transitions are now expressed as `dispatch({ type: "correct", letter: ... 
 
 ### useEffect
 
-Another nice thing about React is [`useEffect`](https://react.dev/reference/react/useEffect). It lets us run side effects only when needed — in this case, reading the saved high score from local storage on mount.
+Another nice thing about React is [`useEffect`](https://react.dev/reference/react/useEffect). It lets us run side effects only when needed — in this case, reading the saved high score from local storage and picking the first random letter on mount.
 
 ```tsx
 useEffect(() => {
@@ -106,10 +113,11 @@ useEffect(() => {
 	if (Number.isFinite(parsed) && parsed > 0) {
 		dispatch({ type: "loadHighscore", highscore: parsed })
 	}
+	dispatch({ type: "loadLetter", letter: getRandomLetter(alphabet) })
 }, [])
 ```
 
-The empty dependency array tells React this effect should only run once — when the component mounts. The `Number.isFinite` check makes the load robust against corrupted local-storage values.
+The empty dependency array tells React this effect should only run once — when the component mounts. The `Number.isFinite` check makes the load robust against corrupted local-storage values. Picking the random letter inside `useEffect` (rather than in `initialState`) keeps the server-rendered HTML deterministic and avoids hydration mismatches with the client.
 
 ### Custom hooks
 

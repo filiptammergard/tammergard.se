@@ -1,17 +1,12 @@
 import Translate, { translate } from "@docusaurus/Translate"
 import { useInterval } from "@site/src/hooks/useInterval"
-import { type ChangeEvent, useEffect, useState } from "react"
+import { type ChangeEvent, useState } from "react"
 
 export function Counter() {
-	const [isRunning, setIsRunning] = useState(false)
 	const [delay, setDelay] = useState(500)
 	const [count, setCount] = useState(0)
 
-	useInterval(() => setCount((prev) => prev + 1), isRunning ? delay : null)
-
-	useEffect(() => {
-		setIsRunning(delay >= 50)
-	}, [delay])
+	useInterval(() => setCount((prev) => prev + 1), delay >= 50 ? delay : null)
 
 	function handleDelayChange(e: ChangeEvent<HTMLInputElement>) {
 		setDelay(parseInt(e.target.value, 10))

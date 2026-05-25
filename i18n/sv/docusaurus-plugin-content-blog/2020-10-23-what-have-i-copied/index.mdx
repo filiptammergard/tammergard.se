@@ -8,17 +8,19 @@ tags: [react, javascript]
 
 import { WhatHaveICopied } from "@site/blog/2020-10-23-what-have-i-copied/WhatHaveICopied"
 
-Har du någonsin kopierat något och direkt glömt vad det var? Klicka på knappen för att se vad du har i din clipboard just nu:
-
-<WhatHaveICopied />
-
-{/* truncate */}
+Har du någonsin kopierat något och direkt glömt vad det var?
 
 ## TL;DR
 
 - [`navigator.clipboard.readText()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText) returnerar ett `Promise<string>` med clipboardens nuvarande text.
 - Funktionen är bara tillgänglig i en [säker kontext](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (HTTPS eller `localhost`), och läsningen måste ske under en [användarinteraktion](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) – därför är den kopplad till ett knappklick i stället för att köras vid sidladdning.
 - Anropet kan kasta fel (nekad behörighet, dokumentet saknar fokus, ingen clipboard tillgänglig …) så det hör alltid hemma i ett `try/catch`.
+
+{/* truncate */}
+
+Klicka på knappen för att se vad du har i din clipboard just nu:
+
+<WhatHaveICopied />
 
 ## Clipboard-API:t
 

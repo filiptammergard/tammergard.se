@@ -1,37 +1,46 @@
 ---
 slug: custom-hook-useinterval
 title: "Custom hook: useInterval"
-description: Paketera setInterval i en custom hook som hanterar cleanup automatiskt och gör återkommande logik i React-komponenter triviala att skriva.
+description: Paketera setInterval i en custom hook som städar upp automatiskt och pausar när delay är null – utan extra state.
 authors: [filip]
 tags: [react]
 ---
 
 import { Counter } from "@site/blog/2020-10-24-custom-hook-useinterval/Counter"
 
-`setInterval` är en funktion i JavaScript som kan användas för att lösa alla typer av saker som ska uppdateras eller hända i ett givet intervall. Jag har använt `setInterval` flera gånger på den här bloggen, bland annat i inläggen [Födelsedagsmatematik](/blog/birthday-maths) och [Bokstavsspel](/blog/letter-game).
+`setInterval` kör en callback i ett bestämt intervall. Att använda funktionen i React innebär att man måste komma ihåg att anropa `clearInterval` vid unmount och dra in extra state varje gång intervallet ska pausas eller startas om. Det här inlägget paketerar båda delarna i en liten custom hook som jag kallar `useInterval`.
 
-Att använda `setInterval` kan ibland vara lite bökigt. Man måste komma ihåg att köra `clearInterval` för att inte introducera minnesläckor, till exempel.
+## TL;DR
 
-Jag bestämde mig för att göra en _custom hook_ som förenklar användningen. Här är resultatet:
+- [`useEffect`](https://react.dev/reference/react/useEffect) startar intervallet och returnerar en cleanup som anropar [`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval) – ingen manuell unmount-hantering.
+- Att skicka in `null` som delay pausar intervallet, så det går att härleda "körs nu" direkt från props eller state utan en separat flagga.
+- När delay ändras startas intervallet om automatiskt, så ett dynamiskt värde "bara funkar".
+
+{/* truncate */}
+
+Testa att ändra delay nedan – under 50 ms pausas räknaren, och när värdet höjs igen fortsätter den där den var:
+
+<Counter />
+
+## Hooken
 
 ```ts
 import { useEffect } from "react"
 
 export const useInterval = (callback: () => void, delay: number | null) => {
 	useEffect(() => {
-		if (delay !== null) {
-			const id = setInterval(callback, delay)
-			return () => clearInterval(id)
-		}
+		if (delay === null) return
+		const id = setInterval(callback, delay)
+		return () => clearInterval(id)
 	}, [callback, delay])
 }
 ```
 
-<br />
+Allt ligger i en enda effekt. Så länge `delay` är ett tal är ett intervall igång; när det blir `null` hoppar effekten över setupen och cleanupen från förra renderingen river ner timern. När `callback` eller `delay` ändras kör React cleanupen från föregående rendering och startar ett nytt intervall – det är därför ett dynamiskt delay-värde inte behöver någon specialhantering.
 
-{/* truncate */}
+## Att använda hooken
 
-Så här enkelt är det att använda hooken:
+Det enklaste anropet har samma API som `setInterval`, fast utan cleanup-boilerplate:
 
 ```tsx
 useInterval(() => {
@@ -39,77 +48,51 @@ useInterval(() => {
 }, 1000)
 ```
 
-<br />
-
-Syntaxen är identisk med `setInterval`, vilket gör den intuitiv och enkel att använda. Men det löser minneshanteringen åt dig.
-
-Hooken kommer ännu mer väl till pass när det finns ett behov av att kunna styra intervalltiden dynamiskt och pausa intervallet.
-
-```tsx
-const [isRunning, setIsRunning] = useState(false)
-const [delay, setDelay] = useState(500)
-const [count, setCount] = useState(0)
-
-useInterval(
-	() => {
-		setCount((prev) => prev + 1)
-	},
-	isRunning ? delay : null,
-)
-```
-
-<br />
-
-Här är `isRunning` en variabel i state som initialt är `false` men kan ändras till `true` för att starta intervallet. Och intervalltiden kan ändras efter behov.
-
-Låt oss säga att vi vill ha en räknare som tickar upp i en valbar hastighet och som automatiskt pausar när hastigheten blir för hög (i det här fallet 50 ms). Så här:
-
-<Counter />
-
-Testa att ändra _delay_ till 50 och sedan till 49 så ser du att räknaren stannar. Den nollställs inte, så om man ändrar tillbaka till 50 igen kommer räknaren fortsätta från där den var. Funktionaliteten kan åstadkommas så här:
+Hooken kommer verkligen till sin rätt när delay ska kunna ändras under körning, eller när intervallet ska pausas utifrån något annat state. Här är hela komponenten bakom räknaren ovan:
 
 ```tsx
 import { useInterval } from "hooks/useInterval"
-import { useEffect, useState } from "react"
+import { type ChangeEvent, useState } from "react"
 
-const Counter = () => {
-	const [isRunning, setIsRunning] = useState(false)
+function Counter() {
 	const [delay, setDelay] = useState(500)
 	const [count, setCount] = useState(0)
 
 	useInterval(
-		() => {
-			setCount((prev) => prev + 1)
-		},
-		isRunning ? delay : null,
+		() => setCount((prev) => prev + 1),
+		delay >= 50 ? delay : null,
 	)
 
-	useEffect(() => {
-		if (delay < 50) {
-			setIsRunning(false)
-		} else {
-			setIsRunning(true)
-		}
-	}, [delay])
-
-	const handleDelayChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const input = parseInt(e.target.value, 10)
-		setDelay(input)
+	function handleDelayChange(e: ChangeEvent<HTMLInputElement>) {
+		setDelay(parseInt(e.target.value, 10))
 	}
 
 	return (
 		<div>
-			<span>Choose delay [ms]...</span>
-			<br />
-			<input type="number" onChange={handleDelayChange} value={delay} />
+			<label>
+				Välj delay [ms]
+				<br />
+				<input type="number" onChange={handleDelayChange} value={delay} />
+			</label>
 			<p>{count}</p>
 		</div>
 	)
 }
-
-export default Counter
 ```
 
-<br />
+Att villkorligt skicka in `null` är det som får pausen att fungera – `useInterval` ser att delay ändras, river ner den gamla timern, och startar ingen ny förrän värdet är ett tal igen. Ingen `isRunning`-flagga, ingen extra `useEffect`, bara ett enda uttryck.
 
-Supersmidigt att använda jämfört med den vanliga `setInterval`-funktionen i varje implementation.
+## Var den används på bloggen
+
+`useInterval` driver flera andra inlägg här:
+
+- [Födelsedagsmatematik](/blog/birthday-maths) – håller "tid sedan"-räknarna igång.
+- [Bokstavsspel](/blog/letter-game) – driver spelklockan.
+- [Alfabetsspelet](/blog/alphabet-game) – driver timern per bokstav.
+- [Discogenerator](/blog/disco-generator) – blinkar nya slumpfärger vid varje takt.
+
+## Referenser
+
+- https://react.dev/reference/react/useEffect
+- https://developer.mozilla.org/en-US/docs/Web/API/setInterval
+- https://overreacted.io/making-setinterval-declarative-with-react-hooks/

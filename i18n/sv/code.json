@@ -64,7 +64,7 @@
 		"description": "The blog post button label to navigate to the older/next post"
 	},
 	"theme.tags.tagsPageLink": {
-		"message": "Visa Alla Taggar",
+		"message": "Visa alla taggar",
 		"description": "The label of the link targeting the tag list page"
 	},
 	"theme.colorToggle.ariaLabel.mode.system": {
@@ -442,10 +442,6 @@
 		"message": "Skriv text att översätta…",
 		"description": "Placeholder for the text input in the robber language generator blog post"
 	},
-	"letterGame.pressSpaceToStart": {
-		"message": "Tryck på mellanslag för att börja",
-		"description": "Instruction shown before the letter game starts"
-	},
 	"letterGame.lettersCount": {
 		"message": "Bokstäver: {count}",
 		"description": "Label for the number of correct letters in the letter game"
@@ -473,5 +469,25 @@
 	"whatCopied.error": {
 		"message": "Kunde inte visa vad du har kopierat…",
 		"description": "Error message shown when navigator.clipboard.readText fails in the what-have-i-copied blog post"
+	},
+	"useInterval.chooseDelay": {
+		"message": "Välj delay [ms]",
+		"description": "Label for the delay input in the useInterval blog post"
+	},
+	"useInterval.delayAriaLabel": {
+		"message": "Delay i millisekunder",
+		"description": "ARIA label for the delay input in the useInterval blog post"
+	},
+	"alphabetGame.inputLabel": {
+		"message": "Inmatningsfält för alfabetsspel",
+		"description": "ARIA label for the hidden input in the alphabet game"
+	},
+	"alphabetGame.success": {
+		"message": "Klarat!",
+		"description": "Message shown when the alphabet game is won"
+	},
+	"alphabetGame.tooBad": {
+		"message": "Synd! Du skrev {incorrect} när det skulle ha varit {correct}.",
+		"description": "Message shown when the alphabet game is lost"
 	}
 }

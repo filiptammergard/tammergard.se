@@ -16,11 +16,11 @@ Have you ever wondered how old you are…in milliseconds? Or exactly how many we
 - Months and years are trickier because their length varies. The trick is to count full periods forward from the start date and add the fraction of the next period we've reached — the same anchor-based model the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) uses.
 - If you just want the answer, call `Temporal.Duration.prototype.total` directly instead of writing the math yourself.
 
+{/* truncate */}
+
 Try the model here:
 
 <BirthdayStats />
-
-{/* truncate */}
 
 ## Usage
 

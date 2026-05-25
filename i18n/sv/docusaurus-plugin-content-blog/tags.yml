@@ -1,0 +1,34 @@
+css:
+  label: css
+  permalink: /css
+  description: Inlägg om CSS
+
+html:
+  label: html
+  permalink: /html
+  description: Inlägg om HTML
+
+javascript:
+  label: javascript
+  permalink: /javascript
+  description: Inlägg om JavaScript
+
+typescript:
+  label: typescript
+  permalink: /typescript
+  description: Inlägg om TypeScript
+
+react:
+  label: react
+  permalink: /react
+  description: Inlägg om React
+
+game:
+  label: spel
+  permalink: /spel
+  description: Inlägg om spel
+
+general:
+  label: allmänt
+  permalink: /allmant
+  description: Allmänna inlägg
