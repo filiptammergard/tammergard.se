@@ -19,7 +19,7 @@ This article describes week numbering according to [ISO 8601](https://en.wikiped
 ## TL;DR
 
 - Most years have 52 weeks, but some have 53.
-- Whether the 53rd week exists depends both on what day of the week January 1 of the following year falls on, and whether the current year is a [leap year](https://en.wikipedia.org/wiki/Leap_year).
+- Whether a year has 53 weeks depends on what day of the week January 1 of the following year falls on, and whether the current year is a [leap year](https://en.wikipedia.org/wiki/Leap_year).
 - Leap years occur slightly less than every four years on average, which makes the model for when 53 weeks appear tricky.
 
 Try the finished week-numbering and leap-year model here:
@@ -30,7 +30,7 @@ Try the finished week-numbering and leap-year model here:
 
 ## So how do week numbers actually work?
 
-Most years have 52 weeks. But if you look at a calendar, roughly every fifth or sixth year seems to have 53. What determines whether the 53rd week exists isn't simple — it's something as odd as which day of the week the new year starts on. If January 1 is a Monday, Tuesday, Wednesday or Thursday, the week containing January 1 is week 1. If January 1 is a Friday, that week is week 53 (even though it's January). If January 1 is a Saturday, the week is 53 if the previous year was a leap year and 52 if it wasn't. If January 1 is a Sunday, the week is 52 regardless of whether the previous year was a leap year.
+Most years have 52 weeks. But if you look at a calendar, roughly every fifth or sixth year seems to have 53. What determines whether a year has 53 weeks isn't simple — it's something as odd as which day of the week the new year starts on. If January 1 is a Monday, Tuesday, Wednesday or Thursday, the week containing January 1 is week 1. If January 1 is a Friday, that week is week 53 (even though it's January). If January 1 is a Saturday, the week is 53 if the previous year was a leap year and 52 if it wasn't. If January 1 is a Sunday, the week is 52 regardless of whether the previous year was a leap year.
 
 ### Week-numbering model
 
@@ -38,7 +38,7 @@ The model can be clarified and summarized in a list:
 
 - If January 1 is a Monday, Tuesday, Wednesday or Thursday, the day belongs to week 1.
 - If January 1 is a Friday, the day belongs to week 53.
-- If January 1 is a Saturday, the day belongs to week 53 (in a leap year) or 52 (in a normal year).
+- If January 1 is a Saturday, the day belongs to week 53 if the previous year was a leap year, otherwise week 52.
 - If January 1 is a Sunday, the day belongs to week 52.
 
 ### Weekday shift without leap years
@@ -110,9 +110,9 @@ You can see that all seven weekdays appear before the same weekday repeats.
 
 Remind yourself of the week-numbering model:
 
-> January 1 belongs to week 53 if it's a Friday in either a normal year or leap year, or a Saturday in a leap year.
+> January 1 belongs to week 53 if it's a Friday, or if it's a Saturday and the previous year was a leap year.
 
-A year has 53 weeks precisely when the next year's January 1 belongs to week 53. By looking at the weekday-shift list, you can count how many years in a 28-year sequence have 53 weeks. These years have 53 weeks:
+By looking at the weekday-shift list, you can count how many years in a 28-year sequence have 53 weeks. These years have 53 weeks:
 
 | Year | Type   | January 1 of next year |
 | ---- | ------ | ---------------------- |
@@ -203,15 +203,15 @@ function isLeapYear(year) {
 Even though the function does what it should, it's incredibly hard to read. Modulus is used in five places, which clutters the code, and nested `if` statements are hard to follow. With the approach of starting with the narrowest rule, you can get a much cleaner function. We also take the opportunity to extract the modulus operation:
 
 ```js
+function isDivisibleBy(numerator, denominator) {
+	return numerator % denominator === 0
+}
+
 function isLeapYear(year) {
 	if (isDivisibleBy(year, 400)) return true
 	if (isDivisibleBy(year, 100)) return false
 	if (isDivisibleBy(year, 4)) return true
 	return false
-}
-
-function isDivisibleBy(numerator, denominator) {
-	return numerator % denominator === 0
 }
 ```
 
@@ -308,7 +308,7 @@ function getWeeksInYear(year) {
 
 Temporal follows [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601), so the leap-year reasoning is handled for you under the hood.
 
-Temporal landed in Chrome 144 (January 2026) and Firefox 139 (May 2025), and is available in Safari Technical Preview. For environments that don't have it yet, the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill) polyfill works, or an established library like [date-fns](https://date-fns.org/).
+Temporal is a recent addition, so support still varies across environments. Where it isn't available, the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill) polyfill works, or an established library like [date-fns](https://date-fns.org/).
 
 The manual implementation in this article is therefore essentially superfluous in practice — but hopefully pedagogically useful for understanding _why_ some years have 53 weeks.
 

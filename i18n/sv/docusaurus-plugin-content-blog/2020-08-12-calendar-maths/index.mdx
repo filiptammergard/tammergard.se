@@ -19,7 +19,7 @@ Den här artikeln beskriver veckonumreringen enligt [ISO 8601](https://sv.wikipe
 ## TL;DR
 
 - Oftast har ett år 52 veckor, men vissa år har 53 veckor.
-- Om den 53:e veckan ska finnas eller inte beror både på vilken veckodag den 1 januari nästa år är och om nuvarande år är ett [skottår](https://sv.wikipedia.org/wiki/Skott%C3%A5r) eller inte.
+- Om ett år ska ha 53 veckor eller inte beror på vilken veckodag den 1 januari följande år är och om det aktuella året är ett [skottår](https://sv.wikipedia.org/wiki/Skott%C3%A5r) eller inte.
 - Skottår förekommer i genomsnitt lite mindre än var fjärde år, vilket gör modellen för när 53 veckor ska förekomma klurig.
 
 Testa den färdiga veckonumrerings- och skottårsmodellen här:
@@ -30,7 +30,7 @@ Testa den färdiga veckonumrerings- och skottårsmodellen här:
 
 ## Hur funkar det egentligen med veckonummer?
 
-De flesta år har 52 veckor. Om man kollar i kalendern verkar dock ungefär var femte eller var sjätte år ha 53 veckor. Vad som bestämmer om den 53:e veckan ska finnas är inte så simpelt, utan något så märkligt som vilken veckodag det nya året börjar på. Om den 1 januari är en måndag, tisdag, onsdag eller torsdag blir veckan som innehåller 1 januari vecka 1. Om 1 januari är en fredag, däremot, blir den veckan 53 (trots att det är januari). Om 1 januari är en lördag blir den veckan 53 om det förra året var ett skottår och 52 om det förra året var ett normalår. Om 1 januari är en söndag blir den veckan 52 oavsett om det förra året var ett skottår eller inte.
+De flesta år har 52 veckor. Om man kollar i kalendern verkar dock ungefär var femte eller var sjätte år ha 53 veckor. Vad som bestämmer om ett år ska ha 53 veckor är inte så simpelt, utan något så märkligt som vilken veckodag det nya året börjar på. Om den 1 januari är en måndag, tisdag, onsdag eller torsdag blir veckan som innehåller 1 januari vecka 1. Om 1 januari är en fredag, däremot, blir den veckan 53 (trots att det är januari). Om 1 januari är en lördag blir den veckan 53 om föregående år var ett skottår och 52 om föregående år var ett normalår. Om 1 januari är en söndag blir den veckan 52 oavsett om föregående år var ett skottår eller inte.
 
 ### Veckonumreringsmodell
 
@@ -38,7 +38,7 @@ Modellen kan tydliggöras och sammanfattas i en lista så här:
 
 - Om 1 januari är en måndag, tisdag, onsdag, eller torsdag tillhör dagen vecka 1.
 - Om 1 januari är en fredag tillhör dagen vecka 53.
-- Om 1 januari är en lördag tillhör dagen vecka 53 (vid skottår) eller 52 (vid normalår).
+- Om 1 januari är en lördag tillhör dagen vecka 53 om föregående år var ett skottår, annars vecka 52.
 - Om 1 januari är en söndag tillhör dagen vecka 52.
 
 ### Veckodagsförskjutning utan skottår
@@ -110,9 +110,9 @@ Här kan man se att alla sju veckodagar förekommer innan samma veckodag föreko
 
 Påminn dig själv om veckonumreringsmodellen:
 
-> 1 januari tillhör vecka 53 om det är en fredag både vid normalår eller skottår, eller en lördag vid skottår.
+> 1 januari tillhör vecka 53 om det är en fredag, eller om det är en lördag och föregående år var ett skottår.
 
-Ett år har 53 veckor precis när nästa års 1 januari hör till vecka 53. Genom att kolla i veckodagsförskjutningslistan kan man räkna hur många år i en sekvens på 28 år som har 53 veckor. Dessa år har 53 veckor:
+Genom att kolla i veckodagsförskjutningslistan kan man räkna hur många år i en sekvens på 28 år som har 53 veckor. Dessa år har 53 veckor:
 
 | År  | Typ      | 1 januari året efter |
 | --- | -------- | -------------------- |
@@ -130,7 +130,7 @@ Medräknat skottår förekommer som sagt 5 år med 53 veckor på en sekvens. 28/
 
 Att år med 53 veckor förekommer var 5,6:e år var ju lite klurigare än vad man kanske hade kunnat tro. Men det är dessvärre mer komplext än så. Jag har nämligen bortsett från den verkliga frekvensen för skottår.
 
-Anledningen att skottår överhuvudtaget existerar är för att årstider inte ska förskjutas framåt eller bakåt i kalendern med tiden. Om varje år skulle ha 365 dagar skulle årstider, dagjämningar och solstånd förskjutas flera veckor under en period av 100 år. Ett verkligt årstidsår (även kallat [tropiskt år](https://sv.wikipedia.org/wiki/Tropiskt_%C3%A5r)) är egentligen 365 dygn, 5 timmar, 48 minuter och 45 sekunder, vilket är lika med 365,2421875 dygn. Om ett årstidsår hade varit 365 + 1/4 = 365,25 dygn = 365 dygn och 6 timmar hade skottår var fjärde år fullkomligt kompenserat för förskjutningen. Men i verkligheten är ett årstidsår 11 minuter och 15 sekunder kortare än så, vilket betyder att en skottårsfrekvens på var fjärde år är lite för hög.
+Anledningen till att skottår överhuvudtaget existerar är för att årstider inte ska förskjutas framåt eller bakåt i kalendern med tiden. Om varje år skulle ha 365 dagar skulle årstider, dagjämningar och solstånd förskjutas flera veckor under en period av 100 år. Ett verkligt årstidsår (även kallat [tropiskt år](https://sv.wikipedia.org/wiki/Tropiskt_%C3%A5r)) är egentligen 365 dygn, 5 timmar, 48 minuter och 45 sekunder, vilket är lika med 365,2421875 dygn. Om ett årstidsår hade varit 365 + 1/4 = 365,25 dygn = 365 dygn och 6 timmar hade skottår var fjärde år fullkomligt kompenserat för förskjutningen. Men i verkligheten är ett årstidsår 11 minuter och 15 sekunder kortare än så, vilket betyder att en skottårsfrekvens på var fjärde år är lite för hög.
 
 Den lite för höga skottårsfrekvensen kompenseras genom att sekelår inte är skottår. I vanliga fall är alla år som är delbara med 4 skottår (alltså exempelvis år 4, 16 eller 2020), men att sekelår inte är skottår betyder att exempelvis år 100, 1900 eller 2100 inte är skottår även om de är delbara med 4 (vilket de alltid är rent matematiskt).
 
@@ -203,15 +203,15 @@ function isLeapYear(year) {
 Även om funktionen gör vad den ska är den oerhört svårläst. Dels används modulus på fem ställen och gör koden plottrig, dels är det svårt att läsa if-satser som befinner sig i if-satser i flera led. Med angreppssättet att börja med den snävaste regeln kan man få till en betydligt snyggare funktion. Vi passar också på att bryta ut modulus-beräkningarna i en egen funktion:
 
 ```js
+function isDivisibleBy(numerator, denominator) {
+	return numerator % denominator === 0
+}
+
 function isLeapYear(year) {
 	if (isDivisibleBy(year, 400)) return true
 	if (isDivisibleBy(year, 100)) return false
 	if (isDivisibleBy(year, 4)) return true
 	return false
-}
-
-function isDivisibleBy(numerator, denominator) {
-	return numerator % denominator === 0
 }
 ```
 
@@ -308,7 +308,7 @@ function getWeeksInYear(year) {
 
 Temporal följer [ISO 8601](https://sv.wikipedia.org/wiki/ISO_8601), så skottårsresonemanget sköts åt en under huven.
 
-Temporal landade i Chrome 144 (januari 2026) och Firefox 139 (maj 2025), och finns i Safari Technical Preview. För miljöer som inte har det än fungerar polyfillen [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill), eller ett etablerat bibliotek som [date-fns](https://date-fns.org/).
+Temporal är ett relativt nytt tillägg, så stödet varierar fortfarande mellan miljöer. Där den inte finns fungerar polyfillen [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill), eller ett etablerat bibliotek som [date-fns](https://date-fns.org/).
 
 Den manuella implementationen i den här artikeln blir alltså i praktiken överflödig – men förhoppningsvis pedagogiskt nyttig för att förstå _varför_ vissa år har 53 veckor.
 

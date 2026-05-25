@@ -39,15 +39,19 @@ export function CalendarMaths() {
 
 	return (
 		<div style={{ marginBottom: "1rem" }}>
-			<input
-				type="number"
-				placeholder={translate({
-					id: "calendarMaths.placeholder",
-					message: "Enter a year…",
-				})}
-				value={year ?? ""}
-				onChange={handleInputChange}
-			/>
+			<label style={{ display: "block", marginBottom: "0.5rem" }}>
+				<Translate id="calendarMaths.label">Year</Translate>
+				<input
+					type="number"
+					placeholder={translate({
+						id: "calendarMaths.placeholder",
+						message: "Enter a year…",
+					})}
+					value={year ?? ""}
+					onChange={handleInputChange}
+					style={{ display: "block", marginTop: "0.25rem" }}
+				/>
+			</label>
 			{year !== null && (
 				<p style={{ marginTop: "1rem" }}>
 					{isLeapYear(year) ? (
