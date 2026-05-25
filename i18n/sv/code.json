@@ -223,7 +223,7 @@
 		"description": "The label for the mobile language switcher dropdown"
 	},
 	"theme.blog.post.readMore": {
-		"message": "Läs Mer",
+		"message": "Läs mer",
 		"description": "The label used in blog post item excerpts to link to full blog posts"
 	},
 	"theme.blog.post.readMoreLabel": {

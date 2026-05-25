@@ -13,46 +13,41 @@ function getMillisecondsDiff(start: Date, end: Date) {
 	return end.getTime() - start.getTime()
 }
 
-function getDaysInMonth(date: Date) {
-	return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
+function addMonths(date: Date, n: number) {
+	const result = new Date(date)
+	result.setDate(1)
+	result.setMonth(date.getMonth() + n)
+	const daysInResultMonth = new Date(
+		result.getFullYear(),
+		result.getMonth() + 1,
+		0,
+	).getDate()
+	result.setDate(Math.min(date.getDate(), daysInResultMonth))
+	return result
 }
 
 function getMonthsDiff(start: Date, end: Date) {
-	const fullMonths =
+	let months =
 		(end.getFullYear() - start.getFullYear()) * 12 +
-		end.getMonth() -
-		start.getMonth()
-	const msInEndMonth = getDaysInMonth(end) * MS_PER_DAY
-	const startInEndMonth = new Date(
-		end.getFullYear(),
-		end.getMonth(),
-		start.getDate(),
-		start.getHours(),
-		start.getMinutes(),
-		start.getSeconds(),
-		start.getMilliseconds(),
-	)
-	const fractional = (end.getTime() - startInEndMonth.getTime()) / msInEndMonth
-	return fullMonths + fractional
+		(end.getMonth() - start.getMonth())
+	if (addMonths(start, months) > end) months -= 1
+	const anchor = addMonths(start, months)
+	const nextAnchor = addMonths(start, months + 1)
+	const fractional =
+		(end.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return months + fractional
 }
 
 function getYearsDiff(start: Date, end: Date) {
-	const fullYears = end.getFullYear() - start.getFullYear()
-	const msInStartYear =
-		new Date(start.getFullYear() + 1, 0, 1).getTime() -
-		new Date(start.getFullYear(), 0, 1).getTime()
-	const startMonthInEndYear = new Date(
-		end.getFullYear(),
-		start.getMonth(),
-		start.getDate(),
-		start.getHours(),
-		start.getMinutes(),
-		start.getSeconds(),
-		start.getMilliseconds(),
-	)
+	let years = end.getFullYear() - start.getFullYear()
+	if (addMonths(start, years * 12) > end) years -= 1
+	const anchor = addMonths(start, years * 12)
+	const nextAnchor = addMonths(start, (years + 1) * 12)
 	const fractional =
-		(end.getTime() - startMonthInEndYear.getTime()) / msInStartYear
-	return fullYears + fractional
+		(end.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return years + fractional
 }
 
 function toDateInputValue(date: Date) {
@@ -100,7 +95,7 @@ export function BirthdayStats() {
 
 	return (
 		<>
-			<div className={styles.inputWrapper}>
+			<div className={styles.field}>
 				<label>
 					<Translate id="birthdayMaths.startDate">Pick a start date</Translate>
 					<input
@@ -113,13 +108,6 @@ export function BirthdayStats() {
 						}
 					/>
 				</label>
-				<button
-					className={styles.todayButton}
-					type="button"
-					onClick={() => setStartDate(new Date())}
-				>
-					<Translate id="birthdayMaths.today">Today</Translate>
-				</button>
 			</div>
 			<small className={styles.smallBlock}>
 				<Translate id="birthdayMaths.startDateHelp">
@@ -136,7 +124,7 @@ export function BirthdayStats() {
 			</label>
 			<br />
 			<br />
-			<div className={styles.inputWrapper}>
+			<div className={styles.field}>
 				<label>
 					<Translate id="birthdayMaths.endDate">Pick an end date</Translate>
 					<input
@@ -149,16 +137,6 @@ export function BirthdayStats() {
 						}
 					/>
 				</label>
-				<button
-					className={styles.todayButton}
-					type="button"
-					onClick={() => {
-						setEndDate(new Date())
-						setIsCustomEndDate(false)
-					}}
-				>
-					<Translate id="birthdayMaths.today">Today</Translate>
-				</button>
 			</div>
 			<small className={styles.smallBlock}>
 				<Translate id="birthdayMaths.endDateHelp">

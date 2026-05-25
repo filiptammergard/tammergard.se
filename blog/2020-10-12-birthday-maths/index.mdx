@@ -1,32 +1,36 @@
 ---
 slug: birthday-maths
 title: Birthday maths
-description: Compute your exact age in years, months, weeks, days, minutes and milliseconds with JavaScript's Date object, updating live in real time.
+description: Compute your exact age in years, months, weeks, days, minutes and milliseconds between any two moments with JavaScript's Date object, updating live in real time.
 authors: [filip]
 tags: [javascript]
 ---
 
 import { BirthdayStats, MyWeeks } from "./BirthdayStats"
 
-Have you ever wondered how old you are…in milliseconds? Or exactly how many weeks there are between two dates? Don't worry, in this post you can get the answer to all your "How many [unit] is it between [date] and [date]?" questions!
+Have you ever wondered how old you are…in milliseconds? Or exactly how many weeks there are between two moments in time? Don't worry, in this post you can get the answer to all your "How many [unit] is it between [moment] and [moment]?" questions!
 
-{/* truncate */}
+## TL;DR
+
+- Milliseconds, seconds, minutes, hours, days and weeks between two moments are trivial to compute — just divide the millisecond difference by the right constant.
+- Months and years are trickier because their length varies. The trick is to count full periods forward from the start date and add the fraction of the next period we've reached — the same anchor-based model the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) uses.
+- If you just want the answer, call `Temporal.Duration.prototype.total` directly instead of writing the math yourself.
+
+Try the model here:
 
 <BirthdayStats />
 
-## Date calculations
+{/* truncate */}
 
-Pick a start date and an end date above and get answers to everything you have ever wondered about! Before you change anything, the start date is my birthday and the end date is today's date. As you can see, the values keep updating, and they will as long as the end date is today's date. If you pick a different end date, the updates will stop.
+## Usage
 
-## How do the calculations work?
+Pick a start date and an end date above and get answers to everything you have ever wondered about! Before you change anything, the start date is my birthday and the end date is today's date. As you can see, the values keep updating, and they will as long as the end date is today's date. If you pick a different end date, the updates stop.
 
-There are many services on the internet that can help you compute how many days it is between two dates. However, the services I have come across count days in whole integers — which doesn't reflect that the current day is continuously approaching the next one. We need decimals! I also haven't found a service that shows how many years, months or weeks it is between two dates with many decimals of precision. Of course it has to exist!
+When you pick the start date you can also enter a time of day by ticking "Include time". That way you can specify your birthday with a precise time of day to find out exactly how many minutes old you are. When "Include time" is unticked, the time defaults to 00:00:00.000, and when it's ticked, hours and minutes are taken from the picker while seconds and milliseconds default to 0. The seconds and milliseconds in the result are especially interesting because they tick in real time while the end date is today's date — you can really see time pass.
 
-When you pick the start date, you can also enter the time of day by ticking "Include time". That way, you can specify your birthday with a precise time of day to find out exactly how many minutes you are. The calculations for seconds and milliseconds were fun to include, but obviously aren't very relevant since milliseconds and seconds can't be picked in the start or end date. When "Include time" is unticked, the time defaults to 00:00:00:00, and when it's ticked, the seconds value defaults to 00. If you click "Today", the exact current millisecond is picked. When the end date is set to "Today", the values keep counting up to the current millisecond so you can watch yourself age in real time.
+## The Date object
 
-In JavaScript, the built-in `Date` object holds a lot of useful information and is therefore a great fit for this kind of calculation. With `new Date()` a new `Date` object is created with information about the current millisecond, which can be extracted with a number of functions belonging to the `Date` object. Here are a few examples for the date 2020-10-12.
-
-<small>Some of the functions on the JavaScript Date object</small>
+In JavaScript, the built-in `Date` object holds a lot of useful information and is therefore a great fit for this kind of calculation. With `new Date()` a new `Date` object is created with information about the current millisecond, which can be extracted with a number of functions belonging to the `Date` object. Here are a few examples for the date 2020-10-12:
 
 ```js
 const now = new Date()
@@ -44,266 +48,160 @@ const currentTime = now.getTime()
 // currentTime = 1602486314645
 ```
 
-<br />
+Two of these that might look strange are `getMonth` and `getTime`. Even though it is 2020-10-12, `currentMonth` is 9. That's because months are counted from 0. So January is 0, all the way to December which is month 11. You might assume `getTime` returns a time of day like "09:05", but instead it returns something as odd as the number of milliseconds since midnight 1970-01-01. That is JavaScript's way of expressing an exact moment in time. Any time before 1970-01-01 is therefore represented as a negative number when using `getTime`.
 
-Two of these that might look strange are `getMonth` and `getTime`. Even though it is 2020-10-12, `currentMonth` is `9`. That's because months are counted from `0`. So January is `0`, all the way to December which is month `11`. You might assume `getTime` returns a time of day like "09:05", but instead it returns something as odd as the number of milliseconds since midnight 1970-01-01. That is JavaScript's way of expressing an exact point in time. Any time before 1970-01-01 is therefore represented as a negative number when using `getTime`.
+## The calculations
 
-The functions for computing milliseconds, seconds, minutes, hours, days and weeks between two `Date` objects are all trivial. Here's how they can be computed in JavaScript:
-
-<small>Compute milliseconds between two Date objects</small>
+The trivial part: every unit with a fixed length can be computed by dividing the millisecond difference by the right constant.
 
 ```js
+const MS_PER_SECOND = 1000
+const MS_PER_MINUTE = MS_PER_SECOND * 60
+const MS_PER_HOUR = MS_PER_MINUTE * 60
+const MS_PER_DAY = MS_PER_HOUR * 24
+const MS_PER_WEEK = MS_PER_DAY * 7
+
 function getMillisecondsDiff(startDate, endDate) {
 	return endDate.getTime() - startDate.getTime()
 }
-```
 
-<br />
-
-To compute the number of seconds between two `Date` objects, the `getMillisecondsDiff` function can be reused, like this:
-
-<small>Compute seconds between two Date objects</small>
-
-```js
 function getSecondsDiff(startDate, endDate) {
-	const milliseconds = getMillisecondsDiff(startDate, endDate)
-	const seconds = milliseconds / 1000
-	return seconds
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_SECOND
 }
-```
 
-<br />
-
-Then we keep going in the same fashion, reusing the previous function each time:
-
-<small>Compute minutes between two Date objects</small>
-
-```js
 function getMinutesDiff(startDate, endDate) {
-	const seconds = getSecondsDiff(startDate, endDate)
-	const minutes = seconds / 60
-	return minutes
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_MINUTE
 }
-```
 
-<br />
-
-<small>Compute hours between two Date objects</small>
-
-```js
 function getHoursDiff(startDate, endDate) {
-	const minutes = getMinutesDiff(startDate, endDate)
-	const hours = minutes / 60
-	return hours
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_HOUR
 }
-```
 
-<br />
-
-<small>Compute days between two Date objects</small>
-
-```js
 function getDaysDiff(startDate, endDate) {
-	const hours = getHoursDiff(startDate, endDate)
-	const days = hours / 24
-	return days
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_DAY
 }
-```
 
-<br />
-
-<small>Compute weeks between two Date objects</small>
-
-```js
 function getWeeksDiff(startDate, endDate) {
-	const days = getDaysDiff(startDate, endDate)
-	const weeks = days / 7
-	return weeks
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_WEEK
 }
 ```
 
-<br />
+All these functions follow the same pattern — just swap the constant in the denominator. Thanks to the millisecond resolution we get "live" decimals that tick upwards in real time for free.
 
-These functions are all built on simple math. Computing _exactly_ how many months or years it is between two `Date` objects is going to turn out to be a lot harder.
+Computing _exactly_ how many months or years it is between two `Date` objects is going to turn out to be a lot harder.
 
-### Computing months between dates
+### Computing months between moments
 
 Before we get into computing in code, we have to consider how _one_ month is defined. Since the length of a month varies — unlike days per week or minutes per hour — it isn't obvious how many months 10 days is. Should the average length of a month be used? Probably not — both because it's awkward to compute given [the complexity around leap years](/blog/calendar-maths), and because it would lead to oddities like February 1–15 being counted as less than a month even though more than half of the current month has passed.
 
-I land on using the length of the _current_ month to compute the decimals. Let me explain with a few examples.
+Instead, we'll use an _anchor-based_ model — the same one the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration/total) uses:
+
+1. Count how many whole months fit when we step forward from the start date, month by month.
+2. Place an _anchor_ at start + that many months.
+3. The fractional part is how far we've moved from the anchor toward the next anchor (one more month), divided by the length of that period.
+
+Let me explain with a few examples.
 
 <small>Example 1</small>
 
 Start date: 2018-01-01 at 00:00<br /> End date: 2020-02-01 at 00:00
 
-To compute the number of months between the start date and end date in Example 1, we can begin by counting how many whole months there are between the dates. All of 2018 and 2019 give 24 months, and January gives one more, which results in 25 whole months. But what if the start month is, say, April in the example above? Let's try it as a new example.
+All of 2018 and 2019 give 24 months, and January 2020 gives one more — that's 25 whole months. The end date lands exactly on the next anchor (2020-02-01), so the fraction is 0. Total: 25 months.
 
 <small>Example 2</small>
 
 Start date: 2018-04-01 at 00:00<br /> End date: 2020-02-01 at 00:00
 
-This can be computed in the same way as Example 1 with the addition that the start month is subtracted from the result. So 12 + 12 + 2 - 4 = 22 months. The computation looks like this in JavaScript:
-
-<small>Compute the number of whole months between two Date objects</small>
-
-```js
-const fullMonths =
-	(endDate.getFullYear() - startDate.getFullYear()) * 12 +
-	endDate.getMonth() -
-	startDate.getMonth()
-```
-
-<br />
-
-For this to truly be whole months, we assume it's the first day of each month. We need to account for the fact that it isn't always. Let's take a third example:
+From April 2018, 22 whole months fit up to February 2020. Once again, the end date lands exactly on the anchor, so the fraction is 0. Total: 22 months.
 
 <small>Example 3</small>
 
 Start date: 2018-04-24 at 00:00<br /> End date: 2020-02-06 at 00:00
 
-My thinking is that the calculation should start from there being 22 months between 2018-04-24 at 00:00 and 2020-02-24 at 00:00, then use the length of February to add or remove the remainder. To make it as exact as possible, we can compute the number of milliseconds between the end date and 2020-02-24 at 00:00 and divide it by the number of milliseconds in the end date's month. Like this:
+From 2018-04-24 we can step forward month by month: 2018-05-24, 2018-06-24, …, all the way to 2020-01-24. The next anchor would be 2020-02-24, but that's _after_ the end date, so we stop there. That gives us 21 whole months, with the anchor on 2020-01-24.
 
-<small>
-	Compute the exact number of months with decimals between two Date objects
-</small>
+The fractional part is how far we've moved from the anchor (2020-01-24) toward the next anchor (2020-02-24). The end date 2020-02-06 is 13 days after 2020-01-24, and the full period 2020-01-24 → 2020-02-24 is 31 days. So 13/31 ≈ 0.4193548 of a month. Total: 21.4193548 months.
+
+### Adding months is trickier than it sounds
+
+To compute the anchor we need a function that adds `n` months to a date. Trickier than it sounds, because months have different lengths:
+
+- 2018-01-31 + 1 month = ? February doesn't have 31 days. The standard answer is to _clamp_ to the last day of the target month: 2018-02-28.
+- 2020-01-31 + 1 month = 2020-02-29 (leap year!).
+- 2020-02-29 + 12 months = 2021-02-28 (clamping again).
+
+JavaScript's built-in `setMonth` also has a sneaky quirk: `new Date(2018, 0, 31)` followed by `setMonth(1)` gives 2018-03-03, not 2018-02-28, because JavaScript "rolls over" the days instead of clamping. We can work around it by first setting the day to 1, then changing the month, and finally setting the day again with clamping:
 
 ```js
-const daysInEndDateMonth = new Date(
-	endDate.getFullYear(),
-	endDate.getMonth() + 1,
-	0,
-).getDate()
-const millisecondsInEndDateMonth = daysInEndDateMonth * 24 * 60 * 60 * 1000
-const startDateInEndDateMonth = new Date(
-	endDate.getFullYear(),
-	endDate.getMonth(),
-	startDate.getDate(),
-	startDate.getHours(),
-	startDate.getMinutes(),
-	startDate.getSeconds(),
-	startDate.getMilliseconds(),
-)
-const millisecondsDiffInEndDateMonth =
-	endDate.getTime() - startDateInEndDateMonth.getTime()
-const fractionalMonth =
-	millisecondsDiffInEndDateMonth / millisecondsInEndDateMonth
-const months = fullMonths + fractionalMonth
+function addMonths(date, n) {
+	const result = new Date(date)
+	result.setDate(1) // Avoid day-overflow when changing month
+	result.setMonth(date.getMonth() + n)
+	const daysInResultMonth = new Date(
+		result.getFullYear(),
+		result.getMonth() + 1,
+		0,
+	).getDate()
+	result.setDate(Math.min(date.getDate(), daysInResultMonth))
+	return result
+}
 ```
 
-<br />
+The second-to-last line uses the day-0 trick: `new Date(year, month + 1, 0)` looks like "day 0 of next month", but JavaScript normalizes it to the last day of the current month. A neat way to get the days in a month without thinking about leap years yourself.
 
-Pulled out into functions, `getMonthsDiff` looks like this:
+### The model in code
 
-<small>Compute months between two Date objects</small>
+With `addMonths` in place, `getMonthsDiff` looks like this:
 
 ```js
 function getMonthsDiff(startDate, endDate) {
-	const fullMonths = getFullMonth(startDate, endDate)
-	const daysInEndDateMonth = getDaysInMonth(endDate)
-	const millisecondsInEndDateMonth =
-		convertDaysToMilliseconds(daysInEndDateMonth)
-	const startDateInEndDateMonth = getStartDateInEndDateMonth(startDate, endDate)
-	const millisecondsDiffInEndDateMonth =
-		endDate.getTime() - startDateInEndDateMonth.getTime()
-	const fractionalMonth =
-		millisecondsDiffInEndDateMonth / millisecondsInEndDateMonth
-	const months = fullMonths + fractionalMonth
-	return months
-}
-
-function getFullMonth(startDate, endDate) {
-	return (
+	let months =
 		(endDate.getFullYear() - startDate.getFullYear()) * 12 +
-		endDate.getMonth() -
-		startDate.getMonth()
-	)
-}
+		(endDate.getMonth() - startDate.getMonth())
+	if (addMonths(startDate, months) > endDate) months -= 1
 
-function getDaysInMonth(date) {
-	return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-}
-
-function convertDaysToMilliseconds(days) {
-	return days * 24 * 60 * 60 * 1000
-}
-
-function getStartDateInEndDateMonth(startDate, endDate) {
-	return new Date(
-		endDate.getFullYear(),
-		endDate.getMonth(),
-		startDate.getDate(),
-		startDate.getHours(),
-		startDate.getMinutes(),
-		startDate.getSeconds(),
-		startDate.getMilliseconds(),
-	)
+	const anchor = addMonths(startDate, months)
+	const nextAnchor = addMonths(startDate, months + 1)
+	const fractional =
+		(endDate.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return months + fractional
 }
 ```
 
-<br />
+The first expression computes the difference in _calendar months_ between end and start, which is an upper bound on the number of whole months. If we've overshot — i.e., if the anchor at that many months lands after the end date (as in Example 3, where 2020-02-24 is after 2020-02-06) — we step back by one. Then we divide the distance from the anchor to the end date by the length of the next full month period.
 
-We can now test `getMonthsDiff` by passing in the start and end date from Example 3:
-
-<small>Number of months between two Date objects</small>
+We can now test `getMonthsDiff` with Example 3:
 
 ```js
 const startDate = new Date("2018-04-24 00:00")
 const endDate = new Date("2020-02-06 00:00")
 const monthsDiff = getMonthsDiff(startDate, endDate)
 
-// monthsDiff = 21.379310344827587
+// monthsDiff = 21.419354838709676
 ```
 
-<br />
+That matches the sanity check above (21 + 13/31).
 
-A bit of mental math shows it looks correct. Instead of computing in milliseconds, we can do a check using whole days, which should still match since the time of day is the same for the start and end date in the example.
+### Computing years between moments
 
-Whole months are still 22 (per above). Then we need to subtract 24 - 6 = 18 days divided by the number of days in February 2020, which is 29 since 2020 is a leap year. 18/29 = 0.62068966. Finally, we get the number of months as 22 - 0.62068966 = 21.3793103, which matches the answer from `getMonthsDiff` exactly.
-
-### Computing years between dates
-
-Exactly the same computation principle can be used for computing years between two dates:
-
-<small>Compute years between two Date objects</small>
+Years use the exact same anchor model — they're really just twelve months at a time:
 
 ```js
 function getYearsDiff(startDate, endDate) {
-	const fullYears = endDate.getFullYear() - startDate.getFullYear()
-	const millisecondsInEndDateYear = getMillisecondsInYear(startDate)
-	const startMonthInEndDateYear = getStartMonthInEndDateYear(startDate, endDate)
-	const millisecondsDiffInEndDateYear =
-		endDate.getTime() - startMonthInEndDateYear.getTime()
-	const fractionalYears =
-		millisecondsDiffInEndDateYear / millisecondsInEndDateYear
-	const years = fullYears + fractionalYears
-	return years
-}
+	let years = endDate.getFullYear() - startDate.getFullYear()
+	if (addMonths(startDate, years * 12) > endDate) years -= 1
 
-function getMillisecondsInYear(date) {
-	return (
-		new Date(date.getFullYear(), 12, 0).getTime() -
-		new Date(date.getFullYear(), 0, 1).getTime()
-	)
-}
-
-function getStartMonthInEndDateYear(startDate, endDate) {
-	return new Date(
-		endDate.getFullYear(),
-		startDate.getMonth(),
-		startDate.getDate(),
-		startDate.getHours(),
-		startDate.getMinutes(),
-		startDate.getSeconds(),
-		startDate.getMilliseconds(),
-	)
+	const anchor = addMonths(startDate, years * 12)
+	const nextAnchor = addMonths(startDate, (years + 1) * 12)
+	const fractional =
+		(endDate.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return years + fractional
 }
 ```
 
-<br />
-
-We test `getYearsDiff` with a couple of example dates:
-
-<small>Years between two Date objects</small>
+Testing with a simple case gives what we'd expect:
 
 ```js
 const startDate = new Date("2018-01-01")
@@ -313,22 +211,120 @@ const yearsDiff = getYearsDiff(startDate, endDate)
 // yearsDiff = 2
 ```
 
-<br />
-
-That it's exactly two years between 2018-01-01 and 2020-01-01 is reassuring. Let's try something a little more complicated:
-
-<small>Years between two new Date objects</small>
+And with something more complicated:
 
 ```js
 const startDate = new Date("2018-05-03")
 const endDate = new Date("2020-03-22")
 const yearsDiff = getYearsDiff(startDate, endDate)
 
-// yearsDiff = 1.8846153846153846
+// yearsDiff = 1.8852459016393444
 ```
 
-<br />
+Sanity check: 1 whole year fits from 2018-05-03 to 2019-05-03. The next anchor (2020-05-03) lands after the end date, so we stop. The fraction is (2020-03-22 − 2019-05-03) / (2020-05-03 − 2019-05-03) = 324 / 366 = 0.8852459. Total: 1.8852459 years.
 
-I won't do a manual check here, but `getYearsDiff` also seems to be doing what it should (and I have verified manually myself).
+### Putting it all together
+
+The full implementation looks like this:
+
+```js
+const MS_PER_SECOND = 1000
+const MS_PER_MINUTE = MS_PER_SECOND * 60
+const MS_PER_HOUR = MS_PER_MINUTE * 60
+const MS_PER_DAY = MS_PER_HOUR * 24
+const MS_PER_WEEK = MS_PER_DAY * 7
+
+function getMillisecondsDiff(startDate, endDate) {
+	return endDate.getTime() - startDate.getTime()
+}
+
+function getSecondsDiff(startDate, endDate) {
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_SECOND
+}
+
+function getMinutesDiff(startDate, endDate) {
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_MINUTE
+}
+
+function getHoursDiff(startDate, endDate) {
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_HOUR
+}
+
+function getDaysDiff(startDate, endDate) {
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_DAY
+}
+
+function getWeeksDiff(startDate, endDate) {
+	return getMillisecondsDiff(startDate, endDate) / MS_PER_WEEK
+}
+
+function addMonths(date, n) {
+	const result = new Date(date)
+	result.setDate(1)
+	result.setMonth(date.getMonth() + n)
+	const daysInResultMonth = new Date(
+		result.getFullYear(),
+		result.getMonth() + 1,
+		0,
+	).getDate()
+	result.setDate(Math.min(date.getDate(), daysInResultMonth))
+	return result
+}
+
+function getMonthsDiff(startDate, endDate) {
+	let months =
+		(endDate.getFullYear() - startDate.getFullYear()) * 12 +
+		(endDate.getMonth() - startDate.getMonth())
+	if (addMonths(startDate, months) > endDate) months -= 1
+	const anchor = addMonths(startDate, months)
+	const nextAnchor = addMonths(startDate, months + 1)
+	const fractional =
+		(endDate.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return months + fractional
+}
+
+function getYearsDiff(startDate, endDate) {
+	let years = endDate.getFullYear() - startDate.getFullYear()
+	if (addMonths(startDate, years * 12) > endDate) years -= 1
+	const anchor = addMonths(startDate, years * 12)
+	const nextAnchor = addMonths(startDate, (years + 1) * 12)
+	const fractional =
+		(endDate.getTime() - anchor.getTime()) /
+		(nextAnchor.getTime() - anchor.getTime())
+	return years + fractional
+}
+```
+
+### Better alternatives
+
+The model above is essentially a hand-rolled version of Temporal's `Duration.prototype.total`. In new code I'd just use the [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) directly:
+
+```js
+const start = Temporal.PlainDateTime.from("1994-08-06T10:00")
+const end = Temporal.Now.plainDateTimeISO()
+
+// Decimals in a specific unit
+const years = end.since(start).total({ unit: "year", relativeTo: start })
+const months = end.since(start).total({ unit: "month", relativeTo: start })
+const weeks = end.since(start).total({ unit: "week" })
+
+// Or as an integer breakdown: { years, months, days, hours, ... }
+const duration = end.since(start, { largestUnit: "year" })
+```
+
+Temporal is a recent addition, so support still varies across environments. Where it isn't available, the [`@js-temporal/polyfill`](https://www.npmjs.com/package/@js-temporal/polyfill) polyfill works.
+
+An established library like [date-fns](https://date-fns.org/) also has functions like `differenceInYears`, `differenceInMonths` and `differenceInWeeks`, but they only return integers — for decimals you'd have to combine multiple calls or compute on milliseconds yourself.
+
+So the manual implementation in this article is essentially obsolete in practice — but hopefully a useful exercise in understanding _why_ computing the months or years between two moments isn't always trivial.
 
 That's it! I can brag about being <MyWeeks /> weeks old, and you can see for yourself how old you are — _exactly_.
+
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTime
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal/Duration
+- https://date-fns.org/

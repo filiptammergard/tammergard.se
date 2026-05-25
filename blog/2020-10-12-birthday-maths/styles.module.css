@@ -5,6 +5,11 @@
 	margin-block-end: 4px;
 }
 
+.field input {
+	display: block;
+	margin-block-start: 4px;
+}
+
 .smallBlock {
 	display: block;
 	margin-block-end: 8px;
