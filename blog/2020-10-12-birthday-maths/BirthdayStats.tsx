@@ -1,4 +1,5 @@
 import Translate from "@docusaurus/Translate"
+import { useDecimalFormat } from "@site/src/hooks/useDecimalFormat"
 import { useInterval } from "@site/src/hooks/useInterval"
 import { type ChangeEvent, useState } from "react"
 import styles from "./styles.module.css"
@@ -69,6 +70,7 @@ export function BirthdayStats() {
 	const [isStartDateTime, setIsStartDateTime] = useState(false)
 	const [isEndDateTime, setIsEndDateTime] = useState(false)
 	const [isCustomEndDate, setIsCustomEndDate] = useState(false)
+	const formatDecimal = useDecimalFormat()
 
 	useInterval(() => setEndDate(new Date()), isCustomEndDate ? null : 500)
 
@@ -155,31 +157,31 @@ export function BirthdayStats() {
 				<small>
 					<Translate id="birthdayMaths.years">Years</Translate>
 				</small>
-				<p>{getYearsDiff(startDate, endDate).toFixed(12)}</p>
+				<p>{formatDecimal(getYearsDiff(startDate, endDate), 12)}</p>
 				<small>
 					<Translate id="birthdayMaths.months">Months</Translate>
 				</small>
-				<p>{getMonthsDiff(startDate, endDate).toFixed(12)}</p>
+				<p>{formatDecimal(getMonthsDiff(startDate, endDate), 12)}</p>
 				<small>
 					<Translate id="birthdayMaths.weeks">Weeks</Translate>
 				</small>
-				<p>{(ms / MS_PER_WEEK).toFixed(9)}</p>
+				<p>{formatDecimal(ms / MS_PER_WEEK, 9)}</p>
 				<small>
 					<Translate id="birthdayMaths.days">Days</Translate>
 				</small>
-				<p>{(ms / MS_PER_DAY).toFixed(9)}</p>
+				<p>{formatDecimal(ms / MS_PER_DAY, 9)}</p>
 				<small>
 					<Translate id="birthdayMaths.hours">Hours</Translate>
 				</small>
-				<p>{(ms / MS_PER_HOUR).toFixed(6)}</p>
+				<p>{formatDecimal(ms / MS_PER_HOUR, 6)}</p>
 				<small>
 					<Translate id="birthdayMaths.minutes">Minutes</Translate>
 				</small>
-				<p>{(ms / MS_PER_MINUTE).toFixed(6)}</p>
+				<p>{formatDecimal(ms / MS_PER_MINUTE, 6)}</p>
 				<small>
 					<Translate id="birthdayMaths.seconds">Seconds</Translate>
 				</small>
-				<p>{(ms / MS_PER_SECOND).toFixed(3)}</p>
+				<p>{formatDecimal(ms / MS_PER_SECOND, 3)}</p>
 				<small>
 					<Translate id="birthdayMaths.milliseconds">Milliseconds</Translate>
 				</small>
@@ -192,7 +194,8 @@ export function BirthdayStats() {
 export function MyWeeks() {
 	const [endDate, setEndDate] = useState(new Date())
 	useInterval(() => setEndDate(new Date()), 500)
+	const formatDecimal = useDecimalFormat()
 	const start = new Date("1994-08-06T10:00")
 	const weeks = (endDate.getTime() - start.getTime()) / MS_PER_WEEK
-	return <span className={styles.monospace}>{weeks.toFixed(9)}</span>
+	return <span className={styles.monospace}>{formatDecimal(weeks, 9)}</span>
 }

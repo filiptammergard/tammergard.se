@@ -1,19 +1,48 @@
 .container {
 	text-align: center;
 	margin-block-end: 3rem;
+	cursor: text;
+}
+
+.display {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 6rem;
+	margin-inline: auto;
+	margin-block-end: 1rem;
+	max-width: 18rem;
+	padding-inline: 1rem;
+	background-color: var(--ifm-color-emphasis-100);
+	border-radius: 0.5rem;
+	box-shadow: inset 0 0 0 1px transparent;
+	transition: box-shadow 150ms ease;
+}
+
+.container:focus-within .display {
+	box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
 }
 
 .letter {
 	font-family: var(--ifm-font-family-monospace);
 	font-size: 4rem;
+	line-height: 1;
+}
+
+.instruction {
+	color: var(--ifm-color-emphasis-700);
 }
 
 .input {
-	width: 4rem;
-	height: 4rem;
-	font-size: 4rem;
-	margin-block-end: 1rem;
-	text-align: center;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
 }
 
 .time {

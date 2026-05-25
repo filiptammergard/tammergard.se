@@ -1,68 +1,137 @@
 ---
 slug: letter-game
 title: Letter game
-description: Build a small typing game in React with TypeScript and see how useState and useEffect handle game state, timers and highscores.
+description: Build a small typing game in React with TypeScript — using useReducer, useEffect and a custom useInterval hook to handle game state, timers and high scores.
 authors: [filip]
-tags: [react]
+tags: [react, typescript]
 ---
 
 import { LetterGame } from "./LetterGame"
 
-Start the game by clicking the input box and then pressing space. The clock starts and you get a random letter to type as fast as you can. Each correct letter is followed by a new random letter, and if you type the wrong letter, the game ends. Go for it!
+Start the game by clicking the input and then pressing space. The clock starts and you get a random letter to type as fast as you can. Each correct letter is followed by a new random letter, and if you type the wrong letter, the game ends. Go for it!
 
-{/* truncate */}
+## TL;DR
+
+- A small typing game built in React with TypeScript.
+- [`useReducer`](https://react.dev/reference/react/useReducer) keeps the game state in a single discriminated union — "idle", "running" or "ended".
+- [`useEffect`](https://react.dev/reference/react/useEffect) reads the saved high score from local storage once on mount.
+- A custom `useInterval` hook drives the running clock.
+
+Try the finished game here:
 
 <LetterGame />
 
+{/* truncate */}
+
 ## The code behind the letter game
 
-This game is built in React (with TypeScript). React is really nice to work with and I think the code behind this simple game gives a small glimpse of why I dig React.
+This game is built in React with TypeScript. The code is small but touches on several React building blocks I reach for in real apps.
 
-### useState
+### useReducer
 
-One thing in the code that's unique to React is handling _state_ with `useState` hooks.
+The game has a few clearly distinct modes — _idle_ before you start, _running_ while you're typing, and _ended_ once you miss a letter. With several related fields that change together (time, current letter, correct count, score), [`useReducer`](https://react.dev/reference/react/useReducer) is a better fit than scattering the state across multiple `useState` calls.
+
+The shape of the state is described with TypeScript:
 
 ```tsx
-const [isRunning, setIsRunning] = useState<boolean>(false)
-const [time, setTime] = useState<number>(0)
-const [letter, setLetter] = useState<string>("")
-const [correct, setCorrect] = useState<number>(0)
-const [score, setScore] = useState<number>(0)
-const [highscore, setHighscore] = useState<number>(0)
+type GameState = "idle" | "running" | "ended"
+
+interface State {
+	state: GameState
+	time: number
+	letter: string
+	correct: number
+	score: number
+	highscore: number
+}
+
+type Action =
+	| { type: "start"; letter: string }
+	| { type: "correct"; letter: string }
+	| { type: "wrong"; score: number; newHighscore?: number }
+	| { type: "tick" }
+	| { type: "loadHighscore"; highscore: number }
+	| { type: "reset" }
 ```
 
-This handles all the data the game needs to keep track of — everything from whether the game is running to what the record is. Initial values for each state are set here, and since I use TypeScript I've also declared the data type for each state.
+The `Action` type is a [discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions), so each action carries exactly the data needed for that transition — and TypeScript narrows the type inside the reducer based on `action.type`.
+
+```tsx
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "start":
+			return {
+				...state,
+				state: "running",
+				letter: action.letter,
+				time: 0,
+				correct: 0,
+				score: 0,
+			}
+		case "correct":
+			return { ...state, letter: action.letter, correct: state.correct + 1 }
+		case "wrong":
+			return {
+				...state,
+				state: "ended",
+				score: action.score,
+				highscore: action.newHighscore ?? state.highscore,
+			}
+		case "tick":
+			return { ...state, time: state.time + TIMER_FREQUENCY }
+		case "loadHighscore":
+			return { ...state, highscore: action.highscore }
+		case "reset":
+			return { ...initialState, highscore: state.highscore }
+	}
+}
+```
+
+In the component, the whole game state comes from one call:
+
+```tsx
+const [state, dispatch] = useReducer(reducer, initialState)
+```
+
+State transitions are now expressed as `dispatch({ type: "correct", letter: ... })` rather than juggling multiple `setX` calls — easier to reason about and easier to grep for.
 
 ### useEffect
 
-Another nice thing about React is `useEffect`. With `useEffect`, you can make sure certain things only run when they need to.
+Another nice thing about React is [`useEffect`](https://react.dev/reference/react/useEffect). It lets us run side effects only when needed — in this case, reading the saved high score from local storage on mount.
 
 ```tsx
 useEffect(() => {
-	const savedHighscore = window.localStorage.getItem("letter_game_highscore")
-	if (savedHighscore != null) {
-		setHighscore(Number(savedHighscore))
+	const saved = window.localStorage.getItem(STORAGE_KEY)
+	const parsed = Number(saved)
+	if (Number.isFinite(parsed) && parsed > 0) {
+		dispatch({ type: "loadHighscore", highscore: parsed })
 	}
 }, [])
 ```
 
-The record is stored in _local storage_, so every time the page reloads I want to start by checking local storage for a saved record. If a record exists, I save it to state. As long as the page isn't reloaded, local storage doesn't need to be checked again. But how do we make sure the check only happens once? That's where `useEffect` comes in. The empty array tells React this effect should only run once.
+The empty dependency array tells React this effect should only run once — when the component mounts. The `Number.isFinite` check makes the load robust against corrupted local-storage values.
 
 ### Custom hooks
 
-`useState` and `useEffect` are examples of hooks built into React. You can also create your own hooks. One piece of functionality I use fairly often is some kind of timing or having something happen on an interval. This can be done with the JavaScript function `setInterval`, but to make it a bit smoother I've extracted `setInterval` handling into a custom hook called `useInterval`. See more details in [Custom hook: useInterval](/blog/custom-hook-useinterval).
+`useReducer` and `useEffect` are examples of hooks built into React. You can also create your own. One piece of functionality I use fairly often is some kind of timing or having something happen on an interval. This can be done with the JavaScript function `setInterval`, but to make it a bit smoother I've extracted `setInterval` handling into a custom hook called `useInterval`. See more details in [Custom hook: useInterval](/blog/custom-hook-useinterval).
 
-My own `useInterval` hook makes it possible to do timing in a very simple way:
+In the letter game, `useInterval` dispatches a `tick` action every 50 ms while the game is running:
 
 ```tsx
 useInterval(
-	() => {
-		setTime(time + timerFrequency)
-	},
-	isRunning ? timerFrequency : null,
+	() => dispatch({ type: "tick" }),
+	state.state === "running" ? TIMER_FREQUENCY : null,
 )
 ```
 
-In plain English the implementation of `useInterval` works like this:
+Passing `null` as the delay tells `useInterval` to pause — so the timer is automatically active only during the `running` state, with no manual start/stop bookkeeping.
 
-> If the game is running, add to the time the time that has passed since the last tick. If the game is not running, stop the interval.
+There you go — a small typing game and a tour of the React building blocks behind it!
+
+## References
+
+- https://react.dev/reference/react/useReducer
+- https://react.dev/reference/react/useEffect
+- https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions
+- https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+- https://developer.mozilla.org/en-US/docs/Web/API/setInterval

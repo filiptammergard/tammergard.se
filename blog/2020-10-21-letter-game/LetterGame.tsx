@@ -1,107 +1,205 @@
-import Translate from "@docusaurus/Translate"
+import Translate, { translate } from "@docusaurus/Translate"
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext"
+import { useDecimalFormat } from "@site/src/hooks/useDecimalFormat"
 import { useInterval } from "@site/src/hooks/useInterval"
-import { type ChangeEvent, useEffect, useState } from "react"
+import {
+	type ChangeEvent,
+	type KeyboardEvent,
+	useEffect,
+	useReducer,
+	useRef,
+} from "react"
 import styles from "./styles.module.css"
 
 const TIMER_FREQUENCY = 50
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
+const ENGLISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const SWEDISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
 const STORAGE_KEY = "letter_game_highscore"
+const SECONDS_PER_MINUTE = 60
 
-function getRandomLetter() {
-	return ALPHABET[Math.floor(Math.random() * ALPHABET.length)]!
+type GameState = "idle" | "running" | "ended"
+
+interface State {
+	state: GameState
+	time: number
+	letter: string
+	correct: number
+	score: number
+	highscore: number
+}
+
+type Action =
+	| { type: "start"; letter: string }
+	| { type: "correct"; letter: string }
+	| { type: "wrong"; score: number; newHighscore?: number }
+	| { type: "tick" }
+	| { type: "loadHighscore"; highscore: number }
+	| { type: "reset" }
+
+const initialState: State = {
+	state: "idle",
+	time: 0,
+	letter: "",
+	correct: 0,
+	score: 0,
+	highscore: 0,
+}
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "start":
+			return {
+				...state,
+				state: "running",
+				letter: action.letter,
+				time: 0,
+				correct: 0,
+				score: 0,
+			}
+		case "correct":
+			return {
+				...state,
+				letter: action.letter,
+				correct: state.correct + 1,
+			}
+		case "wrong":
+			return {
+				...state,
+				state: "ended",
+				score: action.score,
+				highscore: action.newHighscore ?? state.highscore,
+			}
+		case "tick":
+			return { ...state, time: state.time + TIMER_FREQUENCY }
+		case "loadHighscore":
+			return { ...state, highscore: action.highscore }
+		case "reset":
+			return { ...initialState, highscore: state.highscore }
+	}
+}
+
+function getRandomLetter(alphabet: string, exclude?: string) {
+	const available = exclude ? alphabet.replace(exclude, "") : alphabet
+	return available[Math.floor(Math.random() * available.length)]!
 }
 
 export function LetterGame() {
-	const [isRunning, setIsRunning] = useState(false)
-	const [time, setTime] = useState(0)
-	const [letter, setLetter] = useState("")
-	const [correct, setCorrect] = useState(0)
-	const [score, setScore] = useState(0)
-	const [highscore, setHighscore] = useState(0)
+	const [state, dispatch] = useReducer(reducer, initialState)
+	const formatDecimal = useDecimalFormat()
+	const inputRef = useRef<HTMLInputElement>(null)
+	const {
+		i18n: { currentLocale },
+	} = useDocusaurusContext()
+	const alphabet = currentLocale === "sv" ? SWEDISH_ALPHABET : ENGLISH_ALPHABET
 
 	useInterval(
-		() => setTime((prev) => prev + TIMER_FREQUENCY),
-		isRunning ? TIMER_FREQUENCY : null,
+		() => dispatch({ type: "tick" }),
+		state.state === "running" ? TIMER_FREQUENCY : null,
 	)
 
 	useEffect(() => {
 		const saved = window.localStorage.getItem(STORAGE_KEY)
-		if (saved != null) {
-			setHighscore(Number(saved))
+		const parsed = Number(saved)
+		if (Number.isFinite(parsed) && parsed > 0) {
+			dispatch({ type: "loadHighscore", highscore: parsed })
 		}
 	}, [])
-
-	function reset() {
-		setIsRunning(true)
-		setLetter(getRandomLetter())
-		setTime(0)
-		setCorrect(0)
-		setScore(0)
-	}
 
 	function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
 		const input = e.target.value.toUpperCase()
 
-		if (!isRunning && input !== " ") return
-
-		if (!isRunning) {
-			reset()
+		if (state.state !== "running") {
+			if (input === " ") {
+				dispatch({ type: "start", letter: getRandomLetter(alphabet) })
+			}
 			return
 		}
 
-		if (input === letter) {
-			setLetter(getRandomLetter())
-			setCorrect((prev) => prev + 1)
+		if (input === state.letter) {
+			dispatch({
+				type: "correct",
+				letter: getRandomLetter(alphabet, state.letter),
+			})
 			return
 		}
 
-		setIsRunning(false)
-		const seconds = time / 1000
-		const calculatedScore = correct ** 1.2 / seconds
-		setScore(calculatedScore)
-		if (calculatedScore > highscore) {
-			window.localStorage.setItem(STORAGE_KEY, calculatedScore.toString())
-			setHighscore(calculatedScore)
+		const seconds = state.time / 1000
+		const newScore =
+			seconds > 0 ? (state.correct * SECONDS_PER_MINUTE) / seconds : 0
+		const isNewHighscore =
+			Number.isFinite(newScore) && newScore > state.highscore
+
+		if (isNewHighscore) {
+			window.localStorage.setItem(STORAGE_KEY, String(newScore))
+		}
+
+		dispatch({
+			type: "wrong",
+			score: newScore,
+			...(isNewHighscore && { newHighscore: newScore }),
+		})
+	}
+
+	function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+		if (e.key === "Escape") {
+			dispatch({ type: "reset" })
 		}
 	}
 
 	return (
-		<div className={styles.container}>
-			{isRunning ? (
-				<div className={styles.letter}>{letter}</div>
-			) : (
-				<p>
-					<Translate id="letterGame.pressSpaceToStart">
-						Press space to start
-					</Translate>
-				</p>
-			)}
+		<div
+			className={styles.container}
+			onClick={() => inputRef.current?.focus()}
+		>
+			<div className={styles.display}>
+				{state.state === "running" ? (
+					<span className={styles.letter}>{state.letter}</span>
+				) : (
+					<span className={styles.instruction}>
+						<Translate id="letterGame.pressSpaceToStart">
+							Press space to start
+						</Translate>
+					</span>
+				)}
+			</div>
 			<input
+				ref={inputRef}
 				className={styles.input}
 				type="text"
 				onChange={handleInputChange}
+				onKeyDown={handleKeyDown}
 				value=""
+				aria-label={translate({
+					id: "letterGame.inputLabel",
+					message: "Letter game input",
+				})}
 			/>
-			<p className={styles.time}>{(time / 1000).toFixed(2)} s</p>
-			{correct ? (
+			<p className={styles.time}>{formatDecimal(state.time / 1000, 2)} s</p>
+			{state.correct ? (
 				<p>
-					<Translate id="letterGame.lettersCount" values={{ count: correct }}>
+					<Translate
+						id="letterGame.lettersCount"
+						values={{ count: state.correct }}
+					>
 						{"Letters: {count}"}
 					</Translate>
 				</p>
 			) : null}
-			{score ? (
+			{state.score ? (
 				<p>
-					<Translate id="letterGame.score" values={{ score: score.toFixed(2) }}>
+					<Translate
+						id="letterGame.score"
+						values={{ score: formatDecimal(state.score, 2) }}
+					>
 						{"Your score: {score}"}
 					</Translate>
 				</p>
 			) : null}
-			{highscore ? (
+			{state.highscore ? (
 				<p>
 					<Translate
 						id="letterGame.highscore"
-						values={{ score: highscore.toFixed(2) }}
+						values={{ score: formatDecimal(state.highscore, 2) }}
 					>
 						{"Your record: {score}"}
 					</Translate>

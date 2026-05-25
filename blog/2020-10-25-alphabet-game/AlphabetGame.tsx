@@ -1,5 +1,6 @@
 import Translate, { translate } from "@docusaurus/Translate"
 import { TextInput } from "@site/src/components/TextInput/TextInput"
+import { useDecimalFormat } from "@site/src/hooks/useDecimalFormat"
 import { useInterval } from "@site/src/hooks/useInterval"
 import { type KeyboardEvent, useReducer } from "react"
 import styles from "./styles.module.css"
@@ -61,6 +62,7 @@ function reducer(state: State, action: Action): State {
 
 export function AlphabetGame() {
 	const [state, dispatch] = useReducer(reducer, initialState)
+	const formatDecimal = useDecimalFormat()
 
 	useInterval(
 		() => dispatch({ type: "tick" }),
@@ -129,7 +131,7 @@ export function AlphabetGame() {
 					<Translate id="alphabetGame.reset">Reset</Translate>
 				</button>
 			</div>
-			<p className={styles.time}>{formatTime(state.time)} s</p>
+			<p className={styles.time}>{formatDecimal(state.time / 1000, 2)} s</p>
 		</>
 	)
 }
@@ -137,8 +139,4 @@ export function AlphabetGame() {
 function getNextLetter(letter: string) {
 	const letterIndex = ALPHABET.indexOf(letter.toUpperCase())
 	return ALPHABET[letterIndex + 1]
-}
-
-function formatTime(milliseconds: number) {
-	return (milliseconds / 1000).toFixed(2)
 }

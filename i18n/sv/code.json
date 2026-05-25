@@ -441,5 +441,25 @@
 	"robberLang.placeholder": {
 		"message": "Skriv text att översätta…",
 		"description": "Placeholder for the text input in the robber language generator blog post"
+	},
+	"letterGame.pressSpaceToStart": {
+		"message": "Tryck på mellanslag för att börja",
+		"description": "Instruction shown before the letter game starts"
+	},
+	"letterGame.lettersCount": {
+		"message": "Bokstäver: {count}",
+		"description": "Label for the number of correct letters in the letter game"
+	},
+	"letterGame.score": {
+		"message": "Din poäng: {score}",
+		"description": "Label for the current score in the letter game"
+	},
+	"letterGame.highscore": {
+		"message": "Ditt rekord: {score}",
+		"description": "Label for the saved highscore in the letter game"
+	},
+	"letterGame.inputLabel": {
+		"message": "Inmatningsfält för bokstavsspel",
+		"description": "ARIA label for the hidden input in the letter game"
 	}
 }
