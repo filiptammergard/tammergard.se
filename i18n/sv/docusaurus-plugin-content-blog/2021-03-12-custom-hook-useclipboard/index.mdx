@@ -1,20 +1,20 @@
 ---
 slug: custom-hook-useclipboard
 title: "Custom hook: useClipboard"
-description: Förpacka navigator.clipboard.readText i en custom hook som returnerar klippbordets innehåll och en read-funktion.
+description: Förpacka navigator.clipboard.readText i en custom hook som returnerar clipboardens innehåll och en read-funktion.
 authors: [filip]
 tags: [react]
 ---
 
 import { UseClipboardDemo } from "@site/blog/2021-03-12-custom-hook-useclipboard/UseClipboardDemo"
 
-För ett tag sedan skrev jag ett [blogginlägg](/blog/what-have-i-copied) om hur man får tillgång till klippbordet med _navigator_-API:t. Jag bestämde mig för att göra det till en custom hook för att det skulle bli superlätt att använda. Innan vi går in i koden – klicka på knappen för att läsa ditt klippbord:
+För ett tag sedan skrev jag ett [blogginlägg](/blog/what-have-i-copied) om hur man får tillgång till clipboarden med _navigator_-API:t. Jag bestämde mig för att göra det till en custom hook för att det skulle bli superlätt att använda. Innan vi går in i koden – klicka på knappen för att läsa din clipboard:
 
 <UseClipboardDemo />
 
 {/* truncate */}
 
-Webbläsaren frågar om åtkomst till klippbordet första gången. När du har sagt ja ska du se ditt klippbordsinnehåll ovanför.
+Webbläsaren frågar om åtkomst till clipboarden första gången. När du har sagt ja ska du se ditt clipboard-innehåll ovanför.
 
 Här är hooken:
 
@@ -49,7 +49,7 @@ const Clipboard = () => {
 
 	return (
 		<>
-			<button onClick={read}>Visa klippbord</button>
+			<button onClick={read}>Visa clipboard</button>
 			<p>{clipboard ?? "Inget att visa..."}</p>
 		</>
 	)
@@ -60,4 +60,4 @@ export default Clipboard
 
 <br />
 
-Läsningen av klippbordet sker on demand när användaren klickar på knappen. Det undviker permission-prompts vid sidladdning och matchar hur webbläsare vill att API:t ska användas – klippbordsläsningar är tänkta att vara knutna till en användarinteraktion.
+Läsningen av clipboarden sker on demand när användaren klickar på knappen. Det undviker permission-prompts vid sidladdning och matchar hur webbläsare vill att API:t ska användas – clipboard-läsningar är tänkta att vara knutna till en användarinteraktion.

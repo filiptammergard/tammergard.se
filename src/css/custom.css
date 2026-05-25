@@ -243,3 +243,9 @@ article {
 	margin-bottom: 0.375rem;
 	color: var(--ifm-color-emphasis-800);
 }
+
+pre,
+code {
+	tab-size: 2;
+	-moz-tab-size: 2;
+}

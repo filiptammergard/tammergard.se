@@ -1,87 +1,110 @@
 ---
 slug: what-have-i-copied
 title: Vad har jag kopierat?
-description: Läs användarens klippbord i React med navigator.clipboard.readText och visa innehållet med ett enkelt knapptryck.
+description: Läs användarens clipboard i React med navigator.clipboard.readText – och kraven på säker kontext, användarinteraktion och behörighet som följer med.
 authors: [filip]
 tags: [react, javascript]
 ---
 
 import { WhatHaveICopied } from "@site/blog/2020-10-23-what-have-i-copied/WhatHaveICopied"
 
-Klicka på knappen för att se vad du har i klippbordet just nu:
+Har du någonsin kopierat något och direkt glömt vad det var? Klicka på knappen för att se vad du har i din clipboard just nu:
 
 <WhatHaveICopied />
 
 {/* truncate */}
 
-## Hur kunde du veta?!
+## TL;DR
 
-Tack vare _navigator_-API:t. Jag gjorde det i React och TypeScript. Vi börjar med att skriva en funktion som kollar upp vad som finns i klippbordet just nu:
+- [`navigator.clipboard.readText()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText) returnerar ett `Promise<string>` med clipboardens nuvarande text.
+- Funktionen är bara tillgänglig i en [säker kontext](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (HTTPS eller `localhost`), och läsningen måste ske under en [användarinteraktion](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) – därför är den kopplad till ett knappklick i stället för att köras vid sidladdning.
+- Anropet kan kasta fel (nekad behörighet, dokumentet saknar fokus, ingen clipboard tillgänglig …) så det hör alltid hemma i ett `try/catch`.
+
+## Clipboard-API:t
+
+Webbläsaren exponerar användarens clipboard via `navigator.clipboard`. För att läsa det som text anropar vi `readText`, som returnerar ett Promise som löses till det som finns i clipboarden:
 
 ```tsx
-const read = async () => {
+const text = await navigator.clipboard.readText()
+```
+
+Den raden kommer med några begränsningar som är värda att känna till.
+
+### Endast i säker kontext
+
+`navigator.clipboard` är bara definierat i en [säker kontext](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) – HTTPS i produktion och `localhost` under utveckling. På vanlig HTTP är egenskapen `undefined`, så det är bra att feature-detecta med `navigator.clipboard?.readText` innan man försöker använda den.
+
+### Användarinteraktion krävs
+
+Sidor får inte läsa clipboarden i bakgrunden. Läsningen måste ske medan webbläsaren hanterar en [användarinteraktion](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) – ett klick, ett tangenttryck eller liknande. Det är inte bara en rekommendation; annars avvisas promiset av webbläsaren. Första läsningen kan dessutom utlösa en behörighetsfråga, beroende på webbläsare.
+
+Ett knappklick är det enklaste sättet att uppfylla det kravet:
+
+```tsx
+async function read() {
 	try {
 		const value = await navigator.clipboard.readText()
 		setClipboard(value.trim())
 	} catch {
-		setClipboard("Kunde inte visa vad du har kopierat...")
+		setClipboard("Kunde inte visa vad du har kopierat…")
 	}
 }
 ```
 
-<br />
+`trim()` rensar bort mellanslag och radbrytningar i början och slutet, så en kopiering som bara består av till exempel ett mellanslag eller en radbrytning inte renderas som ett osynligt blank.
 
-Vi använder `trim()` för att undvika att till exempel ett ensamt mellanslag visas, eftersom det ändå inte skulle synas. Vi sparar utfallet i _state_ som vi så klart också måste definiera:
+### Varför try/catch är viktigt
 
-```tsx
-const [clipboard, setClipboard] = useState<string>()
-```
+`readText` kan misslyckas av flera skäl, och felet är svårt att förutspå inifrån komponenten:
 
-<br />
+- Användaren nekade (eller saknar) behörighet att läsa clipboarden.
+- Sidan är inte i en säker kontext.
+- Webbläsaren är äldre än API:t.
+- Dokumentet saknar fokus – Firefox är särskilt strikt med det.
 
-Att läsa klippbordet sker via en användarinteraktion (knappklick). Det är det rekommenderade mönstret – webbläsare vill att klippbordsläsningar ska initieras av en explicit handling snarare än köras automatiskt.
+Ett enkelt `catch` räcker – för ett enkelt "visa min clipboard"-UI finns det inget meningsfullt att göra utöver att berätta att det inte gick.
 
-```tsx
-return (
-	<>
-		<button onClick={read}>Visa vad jag kopierat</button>
-		<p>Detta har du kopierat:</p>
-		<p>{clipboard || "Du har inte kopierat något..."}</p>
-	</>
-)
-```
+### Bara text
 
-<br />
+`readText` returnerar bara text. Om clipboarden innehåller en bild eller en fil blir resultatet en tom sträng. För de rikare fallen finns [`navigator.clipboard.read()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/read), som returnerar `ClipboardItem`-objekt med de tillgängliga MIME-typerna.
+
+## Allt tillsammans
 
 Hela React-komponenten ser ut så här:
 
 ```tsx
 import { useState } from "react"
 
-const Clipboard = () => {
+function Clipboard() {
 	const [clipboard, setClipboard] = useState<string>()
 
-	const read = async () => {
+	async function read() {
 		try {
 			const value = await navigator.clipboard.readText()
 			setClipboard(value.trim())
 		} catch {
-			setClipboard("Kunde inte visa vad du har kopierat...")
+			setClipboard("Kunde inte visa vad du har kopierat…")
 		}
 	}
 
 	return (
-		<>
-			<button onClick={read}>Visa vad jag kopierat</button>
-			<p>Detta har du kopierat:</p>
-			<p>{clipboard || "Du har inte kopierat något..."}</p>
-		</>
+		<div>
+			<button type="button" onClick={read}>
+				Visa vad jag kopierat
+			</button>
+			{clipboard !== undefined && (
+				<p>{clipboard || "Du har inte kopierat något…"}</p>
+			)}
+		</div>
 	)
 }
-
-export default Clipboard
 ```
 
-<br />
+Så nästa gång du undrar vad du har i din clipboard men vägrar att testa att klistra in någonstans kan du använda den här sidan i stället!
 
-Så om du någon gång undrar vad du har kopierat men vägrar att testa att klistra in någonstans kan du använda den här sidan i stället!
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText
+- https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
+- https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
+- https://developer.mozilla.org/en-US/docs/Web/Security/User_activation

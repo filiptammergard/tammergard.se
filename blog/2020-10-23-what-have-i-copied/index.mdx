@@ -1,87 +1,110 @@
 ---
 slug: what-have-i-copied
 title: What have I copied?
-description: Read the current clipboard contents in React with the navigator.clipboard API, including error handling for denied permissions.
+description: Read the current clipboard contents in React with navigator.clipboard.readText — and the secure-context, user-activation and permission rules that come with it.
 authors: [filip]
 tags: [react, javascript]
 ---
 
 import { WhatHaveICopied } from "./WhatHaveICopied"
 
-Click the button to see what's currently in your clipboard:
+Have you ever copied something and immediately forgotten what it was? Click the button to see what's currently on your clipboard:
 
 <WhatHaveICopied />
 
 {/* truncate */}
 
-## How could it know?!
+## TL;DR
 
-Thanks to the _navigator_ API. I did it in React and TypeScript. We start by writing a function that checks what's currently in the clipboard:
+- [`navigator.clipboard.readText()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText) returns a `Promise<string>` with the current clipboard text.
+- It is only available in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) (HTTPS or `localhost`), and the read has to happen during a [user activation](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) — that's why it's wired up to a button click rather than running on mount.
+- The call can reject (permission denied, document not focused, no clipboard support, …), so it always belongs in a `try/catch`.
+
+## The Clipboard API
+
+The browser exposes the user's clipboard through `navigator.clipboard`. To read it as text we call `readText`, which returns a Promise that resolves with whatever is on the clipboard:
 
 ```tsx
-const read = async () => {
+const text = await navigator.clipboard.readText()
+```
+
+That one line comes with a few constraints worth knowing about.
+
+### Secure context only
+
+`navigator.clipboard` is only defined in a [secure context](https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts) — that means HTTPS in production and `localhost` during development. On plain HTTP the property is `undefined`, so even feature-detecting with `navigator.clipboard?.readText` is a good idea before reaching for it.
+
+### User activation
+
+Pages aren't allowed to read the clipboard in the background. The read has to happen while the browser is handling a [user activation](https://developer.mozilla.org/en-US/docs/Web/Security/User_activation) — a click, a key press, or a similar gesture. That's not just a recommendation; the browser will reject the promise otherwise. The first read may also trigger a permission prompt, depending on the browser.
+
+A button click is the simplest way to satisfy that requirement:
+
+```tsx
+async function read() {
 	try {
 		const value = await navigator.clipboard.readText()
 		setClipboard(value.trim())
 	} catch {
-		setClipboard("Couldn't show what you copied...")
+		setClipboard("Couldn't show what you copied…")
 	}
 }
 ```
 
-<br />
+`trim()` strips leading and trailing whitespace, so a copy that's just a stray space or newline doesn't render as an invisible blank.
 
-We use `trim()` to avoid showing for example a stray space, since it wouldn't be visible anyway. We save the result in _state_, which we of course also need to define:
+### Why the try/catch matters
 
-```tsx
-const [clipboard, setClipboard] = useState<string>()
-```
+`readText` can reject for several reasons, and the failure is hard to predict from inside the component:
 
-<br />
+- The user denied (or doesn't have) clipboard-read permission.
+- The page isn't a secure context.
+- The browser is older than the API.
+- The document isn't focused — Firefox in particular is strict about this.
 
-Reading the clipboard is tied to a user gesture (the button click). That's the recommended pattern — browsers want clipboard reads to be initiated by an explicit user action rather than running automatically.
+A single `catch` is enough — for a casual "show me my clipboard" UI there's nothing useful to do beyond telling the user it didn't work.
 
-```tsx
-return (
-	<>
-		<button onClick={read}>Show what I copied</button>
-		<p>You have copied:</p>
-		<p>{clipboard || "You haven't copied anything..."}</p>
-	</>
-)
-```
+### Text only
 
-<br />
+`readText` only returns text. If the clipboard holds an image or a file, the result is an empty string. For the richer cases there's [`navigator.clipboard.read()`](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/read), which returns `ClipboardItem`s carrying the available MIME types.
+
+## Putting it together
 
 The full React component looks like this:
 
 ```tsx
 import { useState } from "react"
 
-const Clipboard = () => {
+function Clipboard() {
 	const [clipboard, setClipboard] = useState<string>()
 
-	const read = async () => {
+	async function read() {
 		try {
 			const value = await navigator.clipboard.readText()
 			setClipboard(value.trim())
 		} catch {
-			setClipboard("Couldn't show what you copied...")
+			setClipboard("Couldn't show what you copied…")
 		}
 	}
 
 	return (
-		<>
-			<button onClick={read}>Show what I copied</button>
-			<p>You have copied:</p>
-			<p>{clipboard || "You haven't copied anything..."}</p>
-		</>
+		<div>
+			<button type="button" onClick={read}>
+				Show what I copied
+			</button>
+			{clipboard !== undefined && (
+				<p>{clipboard || "You haven't copied anything…"}</p>
+			)}
+		</div>
 	)
 }
-
-export default Clipboard
 ```
 
-<br />
+So next time you wonder what's on your clipboard but refuse to test by pasting somewhere, you can use this page instead!
 
-So if you ever wonder what you've copied but refuse to test by pasting somewhere, you can use this page instead!
+## References
+
+- https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/readText
+- https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
+- https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
+- https://developer.mozilla.org/en-US/docs/Web/Security/User_activation

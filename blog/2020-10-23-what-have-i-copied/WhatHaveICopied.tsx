@@ -12,7 +12,7 @@ export function WhatHaveICopied() {
 			setClipboard(
 				translate({
 					id: "whatCopied.error",
-					message: "Couldn't show what you copied...",
+					message: "Couldn't show what you copied…",
 				}),
 			)
 		}
@@ -20,19 +20,22 @@ export function WhatHaveICopied() {
 
 	return (
 		<div>
-			<button type="button" onClick={read}>
+			<button
+				type="button"
+				onClick={read}
+				style={{ marginBottom: "1rem" }}
+			>
 				<Translate id="whatCopied.button">Show what I copied</Translate>
 			</button>
-			<p>
-				<Translate id="whatCopied.label">You have copied:</Translate>
-			</p>
-			<p>
-				{clipboard || (
-					<Translate id="whatCopied.empty">
-						You haven't copied anything…
-					</Translate>
-				)}
-			</p>
+			{clipboard !== undefined && (
+				<p>
+					{clipboard || (
+						<Translate id="whatCopied.empty">
+							You haven't copied anything…
+						</Translate>
+					)}
+				</p>
+			)}
 		</div>
 	)
 }

@@ -461,5 +461,17 @@
 	"letterGame.inputLabel": {
 		"message": "Inmatningsfält för bokstavsspel",
 		"description": "ARIA label for the hidden input in the letter game"
+	},
+	"whatCopied.button": {
+		"message": "Visa vad jag kopierat",
+		"description": "Label for the button that reads the clipboard in the what-have-i-copied blog post"
+	},
+	"whatCopied.empty": {
+		"message": "Du har inte kopierat något…",
+		"description": "Fallback shown before the button is clicked in the what-have-i-copied blog post"
+	},
+	"whatCopied.error": {
+		"message": "Kunde inte visa vad du har kopierat…",
+		"description": "Error message shown when navigator.clipboard.readText fails in the what-have-i-copied blog post"
 	}
 }
