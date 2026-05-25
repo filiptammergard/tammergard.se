@@ -1,12 +1,24 @@
 ---
 slug: index-of-biggest-value-in-array
 title: Index av största värdet i en array
-description: Hitta indexet för det största värdet i en array – utan for-loopar – med hjälp av Math.max, spread och indexOf.
+description: Hitta indexet för det största värdet i en JavaScript-array – jämför en for-loop, en reduce-variant och varför Math.max med indexOf oftast är bäst.
 authors: [filip]
 tags: [javascript]
 ---
 
-Låt säga att vi har den här arrayen med årtal:
+Att hitta indexet av det största värdet i en array är en av de där uppgifterna som verkar trivial men har flera olika lösningar – var och en med sina avvägningar kring läsbarhet, prestanda och fallgropar.
+
+## TL;DR
+
+- En for-loop fungerar, men kräver flera muterbara variabler.
+- En [`reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce) kan lösa det på ett enda varv, men är inte särskilt lättläst.
+- I praktiken är `years.indexOf(Math.max(...years))` oftast det bästa valet – lättläst och kompakt, även om datan i praktiken gås igenom tre gånger bakom kulisserna.
+
+{/* truncate */}
+
+## Hitta indexet av det största värdet
+
+I de kommande exemplen utgår jag från den här arrayen med årtal:
 
 ```js
 const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
@@ -14,13 +26,11 @@ const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
 
 Hur gör vi om vi vill få ut indexet av det största värdet i arrayen?
 
-{/* truncate */}
+### Alternativ 1: for-loop (ett dåligt alternativ)
 
-Ett vanligt angreppssätt är att ta till en vanlig for-loop.
+Ett vanligt angreppssätt är att ta till en vanlig for-loop:
 
 ```js
-const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
-
 let max = years[0]
 let maxIndex = 0
 
@@ -34,54 +44,57 @@ for (let i = 1; i < years.length; i++) {
 // maxIndex = 2
 ```
 
-Det funkar, men som vanligt tycker jag att for-loopar är en dålig lösning på det mesta. Lösningen kräver flera föränderliga variabler (`max`, `maxIndex`, `i`) och bara grejen att behöva ha en index-variabel som håller koll på hur många varv i loopen som ska göras känns förlegad.
+Det funkar, men lösningen lutar sig på flera muterbara variabler (`max`, `maxIndex`, `i`) – och `i` finns bara till för att driva loopen, vilket är precis den sortens bokföring som moderna array-metoder låter oss slippa.
 
-Bortsett från for-loopen är väl det naturliga sättet att först få ut max-värdet för att sedan kolla var i arrayen det värdet finns. Så här:
+### Alternativ 2: reduce (ett klurigt alternativ)
+
+For-loopen kan vikas ihop till ett enda [`reduce`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)-anrop som går igenom arrayen ett varv och bär med sig det löpande max-indexet i ackumulatorn:
 
 ```js
-const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
-
-const maxYear = Math.max(...years)
-
-// maxYear = 2005
-
-const maxYearIndex = years.indexOf(maxYear)
+const maxYearIndex = years.reduce(
+	(maxIndex, curr, index) => (curr > years[maxIndex] ? index : maxIndex),
+	0,
+)
 
 // maxYearIndex = 2
 ```
 
-Den här lösningen kräver dock att arrayen `years` loopas igenom två gånger – först när max-värdet ska beräknas och sedan när indexet för max-värdet ska tas fram. Finns det ingen snygg lösning utan onödiga beräkningar?
+Inga muterbara hjälpvariabler längre, och arrayen loopas bara igenom en gång. Nackdelen är att man får läsa callbacken noggrant för att förstå vad som händer – `maxIndex` är ackumulatorn, `curr` och `index` är det nuvarande värdet och dess position, och `years[maxIndex]` är det nuvarande max-värdet.
 
-När jag klurade på ett sätt att ta fram indexet utan mellansteget att beräkna max-värdet kom jag över den här lösningen:
+### Alternativ 3: Math.max + indexOf (det bästa alternativet)
+
+Det mest läsbara sättet är att först ta fram max-värdet med [`Math.max`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max) och sedan slå upp dess position med [`indexOf`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf):
 
 ```js
-const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
-
-const maxYearIndex = years.reduce((maxIndex, curr, index, arr) => {
-	return curr > arr[maxIndex] ? index : maxIndex
-}, 0)
+const maxYearIndex = years.indexOf(Math.max(...years))
 
 // maxYearIndex = 2
 ```
 
-Man kan inte säga att koden blev mer lättläst, men det är förmodligen en av de bästa lösningarna ur prestandasynpunkt. Snygg kod är alltid en avvägning mellan prestanda och lättläslighet – det är sällan motiverat att göra en riktigt långsam och trubbig lösning bara för att den går snabbare att förstå.
+Hela lösningen får plats på en rad och läses nästan som vanlig text: _indexet av max-värdet i years_. Det är lätt att avfärda lösningen bara baserat på antal varv – spread bygger en argumentlista, `Math.max` läser den, och `indexOf` skannar originalarrayen, så datan gås i praktiken igenom tre gånger. Men för arrayer som ändå får plats i minnet är skillnaden försumbar. Både `Math.max` och `indexOf` är inbyggda och körs nativt, medan `reduce`-varianten anropar en JS-callback per element, så den skenbara fördelen "ett varv i stället för tre" ger sällan utslag i praktiken.
 
-Det är inte ofta man får användning av alla fyra argument till callback-funktionen i `reduce` heller. Extra trevligt!
+Det finns en sak att känna till: spread-steget har en hård gräns. För riktigt stora arrayer (i storleksordningen 100 000+ element) kan `...years` spräcka call stack med felet "Maximum call stack size exceeded", eftersom runtimen inte får plats med så många argument på stacken. I det sällsynta fallet är `reduce`-varianten från Alternativ 2 ett säkrare val.
 
-För att göra koden tydligare kan den komplexa biten brytas ut i en egen funktion och på så sätt inte störa så mycket.
+### Bryt ut till en hjälpfunktion
+
+För återanvändning kan enradaren lätt paketeras i en generisk hjälpfunktion:
 
 ```js
-const years = [1941, 1714, 2005, 1998, 1871, 2001, 1700]
-
-const maxYearIndex = getMaxYearIndex(years)
-
-// maxYearIndex = 2
-
-function getMaxYearIndex(array) {
-	return array.reduce((maxIndex, curr, index, arr) => {
-		return curr > arr[maxIndex] ? index : maxIndex
-	}, 0)
+function getMaxIndex(array) {
+	return array.indexOf(Math.max(...array))
 }
+
+const maxYearIndex = getMaxIndex(years)
+
+// maxYearIndex = 2
 ```
 
-Så där ja!
+För en tom array returnerar funktionen `-1` på köpet: `Math.max()` utan argument är `-Infinity`, och `[].indexOf(-Infinity)` är `-1` – ett vettigt "inget index"-värde.
+
+Så där, nu vet du hur man hittar indexet av det största värdet i en array!
+
+## Referenser
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/max
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
