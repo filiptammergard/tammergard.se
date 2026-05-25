@@ -190,6 +190,7 @@ function expandX(sentence) {
 }
 
 function toRobber(sentence) {
+	sentence = expandX(sentence)
 	consonants.split("").forEach((consonant) => {
 		sentence = sentence.replaceAll(consonant, consonant + "o" + consonant)
 		sentence = sentence.replaceAll(
@@ -202,16 +203,12 @@ function toRobber(sentence) {
 
 const sentence = "Xylofoner är fina"
 
-const robberSentence = toRobber(expandX(sentence))
+const robberSentence = toRobber(sentence)
 
 // robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA1V6 />
-
-Now you can follow what the code does by reading it as a sentence:
-
-> We take a sentence, expand each x, and convert the result to robber language.
 
 ### Starting from the sentence to translate
 
@@ -356,7 +353,7 @@ const robberSentence = toRobber(sentence)
 
 At first glance, example 10 looks like a lot of code for a small task. But since each function only has a tiny job, it's easy to give the functions meaningful names, which in turn makes it easier to understand what's happening.
 
-Or we could compact example 10 by folding the x case directly into `consonantToRobber`:
+Or we could compact example 10 by folding the "x" case directly into `consonantToRobber`:
 
 <small>Example 11</small>
 
@@ -395,7 +392,7 @@ const robberSentence = toRobber(sentence)
 
 <RobberLanguageGeneratorA2V5 />
 
-The biggest win with example 11 is honest naming. In example 10, `consonantToRobber` doesn't actually handle x — it's dispatched off to `handleX` — so the function quietly lies about what it does. In example 11, `consonantToRobber` handles every consonant including x. The trade-off with example 11 is that `consonantToRobber` now has two branches inside, so it isn't as strictly single-purpose — but in exchange the abstraction matches its name. As a consequence, example 11 also has fewer functions.
+The biggest win with example 11 is honest naming. In example 10, `consonantToRobber` doesn't actually handle "x" — it's dispatched off to `handleX` — so the function quietly lies about what it does. In example 11, `consonantToRobber` handles every consonant including "x". The trade-off with example 11 is that `consonantToRobber` now has two branches inside, so it isn't as strictly single-purpose — but in exchange the abstraction matches its name. As a consequence, example 11 also has fewer functions.
 
 Looking back, the sentence-first strategy (examples 7–11) reads more naturally because it iterates over the text we're actually translating, not the consonants. The consonant-first strategy (examples 1–6) is faster to dash off but forces mutation on every pass. Writing clean code is always a trade-off.
 
@@ -412,8 +409,6 @@ const robberSentence = sentence
 
 // robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
-
-The character class with the `i` flag matches consonants in either case, and the callback handles uppercase by lowercasing the trailing consonant. The "x" is handled separately (in the first `replaceAll`) because uppercase "X" needs to expand to mixed-case "Ks" — something a single character-class substitution can't produce in one step, which is why the preprocessing step from earlier in the post is still needed.
 
 If you want this in production code without writing it yourself, the [@tammergard/robber](https://www.npmjs.com/package/@tammergard/robber) npm package wraps exactly this logic, and there's a JSON API at [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) — see the follow-up post [An API for robber language](/blog/robber-api) for the details.
 

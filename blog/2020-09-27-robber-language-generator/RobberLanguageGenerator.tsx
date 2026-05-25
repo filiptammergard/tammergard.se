@@ -1,20 +1,32 @@
-import { translate } from "@docusaurus/Translate"
+import Translate, { translate } from "@docusaurus/Translate"
 import { useState } from "react"
 
 const CONSONANTS = "bcdfghjklmnpqrstvwxz"
 
-function Demo({ transform }: { transform: (sentence: string) => string }) {
-	const [translation, setTranslation] = useState("")
+function Demo({
+	transform,
+	defaultText = "Min mening",
+}: {
+	transform: (sentence: string) => string
+	defaultText?: string
+}) {
+	const [text, setText] = useState(defaultText)
+	const translation = transform(text)
 	return (
 		<div style={{ marginBottom: "1rem" }}>
-			<input
-				type="text"
-				placeholder={translate({
-					id: "robberLang.placeholder",
-					message: "Type text to translate…",
-				})}
-				onChange={(e) => setTranslation(transform(e.target.value))}
-			/>
+			<label style={{ display: "block", marginBottom: "0.5rem" }}>
+				<Translate id="robberLang.label">Text to translate</Translate>
+				<input
+					type="text"
+					value={text}
+					placeholder={translate({
+						id: "robberLang.placeholder",
+						message: "Type text to translate…",
+					})}
+					onChange={(e) => setText(e.target.value)}
+					style={{ display: "block", marginTop: "0.25rem" }}
+				/>
+			</label>
 			{translation && <p style={{ marginTop: "1rem" }}>{translation}</p>}
 		</div>
 	)
@@ -160,7 +172,7 @@ function a2v5Transform(sentence: string) {
 }
 
 export function RobberLanguageGeneratorFinished() {
-	return <Demo transform={finishedTransform} />
+	return <Demo transform={finishedTransform} defaultText="Rövarspråket" />
 }
 
 export function RobberLanguageGeneratorA1V1() {
@@ -180,29 +192,29 @@ export function RobberLanguageGeneratorA1V4() {
 }
 
 export function RobberLanguageGeneratorA1V5() {
-	return <Demo transform={v5Transform} />
+	return <Demo transform={v5Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA1V6() {
-	return <Demo transform={v6Transform} />
+	return <Demo transform={v6Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA2V1() {
-	return <Demo transform={a2v1Transform} />
+	return <Demo transform={a2v1Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA2V2() {
-	return <Demo transform={a2v2Transform} />
+	return <Demo transform={a2v2Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA2V3() {
-	return <Demo transform={a2v3Transform} />
+	return <Demo transform={a2v3Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA2V4() {
-	return <Demo transform={a2v4Transform} />
+	return <Demo transform={a2v4Transform} defaultText="Xylofoner är fina" />
 }
 
 export function RobberLanguageGeneratorA2V5() {
-	return <Demo transform={a2v5Transform} />
+	return <Demo transform={a2v5Transform} defaultText="Xylofoner är fina" />
 }

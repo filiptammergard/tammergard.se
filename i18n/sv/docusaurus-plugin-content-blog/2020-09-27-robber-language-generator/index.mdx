@@ -27,7 +27,7 @@ Rövarspråket är ett talbaserat språk där varje konsonant ersätts med konso
 
 ## TL;DR
 
-- Den enkla talregeln (konsonant + o + konsonant) behöver några tillägg för att fungera i skrift – framförallt hantering av x och versaler.
+- Den enkla talregeln (konsonant + "o" + konsonant) behöver några tillägg för att fungera i skrift – framförallt hantering av "x" och versaler.
 - Det här inlägget går igenom två strategier för att bygga en generator i JavaScript: att loopa över konsonanterna, och att loopa över texten som ska översättas.
 - En regex med en callback kan korta ner alltihop till två rader, som visas som det slutgiltiga alternativet.
 
@@ -41,17 +41,17 @@ Testa den färdiga rövarskriftsgeneratorn här:
 
 Den mest grundläggande beskrivningen av rövarspråket skulle kunna vara enligt följande:
 
-> Efter varje konsonant läggs bokstaven o och samma konsonant igen till.
+> Efter varje konsonant läggs bokstaven "o" och samma konsonant igen till.
 
 Ordet "hej" blir alltså "hohejoj" och "rövarspråket" blir "rorövovarorsospoproråkoketot". Denna enkla regel räcker när det gäller talspråk. När det gäller skrift krävs dock några tilläggsregler. Hur fungerar det exempelvis med versaler och gemener i rövarskrift? Utgående från beskrivningen ovan ska samma konsonant skrivas igen. Betyder det att "Hej" blir "HoHejoj"? Jag utgår ifrån att regler kring versaler och gemener ska fungera på samma sätt som svenska språket i övrigt – inga versaler mitt i ord. "Hej" borde alltså bli "Hohejoj".
 
-Talspråk får anses vara rövarspråkets bas. Rövarskrift utgår alltså från att det ska bli rätt när skriften uttalas. Bokstaven x är en konsonant och borde enligt modellen översättas till "xox". Men eftersom x uttalas "ks" funkar det utgående från talspråket bättre om x översätts till "koksos". Ordet "yxa" blir alltså "ykoksosa" snarare än "yxoxa".
+Talspråk får anses vara rövarspråkets bas. Rövarskrift utgår alltså från att det ska bli rätt när skriften uttalas. Bokstaven "x" är en konsonant och borde enligt modellen översättas till "xox". Men eftersom "x" uttalas "ks" funkar det utgående från talspråket bättre om "x" översätts till "koksos". Ordet "yxa" blir alltså "ykoksosa" snarare än "yxoxa".
 
 Reglerna kan nu sammanställas enligt följande:
 
-1. Bokstaven x byts ut till "ks".
-2. Efter varje konsonant läggs bokstaven o och samma konsonant igen till.
-3. Vid versala konsonanter är det bara konsonanten innan o som är versal, den andra är gemen.
+1. Bokstaven "x" byts ut till "ks".
+2. Efter varje konsonant läggs bokstaven "o" och samma konsonant igen till.
+3. Vid versala konsonanter är det bara konsonanten innan "o" som är versal, den andra är gemen.
 
 Ordningen spelar roll: att köra regel 1 först låter konsonantregeln behandla alla konsonanter likadant efteråt, istället för att huvudloopen ska behöva bära med sig ett specialfall. Den här förbehandlingsmodellen är vad de flesta funktionsbaserade exempel nedan utgår från – exempel 10 visar inline-alternativet.
 
@@ -59,7 +59,7 @@ Ordningen spelar roll: att köra regel 1 först låter konsonantregeln behandla 
 
 Låt oss fundera kring hur en rövarskriftsgenerator skulle kunna byggas i JavaScript. Först och främst kan vi påminna oss om den enkla regeln för rövarspråket i tal:
 
-> Efter varje konsonant läggs bokstaven o och samma konsonant igen till.
+> Efter varje konsonant läggs bokstaven "o" och samma konsonant igen till.
 
 ### Utgå från konsonanterna
 
@@ -99,7 +99,7 @@ consonants.split("").forEach((consonant) => {
 
 <RobberLanguageGeneratorA1V2 />
 
-Jo visst, då hanteras versalerna också. Men det känns inte särskilt snyggt att behöva ange alla konsonanter två gånger. Att ordet "Min" blir "MoMinon" strider också mot regel 3 som säger att versaler bara ska förekomma för konsonanten före o:et i en översättning. Hur kan vi förbättra generatorns kod? I JavaScript finns de inbyggda funktionerna `toUpperCase()` och `toLowerCase()` som kan användas på strängar. Med hjälp av dessa kan problemet lösas på många olika sätt – exempelvis så här:
+Jo visst, då hanteras versalerna också. Men det känns inte särskilt snyggt att behöva ange alla konsonanter två gånger. Att ordet "Min" blir "MoMinon" strider också mot regel 3 som säger att versaler bara ska förekomma för konsonanten före "o" i en översättning. Hur kan vi förbättra generatorns kod? I JavaScript finns de inbyggda funktionerna `toUpperCase()` och `toLowerCase()` som kan användas på strängar. Med hjälp av dessa kan problemet lösas på många olika sätt – exempelvis så här:
 
 <small>Exempel 3</small>
 
@@ -145,7 +145,7 @@ allConsonants.split("").forEach((consonant) => {
 
 Av exempel 3 och 4 tycker jag att 3 är snyggast eftersom det är lättare att förstå vad den gör vid en snabb anblick – och exempel 4 är i praktiken samma lösning som exempel 2, fast krångligare. Jag utgår därför från exempel 3 i nästa exempel.
 
-Men hur ska vi hantera regel 1? Regeln säger att bokstaven x ska bytas ut till "ks". Enklast är att helt enkelt göra det bytet innan resten av översättningen görs:
+Men hur ska vi hantera regel 1? Regeln säger att bokstaven "x" ska bytas ut till "ks". Enklast är att helt enkelt göra det bytet innan resten av översättningen görs:
 
 <small>Exempel 5</small>
 
@@ -168,9 +168,9 @@ consonants.split("").forEach((consonant) => {
 
 <RobberLanguageGeneratorA1V5 />
 
-Observera att det inte räcker med att bara byta x mot "ks", versala X behöver också bytas ut, vilket blir till "Ks" för att reglerna ska stämma.
+Observera att det inte räcker med att bara byta "x" mot "ks", versala "X" behöver också bytas ut, vilket blir till "Ks" för att reglerna ska stämma.
 
-Nu följs alla tre regler och generatorn funkar som den ska. Men det finns mycket kvar att önska av koden i sig. Eftersom den inte innehåller några egna funktioner med deskriptiva namn måste man själv lista ut vad koden åstadkommer rad för rad. Att bryta ut saker i egna funktioner gör koden längre men lättare att förstå – och att lyfta ut x-förbehandlingen i en egen funktion låter huvudsteget fokusera på en sak i taget:
+Nu följs alla tre regler och generatorn funkar som den ska. Men det finns mycket kvar att önska av koden i sig. Eftersom den inte innehåller några egna funktioner med deskriptiva namn måste man själv lista ut vad koden åstadkommer rad för rad. Att bryta ut saker i egna funktioner gör koden längre men lättare att förstå – och att lyfta ut förbehandlingen av "x" i en egen funktion låter huvudsteget fokusera på en sak i taget:
 
 <small>Exempel 6</small>
 
@@ -182,6 +182,7 @@ function expandX(sentence) {
 }
 
 function toRobber(sentence) {
+	sentence = expandX(sentence)
 	consonants.split("").forEach((consonant) => {
 		sentence = sentence.replaceAll(consonant, consonant + "o" + consonant)
 		sentence = sentence.replaceAll(
@@ -194,16 +195,12 @@ function toRobber(sentence) {
 
 const sentence = "Xylofoner är fina"
 
-const robberSentence = toRobber(expandX(sentence))
+const robberSentence = toRobber(sentence)
 
 // robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
 
 <RobberLanguageGeneratorA1V6 />
-
-Nu går det att följa vad koden gör genom att läsa den som en mening:
-
-> Vi tar en mening, expanderar varje x och konverterar resultatet till rövarspråk.
 
 ### Utgå från meningen som ska översättas
 
@@ -296,7 +293,7 @@ const robberSentence = toRobber(sentence)
 
 <RobberLanguageGeneratorA2V3 />
 
-Eller så hoppar vi över förbehandlingssteget helt. Istället för att byta ut x mot "ks" innan huvudloopen kan vi behålla x i konsonantlistan och låta loopen hantera det via en specialfunktion:
+Eller så hoppar vi över förbehandlingssteget helt. Istället för att byta ut "x" mot "ks" innan huvudloopen kan vi behålla "x" i konsonantlistan och låta loopen hantera det via en specialfunktion:
 
 <small>Exempel 10</small>
 
@@ -348,7 +345,7 @@ const robberSentence = toRobber(sentence)
 
 Vid en första anblick ser exempel 10 ut som mycket kod för en liten uppgift. Men eftersom varje funktion bara har en liten uppgift är det enkelt att ge funktionerna meningsfulla namn, vilket i sin tur leder till att det blir enklare att förstå vad som händer.
 
-Eller så kompakterar vi exempel 10 genom att fälla in x-fallet direkt i `consonantToRobber`:
+Eller så kompakterar vi exempel 10 genom att fälla in fallet för "x" direkt i `consonantToRobber`:
 
 <small>Exempel 11</small>
 
@@ -387,7 +384,7 @@ const robberSentence = toRobber(sentence)
 
 <RobberLanguageGeneratorA2V5 />
 
-Den största vinsten med exempel 11 är ärlig namngivning. I exempel 10 hanterar `consonantToRobber` faktiskt inte x – det dispatchas till `handleX` – så funktionen ljuger tyst om vad den gör. I exempel 11 hanterar `consonantToRobber` alla konsonanter inklusive x. Avvägningen med exempel 11 är att `consonantToRobber` nu har två grenar inuti, så den är inte lika strikt single-purpose – men i utbyte matchar abstraktionen sitt namn. Som följd har exempel 11 också färre funktioner.
+Den största vinsten med exempel 11 är ärlig namngivning. I exempel 10 hanterar `consonantToRobber` faktiskt inte "x" – det dispatchas till `handleX` – så funktionen ljuger tyst om vad den gör. I exempel 11 hanterar `consonantToRobber` alla konsonanter inklusive "x". Avvägningen med exempel 11 är att `consonantToRobber` nu har två grenar inuti, så den är inte lika strikt single-purpose – men i utbyte matchar abstraktionen sitt namn. Som följd har exempel 11 också färre funktioner.
 
 Sammantaget läser sentence-first-strategin (exempel 7–11) mer naturligt eftersom den itererar över texten vi faktiskt vill översätta, inte konsonanterna. Consonant-first-strategin (exempel 1–6) är snabbare att slänga ihop men tvingar in mutation i varje varv. När det kommer till att skriva snygg kod handlar det till slut alltid om avvägningar.
 
@@ -404,8 +401,6 @@ const robberSentence = sentence
 
 // robberSentence = "Koksosylolofofononeror äror fofinona"
 ```
-
-Teckenklassen med flaggan `i` matchar konsonanter i både versal och gemen form, och callback-funktionen hanterar versaler genom att göra den efterföljande konsonanten gemen. x hanteras separat (i det första `replaceAll`-anropet) eftersom versalt X ska expandera till blandad-case "Ks" – något en enkel teckenklass-ersättning inte kan producera i ett steg, vilket är varför förbehandlingssteget från tidigare i posten fortfarande behövs.
 
 Om du vill ha det här i produktionskod utan att skriva det själv så finns logiken paketerad som [@tammergard/robber](https://www.npmjs.com/package/@tammergard/robber) på npm, och det finns ett JSON-API på [rovarspraket.tammergard.se](https://rovarspraket.tammergard.se) – se uppföljningsinlägget [Ett API för rövarspråket](/blog/robber-api) för detaljerna.
 
