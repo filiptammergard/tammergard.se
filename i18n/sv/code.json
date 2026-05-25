@@ -361,5 +361,85 @@
 	"theme.tags.tagsPageTitle": {
 		"message": "Taggar",
 		"description": "The title of the tag list page"
+	},
+	"birthdayMaths.startDate": {
+		"message": "Välj startdatum",
+		"description": "Label for the start date picker in the birthday maths blog post"
+	},
+	"birthdayMaths.endDate": {
+		"message": "Välj slutdatum",
+		"description": "Label for the end date picker in the birthday maths blog post"
+	},
+	"birthdayMaths.today": {
+		"message": "I dag",
+		"description": "Label for the 'today' button in the birthday maths blog post"
+	},
+	"birthdayMaths.startDateHelp": {
+		"message": "Till exempel din födelsedag",
+		"description": "Help text under the start date picker in the birthday maths blog post"
+	},
+	"birthdayMaths.endDateHelp": {
+		"message": "Till exempel dagens datum",
+		"description": "Help text under the end date picker in the birthday maths blog post"
+	},
+	"birthdayMaths.includeTime": {
+		"message": "Ange även klockslag",
+		"description": "Label for the include-time checkbox in the birthday maths blog post"
+	},
+	"birthdayMaths.years": {
+		"message": "År",
+		"description": "Label for the years result in the birthday maths blog post"
+	},
+	"birthdayMaths.months": {
+		"message": "Månader",
+		"description": "Label for the months result in the birthday maths blog post"
+	},
+	"birthdayMaths.weeks": {
+		"message": "Veckor",
+		"description": "Label for the weeks result in the birthday maths blog post"
+	},
+	"birthdayMaths.days": {
+		"message": "Dagar",
+		"description": "Label for the days result in the birthday maths blog post"
+	},
+	"birthdayMaths.hours": {
+		"message": "Timmar",
+		"description": "Label for the hours result in the birthday maths blog post"
+	},
+	"birthdayMaths.minutes": {
+		"message": "Minuter",
+		"description": "Label for the minutes result in the birthday maths blog post"
+	},
+	"birthdayMaths.seconds": {
+		"message": "Sekunder",
+		"description": "Label for the seconds result in the birthday maths blog post"
+	},
+	"birthdayMaths.milliseconds": {
+		"message": "Millisekunder",
+		"description": "Label for the milliseconds result in the birthday maths blog post"
+	},
+	"calendarMaths.label": {
+		"message": "År",
+		"description": "Label for the year input in the calendar maths blog post"
+	},
+	"calendarMaths.placeholder": {
+		"message": "Ange ett år…",
+		"description": "Placeholder for the year input in the calendar maths blog post"
+	},
+	"calendarMaths.resultLeap": {
+		"message": "År {year} har {weeks} veckor och är ett skottår.",
+		"description": "Result text for a leap year in the calendar maths blog post"
+	},
+	"calendarMaths.resultNonLeap": {
+		"message": "År {year} har {weeks} veckor och är inte ett skottår.",
+		"description": "Result text for a non-leap year in the calendar maths blog post"
+	},
+	"robberLang.label": {
+		"message": "Text att översätta",
+		"description": "Label for the text input in the robber language generator blog post"
+	},
+	"robberLang.placeholder": {
+		"message": "Skriv text att översätta…",
+		"description": "Placeholder for the text input in the robber language generator blog post"
 	}
 }
