@@ -24,7 +24,7 @@ export function DiscoGenerator() {
 	)
 
 	const isRunning = frequency >= 1
-	const transitionDuration = 1 / frequency / 2
+	const transitionDuration = isRunning ? 1 / frequency / 2 : 0
 
 	useInterval(
 		() => setColors(buildInitialColors(rows * columns)),
@@ -32,13 +32,13 @@ export function DiscoGenerator() {
 	)
 
 	function handleRowsChange(e: ChangeEvent<HTMLInputElement>) {
-		const newRows = Number(e.target.value)
+		const newRows = Math.min(Number(e.target.value), 20)
 		setRows(newRows)
 		setColors(buildInitialColors(newRows * columns))
 	}
 
 	function handleColumnsChange(e: ChangeEvent<HTMLInputElement>) {
-		const newColumns = Number(e.target.value)
+		const newColumns = Math.min(Number(e.target.value), 20)
 		setColumns(newColumns)
 		setColors(buildInitialColors(rows * newColumns))
 	}

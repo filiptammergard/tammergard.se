@@ -13,6 +13,7 @@ import { Counter } from "@site/blog/2020-10-24-custom-hook-useinterval/Counter"
 ## TL;DR
 
 - [`useEffect`](https://react.dev/reference/react/useEffect) startar intervallet och returnerar en cleanup som anropar [`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval) – ingen manuell unmount-hantering.
+- Den senaste callbacken hålls i en [`ref`](https://react.dev/reference/react/useRef), så intervallet fortsätter ticka i jämn takt även när komponenten renderar om av orelaterade skäl.
 - Att skicka in `null` som delay pausar intervallet, så det går att härleda "körs nu" direkt från props eller state utan en separat flagga.
 - När delay ändras startas intervallet om automatiskt, så ett dynamiskt värde "bara funkar".
 
@@ -25,18 +26,26 @@ Testa att ändra delay nedan – under 50 ms pausas räknaren, och när värdet 
 ## Hooken
 
 ```ts
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 export const useInterval = (callback: () => void, delay: number | null) => {
+	const savedCallback = useRef(callback)
+
+	useEffect(() => {
+		savedCallback.current = callback
+	}, [callback])
+
 	useEffect(() => {
 		if (delay === null) return
-		const id = setInterval(callback, delay)
+		const id = setInterval(() => savedCallback.current(), delay)
 		return () => clearInterval(id)
-	}, [callback, delay])
+	}, [delay])
 }
 ```
 
-Allt ligger i en enda effekt. Så länge `delay` är ett tal är ett intervall igång; när det blir `null` hoppar effekten över setupen och cleanupen från förra renderingen river ner timern. När `callback` eller `delay` ändras kör React cleanupen från föregående rendering och startar ett nytt intervall – det är därför ett dynamiskt delay-värde inte behöver någon specialhantering.
+Det är två effekter. Den första ser till att `savedCallback` pekar på den senaste `callback` vid varje rendering. Den andra äger timern: så länge `delay` är ett tal är ett intervall igång, och när det blir `null` hoppar effekten över setupen och cleanupen från förra renderingen river ner timern.
+
+Att dela upp det så här spelar roll eftersom intervallet bara beror på `delay`. En naiv variant med `[callback, delay]` skulle riva ner och återskapa timern vid _varje_ rendering, eftersom callbacken oftast är en ny arrow-funktion varje gång – så en komponent som renderar om snabbare än sitt delay (säg ett fält som triggar vid varje tangenttryck) skulle kunna nollställa timern om och om igen och svälta ut den. Att läsa callbacken via en ref i stället innebär att intervallet skapas en gång per `delay` och alltid anropar den senaste versionen. Det här är mönstret från [Dan Abramovs "Making setInterval Declarative with React Hooks"](https://overreacted.io/making-setinterval-declarative-with-react-hooks/). Ett dynamiskt delay behöver fortfarande ingen specialhantering – när det ändras körs cleanupen och ett nytt intervall startar.
 
 ## Att använda hooken
 

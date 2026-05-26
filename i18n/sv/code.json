@@ -1,4 +1,20 @@
 {
+	"disco.rows": {
+		"message": "Rader",
+		"description": "Label for the rows input in the disco generator"
+	},
+	"disco.columns": {
+		"message": "Kolumner",
+		"description": "Label for the columns input in the disco generator"
+	},
+	"disco.frequency": {
+		"message": "Frekvens",
+		"description": "Label for the frequency input in the disco generator"
+	},
+	"disco.height": {
+		"message": "Radhöjd",
+		"description": "Label for the row height input in the disco generator"
+	},
 	"h1h2.h1Sample": {
 		"message": "Jag är en h1-rubrik",
 		"description": "Sample h1 heading in the h1-class-h2 blog post"

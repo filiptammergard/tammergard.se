@@ -13,6 +13,7 @@ import { Counter } from "./Counter"
 ## TL;DR
 
 - [`useEffect`](https://react.dev/reference/react/useEffect) starts the interval and returns a cleanup that calls [`clearInterval`](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval) — no manual unmount handling.
+- The latest callback is kept in a [`ref`](https://react.dev/reference/react/useRef), so the interval keeps ticking at a steady rate even when the component re-renders for unrelated reasons.
 - Passing `null` as the delay pauses the interval, so you can derive "running" straight from props or state instead of tracking it separately.
 - Changing the delay restarts the interval automatically, so a dynamic value "just works".
 
@@ -25,18 +26,26 @@ Try changing the delay below — under 50 ms the counter pauses, and raising it 
 ## The hook
 
 ```ts
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 
 export const useInterval = (callback: () => void, delay: number | null) => {
+	const savedCallback = useRef(callback)
+
+	useEffect(() => {
+		savedCallback.current = callback
+	}, [callback])
+
 	useEffect(() => {
 		if (delay === null) return
-		const id = setInterval(callback, delay)
+		const id = setInterval(() => savedCallback.current(), delay)
 		return () => clearInterval(id)
-	}, [callback, delay])
+	}, [delay])
 }
 ```
 
-The whole thing is one effect. While `delay` is a number, an interval is running; when it becomes `null`, the early return skips the setup and the previous cleanup tears the timer down. Whenever `callback` or `delay` change, React runs the cleanup from the previous render and starts a fresh interval — that's why a dynamic delay needs no special handling.
+There are two effects. The first keeps `savedCallback` pointing at the latest `callback` on every render. The second owns the timer: while `delay` is a number an interval is running, and when it becomes `null`, the early return skips the setup and the previous cleanup tears the timer down.
+
+Splitting it this way matters because the interval only depends on `delay`. A naive version with `[callback, delay]` would tear the timer down and recreate it on _every_ render, since the callback is usually a fresh arrow function each time — so a component that re-renders faster than the delay (say, an input firing on each keystroke) could keep resetting the timer and starve it. Reading the callback through a ref instead means the interval is created once per `delay` and always calls the most recent version. This is the pattern from [Dan Abramov's "Making setInterval Declarative with React Hooks"](https://overreacted.io/making-setinterval-declarative-with-react-hooks/). A dynamic delay still needs no special handling — changing it runs the cleanup and starts a fresh interval.
 
 ## Using the hook
 

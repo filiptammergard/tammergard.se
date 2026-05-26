@@ -8,17 +8,86 @@ tags: [react]
 
 import { DiscoGenerator } from "./DiscoGenerator"
 
-It's Friday disco time! Try changing some of the values below and see what happens with the disco lights.
+It's Friday disco time!
+
+## TL;DR
+
+- A grid of cells each get a random `rgb(...)` color, and the [`useInterval`](/blog/custom-hook-useinterval) custom hook reassigns every color on each beat.
+- The frequency in hertz maps to the interval delay as `1000 / frequency`; dropping below 1 Hz passes `null` and pauses the disco.
+- The [CSS grid](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout) layout and each cell's color are set with inline styles, which suit values that change on every render better than CSS classes.
 
 {/* truncate */}
 
-<DiscoGenerator />
+Try changing some of the values below and see what happens with the disco lights:
 
-You can have ridiculously much fun with this.
+<DiscoGenerator />
 
 ## Building a disco generator
 
-This disco generator is built with React and TypeScript. To make the time intervals for the lights work, it uses the `useInterval` custom hook. A walkthrough of how `useInterval` works can be found [here](/blog/custom-hook-useinterval).
+This disco generator is built with React and TypeScript. The lights are driven by the [`useInterval` custom hook](/blog/custom-hook-useinterval), which gets its own walkthrough.
+
+### Random colors
+
+Each cell needs its own color:
+
+```tsx
+function randomColor() {
+	const red = Math.floor(Math.random() * 256)
+	const green = Math.floor(Math.random() * 256)
+	const blue = Math.floor(Math.random() * 256)
+	return `rgb(${red}, ${green}, ${blue})`
+}
+
+function buildInitialColors(count: number) {
+	return Array.from({ length: count }, randomColor)
+}
+```
+
+`randomColor` picks three channel values between 0 and 255 and assembles an `rgb(...)` string. `buildInitialColors` calls it once per cell, so a grid of `rows * columns` cells gets that many random colors.
+
+### Flashing on every beat
+
+The lights change on a timer driven by the `useInterval` hook:
+
+```tsx
+const isRunning = frequency >= 1
+const transitionDuration = 1 / frequency / 2
+
+useInterval(
+	() => setColors(buildInitialColors(rows * columns)),
+	isRunning ? 1000 / frequency : null,
+)
+```
+
+The frequency is in beats per second (Hz), so the interval delay is `1000 / frequency` milliseconds. Every beat rebuilds all the colors at once. Passing `null` when the frequency drops below 1 pauses the disco — `useInterval` tears the timer down on its own. `transitionDuration` is half a beat, so each color fades in fully before the next one replaces it.
+
+### Laying out the grid
+
+The cells live in a CSS grid, with both the layout and the colors set inline:
+
+```tsx
+<section
+	style={{
+		display: "grid",
+		gridTemplateColumns: `repeat(${columns}, 1fr)`,
+		gridTemplateRows: `repeat(${rows}, ${height}px)`,
+	}}
+>
+	{Array.from({ length: rows * columns }).map((_, index) => (
+		<div
+			key={index}
+			style={{
+				backgroundColor: colors[index],
+				transition: `background-color ${transitionDuration}s linear`,
+			}}
+		/>
+	))}
+</section>
+```
+
+The grid's columns, rows and row height are computed from state, and each cell's background color and transition are updated on every tick. Inline styles are well suited for values that change frequently (like color) because they don't require recomputing CSS classes on every change.
+
+## Putting it together
 
 Here's the full code:
 
@@ -45,7 +114,7 @@ export const DiscoGenerator = () => {
 	const [colors, setColors] = useState(buildInitialColors(rows * columns))
 
 	const isRunning = frequency >= 1
-	const transitionDuration = 1 / frequency / 2
+	const transitionDuration = isRunning ? 1 / frequency / 2 : 0
 
 	useInterval(
 		() => setColors(buildInitialColors(rows * columns)),
@@ -77,10 +146,10 @@ export const DiscoGenerator = () => {
 }
 ```
 
-<br />
-
-The grid and color updates are driven directly by inline styles tied to React state. The grid's columns, rows and row height are computed from state, and each cell's background color and transition is updated on every tick of `useInterval`.
-
-Inline styles are well suited for values that change frequently (like color) because they don't require recomputing CSS classes on every change.
-
 There are a lot of possibilities here. I'll explore more in upcoming posts!
+
+## References
+
+- https://react.dev/reference/react/useState
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+- https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout
