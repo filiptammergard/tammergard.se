@@ -45,11 +45,11 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tammergard/prettier-config':
-        specifier: ^3.0.1
-        version: 3.0.1(prettier@3.8.3)
+        specifier: ^3.0.2
+        version: 3.0.2(prettier@3.8.3)
       '@tammergard/tsconfig':
-        specifier: ^3.0.1
-        version: 3.0.1(typescript@6.0.3)
+        specifier: ^3.0.2
+        version: 3.0.2(typescript@6.0.3)
       '@types/react':
         specifier: ^19.2.15
         version: 19.2.15
@@ -1595,15 +1595,13 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@tammergard/prettier-config@3.0.1':
-    resolution: {integrity: sha512-NmVgPQJgZE3Zf4GQ/fPKAi3jCEET10MMKfKBasRfnT/V4bxlu2kHzh8oFwP/7M/0d1udWfKFyRWs3kq9jUZcfw==}
-    engines: {node: '>=24'}
+  '@tammergard/prettier-config@3.0.2':
+    resolution: {integrity: sha512-TAAYGSfsf0YLKDhb4VuczP2VQJ0BbNCE1Swbgrci8rso/sucLFsguiwC+O+37V1Y7LZuKZRlIxL3Cg8DaeJc/A==}
     peerDependencies:
       prettier: '>=3.0.0'
 
-  '@tammergard/tsconfig@3.0.1':
-    resolution: {integrity: sha512-RiLRg/PqVHg2h6Vwc0FQCoPUNzYpd4xxMPvOMyYsO7gmPmlS/jTYGxbDbUPiJVHMbnYLm/PzfO74QGxWJDOgVg==}
-    engines: {node: '>=24'}
+  '@tammergard/tsconfig@3.0.2':
+    resolution: {integrity: sha512-bsuEvQdDqikQXFDI8sss2jtJcVOU4UIkTSGSWMFEI2nhutsOW78Mw5fXciblM0G4zzSpCzF8Y5BAsaO6njwLpA==}
     peerDependencies:
       typescript: '>=6'
 
@@ -7721,11 +7719,11 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tammergard/prettier-config@3.0.1(prettier@3.8.3)':
+  '@tammergard/prettier-config@3.0.2(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 
-  '@tammergard/tsconfig@3.0.1(typescript@6.0.3)':
+  '@tammergard/tsconfig@3.0.2(typescript@6.0.3)':
     dependencies:
       typescript: 6.0.3
 

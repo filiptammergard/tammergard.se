@@ -1,4 +1,5 @@
-.claude
-.docusaurus
-build
-node_modules
+.claude/
+.docusaurus/
+build/
+node_modules/
+pnpm-debug.log*

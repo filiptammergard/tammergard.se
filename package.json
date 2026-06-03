@@ -1,6 +1,5 @@
 {
 	"name": "tammergard.se",
-	"version": "0.0.0",
 	"private": true,
 	"description": "Filip Tammergård's personal website",
 	"homepage": "https://tammergard.se",
@@ -46,14 +45,14 @@
 		"@docusaurus/module-type-aliases": "^3.10.1",
 		"@docusaurus/tsconfig": "^3.10.1",
 		"@docusaurus/types": "^3.10.1",
-		"@tammergard/prettier-config": "^3.0.1",
-		"@tammergard/tsconfig": "^3.0.1",
+		"@tammergard/prettier-config": "^3.0.2",
+		"@tammergard/tsconfig": "^3.0.2",
 		"@types/react": "^19.2.15",
 		"@types/react-dom": "^19.2.3",
 		"prettier": "^3.8.3",
 		"typescript": "^6.0.3"
 	},
-	"packageManager": "pnpm@11.2.2",
+	"packageManager": "pnpm@11.5.1",
 	"engines": {
 		"node": ">=24"
 	}
