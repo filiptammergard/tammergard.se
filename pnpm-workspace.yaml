@@ -2,8 +2,7 @@ allowBuilds:
   core-js: true
 
 minimumReleaseAgeExclude:
-  - "@tammergard/prettier-config@3.0.2"
-  - "@tammergard/tsconfig@3.0.2"
+  - "@tammergard/*"
 
 overrides:
   "serialize-javascript@<=7.0.2": ">=7.0.3"
