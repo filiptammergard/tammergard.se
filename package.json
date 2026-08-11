@@ -6,10 +6,6 @@
 	"bugs": {
 		"url": "https://github.com/filiptammergard/tammergard.se/issues"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/filiptammergard/tammergard.se.git"
-	},
 	"author": {
 		"name": "Filip Tammergård",
 		"email": "filip+npm@tammergard.se",
@@ -53,7 +49,11 @@
 		"typescript": "^6.0.3"
 	},
 	"packageManager": "pnpm@11.21.0",
-	"engines": {
-		"node": ">=24"
+	"devEngines": {
+		"runtime": {
+			"name": "node",
+			"version": ">=24",
+			"onFail": "error"
+		}
 	}
 }
