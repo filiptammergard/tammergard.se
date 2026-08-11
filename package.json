@@ -33,23 +33,23 @@
 		"write-translations": "docusaurus write-translations"
 	},
 	"dependencies": {
-		"@docusaurus/core": "^3.10.1",
-		"@docusaurus/preset-classic": "^3.10.1",
-		"@docusaurus/theme-live-codeblock": "^3.10.1",
+		"@docusaurus/core": "^3.10.2",
+		"@docusaurus/preset-classic": "^3.10.2",
+		"@docusaurus/theme-live-codeblock": "^3.10.2",
 		"@mdx-js/react": "^3.1.1",
 		"prism-react-renderer": "^2.4.1",
-		"react": "^19.2.7",
-		"react-dom": "^19.2.7"
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8"
 	},
 	"devDependencies": {
-		"@docusaurus/module-type-aliases": "^3.10.1",
-		"@docusaurus/tsconfig": "^3.10.1",
-		"@docusaurus/types": "^3.10.1",
+		"@docusaurus/module-type-aliases": "^3.10.2",
+		"@docusaurus/tsconfig": "^3.10.2",
+		"@docusaurus/types": "^3.10.2",
 		"@tammergard/prettier-config": "^3.0.2",
 		"@tammergard/tsconfig": "^3.0.2",
-		"@types/react": "^19.2.17",
-		"@types/react-dom": "^19.2.3",
-		"prettier": "^3.8.4",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.4",
+		"prettier": "^3.9.6",
 		"typescript": "^6.0.3"
 	},
 	"packageManager": "pnpm@11.21.0",
