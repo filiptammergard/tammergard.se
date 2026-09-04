@@ -5,7 +5,6 @@ minimumReleaseAgeExclude:
   - "@tammergard/*"
 
 overrides:
-  "fast-uri@<3.1.7": "^3.1.7"
   # body-parser/express deklarerar ~6.15.1, som inte når fixen i 6.16.0.
   # GHSA-x5fp-wj9c-mxmx (array-limit bypass).
   "qs@>=6.0.0 <6.16.0": "^6.16.0"
