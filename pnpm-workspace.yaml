@@ -10,3 +10,13 @@ overrides:
   "qs@>=6.0.0 <6.16.0": "^6.16.0"
   "serialize-javascript@>=5.0.0 <7.0.5": ">=7.0.5"
   "uuid@<11.1.1": ">=11.1.1"
+  # @docusaurus/core deklarerar tinypool ^1.0.2 (även i senaste 3.10.2), och
+  # 1.x får ingen fix för GHSA-5gmw-xhrv-c9v3 / GHSA-85c8-ppgw-ccpr (fix i
+  # 2.1.2). Docusaurus laddar den med import() och alla options den skickar
+  # finns kvar i 2.x. Kan tas bort när @docusaurus/core går till tinypool ^2.
+  "tinypool@<2.1.2": "^2.1.2"
+  # cssnano 6-pluginsen (via @docusaurus/cssnano-preset) deklarerar
+  # postcss-selector-parser ^6, och 6.x får ingen fix för GHSA-rj75-hqrm-r3gf
+  # (fix i 7.1.6). Verifierat med byte-identisk build-output. Kan tas bort när
+  # Docusaurus går till cssnano 7.
+  "postcss-selector-parser@<7.1.6": "^7.1.6"
