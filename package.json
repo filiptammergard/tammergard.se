@@ -34,8 +34,8 @@
 		"@docusaurus/theme-live-codeblock": "^3.10.2",
 		"@mdx-js/react": "^3.1.1",
 		"prism-react-renderer": "^2.4.1",
-		"react": "^19.2.8",
-		"react-dom": "^19.2.8"
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1"
 	},
 	"devDependencies": {
 		"@docusaurus/module-type-aliases": "^3.10.2",
@@ -43,9 +43,9 @@
 		"@docusaurus/types": "^3.10.2",
 		"@tammergard/prettier-config": "^3.0.2",
 		"@tammergard/tsconfig": "^3.0.2",
-		"@types/react": "^19.2.18",
-		"@types/react-dom": "^19.2.4",
-		"prettier": "^3.9.6",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"prettier": "^3.9.10",
 		"typescript": "^6.0.3"
 	},
 	"packageManager": "pnpm@12.14.0+sha512.c18ba6d87993d3d164cb5e8948f32b2c06ee854487e06cd8d86781342fb3e5bb4634367034711e86802baa9c37bea906ce1929ad08d70884c97d801df13389a6",
